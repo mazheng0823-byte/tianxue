@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>词汇生涯报告 - 家长端</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#4F6EF7;--primary-light:#EEF1FE;--danger:#E95B5B;--danger-light:#FEF0F0;
+  --success:#34C759;--success-light:#EDFBF2;--warning:#F5A623;--warning-light:#FFF8EC;
+  --purple:#7C5CFC;--text:#1A1A2E;--text-secondary:#6B7280;--text-tertiary:#9CA3AF;
+  --bg:#F5F6FA;--card:#FFFFFF;--border:#E5E7EB;--radius:14px;--radius-sm:10px;
+  --shadow:0 2px 12px rgba(0,0,0,0.06);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue",sans-serif;background:#1A1A2E;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
+.device{width:390px;height:844px;border-radius:44px;overflow:hidden;background:var(--bg);position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.status-bar{height:54px;background:#fff;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;font-size:14px;font-weight:600}
+.status-bar .time{font-size:15px}
+.status-bar .icons{display:flex;gap:6px;align-items:center}
+.status-bar .icons span{font-size:12px}
+.top-bar{background:#fff;padding:0 16px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.top-bar .back{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.top-bar .back svg{width:20px;height:20px;color:var(--text)}
+.top-bar .title{font-size:17px;font-weight:600;color:var(--text)}
+.top-bar .share{width:32px;height:32px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.top-bar .share svg{width:18px;height:18px;color:var(--text-secondary)}
+.content{height:calc(844px - 54px - 53px);overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;padding:16px;padding-bottom:24px}
+.content::-webkit-scrollbar{display:none}
+
+/* Date search bar */
+.date-search{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:10px 14px;background:var(--card);border-radius:var(--radius-sm);box-shadow:var(--shadow);cursor:pointer}
+.date-search .ds-icon{width:28px;height:28px;border-radius:8px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.date-search .ds-icon svg{width:16px;height:16px;color:var(--primary)}
+.date-search .ds-text{flex:1;display:flex;flex-direction:column}
+.date-search .ds-range{font-size:13px;font-weight:600;color:var(--text)}
+.date-search .ds-hint{font-size:10px;color:var(--text-tertiary);margin-top:1px}
+.date-search .ds-arrow{color:var(--text-tertiary)}
+
+/* Card */
+.card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h4{font-size:15px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h4 .badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
+.card h4 .badge.up{background:var(--success-light);color:var(--success)}
+.card h4 .badge.warn{background:var(--danger-light);color:var(--danger)}
+.card h4 .more{margin-left:auto;font-size:12px;color:var(--text-tertiary);font-weight:400;cursor:pointer}
+
+/* Three-dimension practice */
+.mastery-rule{display:flex;align-items:flex-start;gap:6px;padding:10px 12px;background:var(--primary-light);border-radius:8px;font-size:11px;color:var(--text-secondary);line-height:1.5;margin-bottom:14px}
+.mastery-rule svg{flex-shrink:0;color:var(--primary);margin-top:1px}
+.h4-tip{position:relative;display:inline-flex;align-items:center}
+.tip-icon{width:18px;height:18px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s}
+.tip-icon:active{background:var(--border)}
+.tip-icon svg{width:14px;height:14px;color:var(--text-tertiary)}
+.tip-bubble{position:absolute;top:26px;left:50%;transform:translateX(-50%) scale(0.9);opacity:0;pointer-events:none;background:#1A1A2E;color:#fff;font-size:11px;font-weight:400;line-height:1.5;padding:10px 12px;border-radius:8px;width:220px;z-index:100;box-shadow:0 6px 20px rgba(0,0,0,0.2);transition:all 0.2s ease}
+.tip-bubble::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid #1A1A2E}
+.tip-bubble.show{opacity:1;transform:translateX(-50%) scale(1);pointer-events:auto}
+.tri-chart{height:130px;position:relative}
+.tri-chart svg{width:100%;height:100%}
+.tri-foot{display:flex;justify-content:space-between;font-size:10px;color:var(--text-tertiary);margin-top:6px;padding:0 4px}
+.tri-foot span{display:flex;flex-direction:column;align-items:center;gap:1px}
+.tri-foot .tf-date{font-size:8px;color:var(--text-tertiary);opacity:0.7}
+.tri-legend{display:flex;gap:10px;margin-top:8px;font-size:10px;color:var(--text-secondary);flex-wrap:wrap}
+.tri-legend .tl-item{display:flex;align-items:center;gap:4px}
+.tri-legend .tl-dot{width:8px;height:8px;border-radius:2px}
+.five-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.fg-item{padding:10px 8px;background:var(--bg);border-radius:var(--radius-sm);text-align:center}
+.fg-item.highlight{background:var(--success-light);border:1px solid rgba(52,199,89,0.2)}
+.fg-dot{width:6px;height:6px;border-radius:50%;margin:0 auto 4px}
+.fg-label{font-size:10px;color:var(--text-tertiary);margin-bottom:2px}
+.fg-val{font-size:17px;font-weight:700;color:var(--text);line-height:1.2}
+.fg-item.highlight .fg-val{color:var(--success)}
+.fg-sub{margin-top:4px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.fg-cur{font-size:9px;color:var(--primary)}
+.fg-ext{font-size:9px;color:var(--purple)}
+
+
+/* Badge showcase */
+.badge-showcase{display:flex;gap:12px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px}
+.badge-showcase::-webkit-scrollbar{display:none}
+.badge-item{flex-shrink:0;text-align:center;width:70px}
+.badge-medal{width:56px;height:56px;margin:0 auto 6px;border-radius:50%;position:relative;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.badge-medal svg{width:100%;height:100%}
+.badge-medal.gold{box-shadow:0 4px 14px rgba(245,166,35,0.35)}
+.badge-medal.purple{box-shadow:0 4px 14px rgba(124,92,252,0.35)}
+.badge-medal.blue{box-shadow:0 4px 14px rgba(79,110,247,0.35)}
+.badge-medal.green{box-shadow:0 4px 14px rgba(52,199,89,0.35)}
+.badge-name{font-size:10px;font-weight:600;color:var(--text);line-height:1.3}
+.badge-date{font-size:9px;color:var(--text-tertiary);margin-top:1px}
+.next-badge{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg);border-radius:var(--radius-sm);cursor:pointer;transition:background 0.2s}
+.next-badge:active{background:var(--border)}
+.nb-left{display:flex;align-items:center;gap:10px}
+.nb-medal{width:36px;height:36px;flex-shrink:0}
+.nb-medal svg{width:100%;height:100%}
+.nb-info .nb-name{font-size:12px;font-weight:600;color:var(--text)}
+.nb-info .nb-desc{font-size:10px;color:var(--text-tertiary);margin-top:2px}
+
+/* Peer comparison */
+.peer-wrap{display:flex;align-items:center;gap:14px}
+.peer-bar{flex:1;position:relative;height:36px;background:linear-gradient(90deg,#E5E7EB 0%,var(--bg) 100%);border-radius:18px;overflow:visible}
+.peer-bar .pb-fill{height:100%;border-radius:18px;background:linear-gradient(90deg,#4F6EF7,#7C5CFC);position:relative}
+.peer-bar .pb-marker{position:absolute;right:-6px;top:-4px;width:20px;height:44px;border-radius:10px;background:var(--primary);border:3px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(79,110,247,0.3)}
+.peer-bar .pb-marker svg{width:12px;height:12px;color:#fff}
+.peer-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--text-tertiary)}
+.peer-stat{text-align:center;flex-shrink:0}
+.peer-stat .ps-v{font-size:24px;font-weight:800;color:var(--primary)}
+.peer-stat .ps-l{font-size:10px;color:var(--text-tertiary);margin-top:2px}
+
+/* Topic mastery */
+.tp-legend{display:flex;gap:10px;margin-bottom:12px;font-size:10px;color:var(--text-tertiary)}
+.tp-lg{display:flex;align-items:center;gap:4px}
+.tp-ld{width:8px;height:8px;border-radius:2px}
+.tp-list{display:flex;flex-direction:column;gap:10px}
+.tp-row{display:flex;align-items:center;gap:8px}
+.tp-info{display:flex;align-items:center;gap:5px;width:72px;flex-shrink:0}
+.tp-icon{font-size:14px}
+.tp-name{font-size:11px;font-weight:500;color:var(--text)}
+.tp-bar{flex:1;height:14px;background:var(--bg);border-radius:7px;overflow:hidden;display:flex}
+.tp-seg{height:100%}
+.tp-pct{width:32px;text-align:right;font-size:11px;font-weight:600;flex-shrink:0}
+.tp-more{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:4px;padding:10px;background:var(--bg);border-radius:var(--radius-sm);font-size:12px;color:var(--primary);font-weight:500;cursor:pointer;transition:background 0.2s}
+.tp-more:active{background:var(--border)}
+
+/* Practice recommendation */
+.practice-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.practice-card h4{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.practice-card h4 .ai-badge{background:linear-gradient(135deg,#4F6EF7,#7C5CFC);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
+.practice-card .pc-sub{font-size:11px;color:var(--text-tertiary);margin-bottom:14px}
+pc-list{display:flex;flex-direction:column;gap:10px}
+.pc-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--bg);border-radius:var(--radius-sm);cursor:pointer;transition:background 0.2s}
+.pc-item:active{background:var(--border)}
+.pc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pc-icon svg{width:20px;height:20px;color:#fff}
+.pc-icon.read-icon{background:linear-gradient(135deg,#4F6EF7,#60A5FA)}
+.pc-icon.dict-icon{background:linear-gradient(135deg,#F5A623,#FBBF24)}
+.pc-icon.apply-icon{background:linear-gradient(135deg,#7C5CFC,#A78BFA)}
+.pc-body{flex:1;min-width:0}
+.pc-body .pc-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.pc-body .pc-desc{font-size:11px;color:var(--text-secondary);line-height:1.4}
+.pc-count{font-size:14px;font-weight:700;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
+.pc-count .pcv{line-height:1}
+.pc-count .pcl{font-size:9px;font-weight:400;color:var(--text-tertiary);margin-top:2px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeUp 0.4s ease both}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(0,0,0,0.8);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="device">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons"><span>5G</span>
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1A1A2E"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#1A1A2E"/><rect x="9" y="0" width="3" height="12" rx="1" fill="#1A1A2E"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" fill="#1A1A2E" opacity="0.3"/></svg>
+      <svg width="22" height="12" viewBox="0 0 22 12"><rect x="0.5" y="0.5" width="19" height="11" rx="2" stroke="#1A1A2E" fill="none"/><rect x="20" y="3.5" width="2" height="5" rx="1" fill="#1A1A2E"/><rect x="2" y="2" width="14" height="8" rx="1" fill="#34C759"/></svg>
+    </div>
+  </div>
+
+  <div class="top-bar">
+    <div class="back" onclick="history.back()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <span class="title">词汇生涯报告</span>
+    <div class="share" onclick="showToast('已生成分享长图')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
+  </div>
+
+  <div class="content">
+    <!-- Date search bar -->
+    <div class="date-search animate-in" onclick="showToast('日期选择器已打开')">
+      <div class="ds-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="ds-text">
+        <div class="ds-range">2022.09.01 - 2025.05.20</div>
+        <div class="ds-hint">点击选择时间范围查看对应数据</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ds-arrow"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+
+    <!-- Vocabulary Mastery Overview -->
+    <div class="card animate-in" style="animation-delay:0.04s">
+      <h4>词汇掌握情况
+        <div class="h4-tip">
+          <div class="tip-icon" onclick="toggleTip(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="tip-bubble">掌握判定：同一单词 <b>跟读 + 听默写 + 运用</b> 三项均通过才计入「已掌握」</div>
+        </div>
+      </h4>
+      <!-- Five dimension stats (compact grid) -->
+      <div class="five-grid">
+        <div class="fg-item">
+          <div class="fg-dot" style="background:#9CA3AF"></div>
+          <div class="fg-label">接触</div>
+          <div class="fg-val">2860</div>
+          <div class="fg-sub"><span class="fg-cur">课标2440</span><span class="fg-ext">非课标420</span></div>
+        </div>
+        <div class="fg-item">
+          <div class="fg-dot" style="background:#4F6EF7"></div>
+          <div class="fg-label">跟读</div>
+          <div class="fg-val">2680</div>
+          <div class="fg-sub"><span class="fg-cur">课标2320</span><span class="fg-ext">非课标360</span></div>
+        </div>
+        <div class="fg-item">
+          <div class="fg-dot" style="background:#F5A623"></div>
+          <div class="fg-label">听默写</div>
+          <div class="fg-val">2340</div>
+          <div class="fg-sub"><span class="fg-cur">课标2050</span><span class="fg-ext">非课标290</span></div>
+        </div>
+        <div class="fg-item">
+          <div class="fg-dot" style="background:#7C5CFC"></div>
+          <div class="fg-label">运用</div>
+          <div class="fg-val">2120</div>
+          <div class="fg-sub"><span class="fg-cur">课标1860</span><span class="fg-ext">非课标260</span></div>
+        </div>
+        <div class="fg-item highlight">
+          <div class="fg-dot" style="background:#34C759"></div>
+          <div class="fg-label">掌握</div>
+          <div class="fg-val">1860</div>
+          <div class="fg-sub"><span class="fg-cur">课标1674</span><span class="fg-ext">非课标186</span></div>
+        </div>
+      </div>
+      <!-- Trend chart: 5 lines -->
+      <div class="tri-chart" id="triChart"></div>
+      <div class="tri-foot">
+        <span>第1周<i class="tf-date">1.6-1.12</i></span>
+        <span>第4周<i class="tf-date">1.27-2.2</i></span>
+        <span>第8周<i class="tf-date">2.24-3.2</i></span>
+        <span>第12周<i class="tf-date">3.24-3.30</i></span>
+        <span>第16周<i class="tf-date">4.21-4.27</i></span>
+        <span>第20周<i class="tf-date">5.19-5.25</i></span>
+      </div>
+      <div class="tri-legend">
+        <div class="tl-item"><span class="tl-dot" style="background:#9CA3AF"></span>接触</div>
+        <div class="tl-item"><span class="tl-dot" style="background:#4F6EF7"></span>跟读</div>
+        <div class="tl-item"><span class="tl-dot" style="background:#F5A623"></span>听默写</div>
+        <div class="tl-item"><span class="tl-dot" style="background:#7C5CFC"></span>运用</div>
+        <div class="tl-item"><span class="tl-dot" style="background:#34C759"></span>掌握</div>
+      </div>
+    </div>
+
+    <!-- Badge Showcase (勋章展示) -->
+    <div class="card animate-in" style="animation-delay:0.18s">
+      <h4>勋章墙 <span class="badge up">已获得 18枚</span> <span class="more" onclick="location.href='parent-app-vocab-badges.html'">查看全部 &#9654;</span></h4>
+      <div class="badge-showcase">
+        <div class="badge-item">
+          <div class="badge-medal gold">
+            <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#goldGrad)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="18">&#127942;</text></svg>
+          </div>
+          <div class="badge-name">两千词大关</div>
+          <div class="badge-date">2024.08</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-medal purple">
+            <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#purpleGrad)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="18">&#9889;</text></svg>
+          </div>
+          <div class="badge-name">持之以恒</div>
+          <div class="badge-date">2025.05</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-medal blue">
+            <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#blueGrad)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="18">&#9989;</text></svg>
+          </div>
+          <div class="badge-name">中考全达标</div>
+          <div class="badge-date">2024.06</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-medal green">
+            <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#greenGrad)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="35" text-anchor="middle" font-size="18">&#127941;</text></svg>
+          </div>
+          <div class="badge-name">扎实功底</div>
+          <div class="badge-date">2025.02</div>
+        </div>
+      </div>
+      <!-- Next badge preview -->
+      <div class="next-badge" onclick="location.href='parent-app-vocab-badges.html'">
+        <div class="nb-left">
+          <div class="nb-medal locked-medal">
+            <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#E5E7EB"/><text x="20" y="25" text-anchor="middle" font-size="13" opacity="0.5">&#128142;</text></svg>
+          </div>
+          <div class="nb-info">
+            <div class="nb-name">下一个：三千词宗师</div>
+            <div class="nb-desc">再掌握 140 词即可解锁</div>
+          </div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+    <!-- SVG Gradients (hidden) -->
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F5A623"/><stop offset="100%" stop-color="#F7C948"/></linearGradient>
+        <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7C5CFC"/><stop offset="100%" stop-color="#A78BFA"/></linearGradient>
+        <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4F6EF7"/><stop offset="100%" stop-color="#60A5FA"/></linearGradient>
+        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34C759"/><stop offset="100%" stop-color="#6EE7B7"/></linearGradient>
+      </defs>
+    </svg>
+
+    <!-- Peer Comparison -->
+    <div class="card animate-in" style="animation-delay:0.22s">
+      <h4>同龄对比</h4>
+      <div class="peer-wrap">
+        <div class="peer-stat"><div class="ps-v">前22%</div><div class="ps-l">超越同龄</div></div>
+        <div style="flex:1">
+          <div class="peer-bar">
+            <div class="pb-fill" style="width:78%">
+              <div class="pb-marker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></div>
+            </div>
+          </div>
+          <div class="peer-labels"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <div style="flex:1;padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+          <div style="font-size:14px;font-weight:700;color:var(--text)">2860词</div>
+          <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">小明</div>
+        </div>
+        <div style="flex:1;padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+          <div style="font-size:14px;font-weight:700;color:var(--text-tertiary)">2180词</div>
+          <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">省内平均</div>
+        </div>
+        <div style="flex:1;padding:10px;background:var(--bg);border-radius:8px;text-align:center">
+          <div style="font-size:14px;font-weight:700;color:var(--primary)">+680</div>
+          <div style="font-size:10px;color:var(--text-tertiary);margin-top:2px">领先</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Topic Mastery (首页精选) -->
+    <div class="card animate-in" style="animation-delay:0.22s">
+      <h4>课标词掌握情况
+        <div class="h4-tip">
+          <div class="tip-icon" onclick="toggleTip(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></div>
+          <div class="tip-bubble">每个话题按课标词汇归类。一个单词的 <b>跟读、听默写、运用</b> 三项练习中，完成了几项就归入对应分段。例如某词同时通过了跟读和听默写（但未过运用），则计入「已练2项」。</div>
+        </div>
+        <span class="more" onclick="openTopics()">查看全部 &#9654;</span>
+      </h4>
+      <!-- Legend for segmented bars -->
+      <div class="tp-legend">
+        <div class="tp-lg"><span class="tp-ld" style="background:#34C759"></span>掌握(3项全过)</div>
+        <div class="tp-lg"><span class="tp-ld" style="background:#F5A623"></span>已练2项</div>
+        <div class="tp-lg"><span class="tp-ld" style="background:#4F6EF7"></span>已练1项</div>
+        <div class="tp-lg"><span class="tp-ld" style="background:#E5E7EB"></span>未练习</div>
+      </div>
+      <div class="tp-list">
+        <div class="tp-row">
+          <div class="tp-info">
+            <span class="tp-icon">&#128172;</span>
+            <span class="tp-name">日常交际</span>
+          </div>
+          <div class="tp-bar">
+            <div class="tp-seg" style="width:82%;background:#34C759"></div>
+            <div class="tp-seg" style="width:10%;background:#F5A623"></div>
+            <div class="tp-seg" style="width:5%;background:#4F6EF7"></div>
+          </div>
+          <span class="tp-pct" style="color:var(--success)">92%</span>
+        </div>
+        <div class="tp-row">
+          <div class="tp-info">
+            <span class="tp-icon">&#128214;</span>
+            <span class="tp-name">文化教育</span>
+          </div>
+          <div class="tp-bar">
+            <div class="tp-seg" style="width:76%;background:#34C759"></div>
+            <div class="tp-seg" style="width:12%;background:#F5A623"></div>
+            <div class="tp-seg" style="width:6%;background:#4F6EF7"></div>
+          </div>
+          <span class="tp-pct" style="color:var(--success)">88%</span>
+        </div>
+        <div class="tp-row">
+          <div class="tp-info">
+            <span class="tp-icon">&#127758;</span>
+            <span class="tp-name">社会热点</span>
+          </div>
+          <div class="tp-bar">
+            <div class="tp-seg" style="width:52%;background:#34C759"></div>
+            <div class="tp-seg" style="width:16%;background:#F5A623"></div>
+            <div class="tp-seg" style="width:8%;background:#4F6EF7"></div>
+          </div>
+          <span class="tp-pct" style="color:var(--warning)">76%</span>
+        </div>
+        <div class="tp-row">
+          <div class="tp-info">
+            <span class="tp-icon">&#128188;</span>
+            <span class="tp-name">职业经济</span>
+          </div>
+          <div class="tp-bar">
+            <div class="tp-seg" style="width:48%;background:#34C759"></div>
+            <div class="tp-seg" style="width:14%;background:#F5A623"></div>
+            <div class="tp-seg" style="width:10%;background:#4F6EF7"></div>
+          </div>
+          <span class="tp-pct" style="color:var(--warning)">72%</span>
+        </div>
+      </div>
+      <!-- View more entry -->
+      <div class="tp-more" onclick="openTopics()">
+        <span>查看全部 12 个课标话题</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Practice Recommendations -->
+    <div class="practice-card animate-in" style="animation-delay:0.3s">
+      <h4>待练习词汇 <span class="ai-badge">AI 推荐</span></h4>
+      <div class="pc-sub">以下单词已接触但尚未三维全部通过，点击开始练习</div>
+      <div class="pc-list">
+        <div class="pc-item" onclick="showToast('跳转跟读练习')">
+          <div class="pc-icon read-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+          </div>
+          <div class="pc-body">
+            <div class="pc-title">跟读练习</div>
+            <div class="pc-desc">跟读未通过的单词，含 abandon, abstract, accompany 等</div>
+          </div>
+          <div class="pc-count" style="color:var(--primary)"><span class="pcv">180</span><span class="pcl">词待练</span></div>
+        </div>
+        <div class="pc-item" onclick="showToast('跳转听默写练习')">
+          <div class="pc-icon dict-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
+          <div class="pc-body">
+            <div class="pc-title">听默写练习</div>
+            <div class="pc-desc">听默写未通过的单词，含 adequate, atmosphere, benefit 等</div>
+          </div>
+          <div class="pc-count" style="color:var(--warning)"><span class="pcv">520</span><span class="pcl">词待练</span></div>
+        </div>
+        <div class="pc-item" onclick="showToast('跳转运用练习')">
+          <div class="pc-icon apply-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <div class="pc-body">
+            <div class="pc-title">运用练习</div>
+            <div class="pc-desc">语境填词/词性变化未通过，含 capacity, challenge, conflict 等</div>
+          </div>
+          <div class="pc-count" style="color:var(--purple)"><span class="pcv">740</span><span class="pcl">词待练</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// Five-line vocab mastery trend chart
+function drawTriChart(){
+  const c=document.getElementById('triChart');
+  const w=c.offsetWidth, h=c.offsetHeight;
+  const pad={t:10,r:10,b:10,l:32};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+  // Data: 6 semesters (初二上 to 高二上)
+  const contact=[920,1180,1480,1800,2400,2860]; // 接触
+  const read=[820,1080,1420,1780,2200,2680];    // 跟读
+  const dict=[680,920,1240,1580,1920,2340];     // 听默写
+  const apply=[520,740,1020,1380,1720,2120];    // 运用
+  const mastered=[420,620,880,1200,1540,1860];  // 掌握
+  const maxV=3200;
+
+  let html=`<svg viewBox="0 0 ${w} ${h}">`;
+  for(let i=0;i<=4;i++){
+    const y=pad.t+(ch/4)*i;
+    const val=maxV-((maxV/4)*i);
+    html+=`<line x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}" stroke="#E5E7EB" stroke-width="0.5" stroke-dasharray="3,3"/>`;
+    html+=`<text x="${pad.l-4}" y="${y+3}" font-size="7" fill="#9CA3AF" text-anchor="end">${val}</text>`;
+  }
+
+  function drawLine(data,color,width,dashed){
+    let d='';
+    data.forEach((v,i)=>{
+      const x=pad.l+(cw/(data.length-1))*i;
+      const y=pad.t+ch-(v/maxV)*ch;
+      d+=(i===0?'M':'L')+`${x},${y} `;
+    });
+    const dash=dashed?'stroke-dasharray="4,3"':'';
+    html+=`<path d="${d}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" ${dash}/>`;
+  }
+
+  // Fill area for mastered
+  let area=`M${pad.l},${pad.t+ch} `;
+  mastered.forEach((v,i)=>{area+=`L${pad.l+(cw/(mastered.length-1))*i},${pad.t+ch-(v/maxV)*ch} `;});
+  area+=`L${pad.l+(cw/(mastered.length-1))*(mastered.length-1)},${pad.t+ch} Z`;
+  html+=`<path d="${area}" fill="rgba(52,199,89,0.08)"/>`;
+
+  drawLine(contact,'#9CA3AF',1.5,true);
+  drawLine(read,'#4F6EF7',2,false);
+  drawLine(dict,'#F5A623',2,false);
+  drawLine(apply,'#7C5CFC',2,false);
+  drawLine(mastered,'#34C759',2.5,false);
+
+  // End dots
+  const datasets=[{d:contact,c:'#9CA3AF'},{d:read,c:'#4F6EF7'},{d:dict,c:'#F5A623'},{d:apply,c:'#7C5CFC'},{d:mastered,c:'#34C759'}];
+  datasets.forEach(({d,c})=>{
+    const i=d.length-1;
+    const x=pad.l+(cw/(d.length-1))*i;
+    const y=pad.t+ch-(d[i]/maxV)*ch;
+    html+=`<circle cx="${x}" cy="${y}" r="3" fill="${c}" stroke="#fff" stroke-width="1.5"/>`;
+  });
+
+  html+='</svg>';
+  c.innerHTML=html;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function toggleTip(el){
+  const bubble=el.nextElementSibling;
+  const isShow=bubble.classList.contains('show');
+  document.querySelectorAll('.tip-bubble.show').forEach(b=>b.classList.remove('show'));
+  if(!isShow) bubble.classList.add('show');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.h4-tip')) document.querySelectorAll('.tip-bubble.show').forEach(b=>b.classList.remove('show'));
+});
+
+function openTopics(){
+  const base=window.location.href.substring(0,window.location.href.lastIndexOf('/')+1);
+  window.location.href=base+'parent-app-vocab-topics.html';
+}
+
+drawTriChart();
+</script>
+</body>
+</html>
