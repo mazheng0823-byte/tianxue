@@ -26,8 +26,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC"
 .top-bar .placeholder{width:32px}
 .content{height:calc(844px - 54px - 53px);overflow-y:auto;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;padding:16px;padding-bottom:24px}
 .content::-webkit-scrollbar{display:none}
-
-/* Summary header */
 .summary-hero{background:linear-gradient(135deg,#4F6EF7 0%,#7C5CFC 100%);border-radius:var(--radius);padding:20px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
 .summary-hero::before{content:'';position:absolute;top:-30px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.08)}
 .summary-hero::after{content:'';position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05)}
@@ -36,387 +34,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC"
 .summary-hero .sh-label{font-size:13px;color:rgba(255,255,255,0.85);margin-top:4px;position:relative;z-index:1}
 .summary-hero .sh-bar{margin-top:14px;height:6px;background:rgba(255,255,255,0.2);border-radius:3px;overflow:hidden;position:relative;z-index:1}
 .summary-hero .sh-fill{height:100%;background:#fff;border-radius:3px;transition:width 0.8s}
-
-/* Category filter tabs */
-.cat-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;flex-wrap:wrap}
-.cat-tabs::-webkit-scrollbar{display:none}
-.cat-tab{padding:6px 12px;border-radius:16px;font-size:11px;font-weight:500;color:var(--text-secondary);background:var(--card);box-shadow:var(--shadow);cursor:pointer;transition:all 0.2s;flex-shrink:0}
-.cat-tab.active{background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(79,110,247,0.3)}
-
-/* Badge section */
-.badge-section{margin-bottom:20px}
-.badge-section-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.badge-section-title .bst-count{font-size:10px;padding:2px 8px;border-radius:8px;background:var(--primary-light);color:var(--primary);font-weight:600}
-
-/* Badge grid */
-.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.badge-card{background:var(--card);border-radius:var(--radius-sm);padding:14px 8px;text-align:center;box-shadow:var(--shadow);position:relative;cursor:pointer;transition:all 0.2s}
-.badge-card:active{transform:scale(0.96)}
-.badge-card.unlocked{border:1.5px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,rgba(79,110,247,0.3),rgba(124,92,252,0.3)) border-box}
-.badge-card.locked{opacity:0.6}
-.badge-card .bc-medal{width:52px;height:52px;margin:0 auto 8px;position:relative}
-.badge-card .bc-medal svg{width:100%;height:100%}
-.badge-card.locked .bc-medal{filter:grayscale(1);opacity:0.6}
-.badge-card .bc-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3}
-.badge-card .bc-date{font-size:9px;color:var(--primary);font-weight:500}
-.badge-card.locked .bc-date{color:var(--text-tertiary)}
-.badge-card .bc-share{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
-.badge-card.unlocked .bc-share{opacity:1}
-.badge-card .bc-share svg{width:11px;height:11px;color:var(--text-tertiary)}
-
-/* Badge detail modal */
-.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:none;align-items:center;justify-content:center;padding:30px}
-.modal-overlay.show{display:flex}
-.modal{background:var(--card);border-radius:20px;padding:28px 20px;width:100%;max-width:320px;text-align:center;position:relative;animation:modalPop 0.3s ease}
-@keyframes modalPop{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-.modal .m-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer}
-.modal .m-close svg{width:14px;height:14px;color:var(--text-secondary)}
-.modal .m-medal{width:80px;height:80px;margin:0 auto 12px}
-.modal .m-medal svg{width:100%;height:100%}
-.modal .m-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}
-.modal .m-cat{font-size:11px;color:var(--text-tertiary);margin-bottom:12px}
-.modal .m-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;padding:0 10px}
-.modal .m-how{font-size:11px;color:var(--text-tertiary);background:var(--bg);padding:10px 14px;border-radius:8px;margin-bottom:16px;line-height:1.5}
-.modal .m-how b{color:var(--text-secondary)}
-.modal .m-date{font-size:12px;color:var(--success);font-weight:600;margin-bottom:16px}
-.modal .m-date.locked{color:var(--text-tertiary)}
-.modal .m-share{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:linear-gradient(135deg,#4F6EF7,#7C5CFC);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(79,110,247,0.3)}
-.modal .m-share svg{width:14px;height:14px}
-.modal .m-share.disabled{background:#E5E7EB;color:var(--text-tertiary);box-shadow:none;cursor:default}
-.modal .m-progress{margin-top:12px;font-size:11px;color:var(--text-tertiary)}
-.modal .m-prog-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}
-.modal .m-prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4F6EF7,#7C5CFC)}
-
-.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(0,0,0,0.8);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:999}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.animate-in{animation:fadeUp 0.4s ease both}
+.badge-section{margin-bottom:20px}.badge-section-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}.badge-section-title .bst-count{font-size:10px;padding:2px 8px;border-radius:8px;background:var(--primary-light);color:var(--primary);font-weight:600}.badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.badge-card{background:var(--card);border-radius:var(--radius-sm);padding:14px 8px;text-align:center;box-shadow:var(--shadow);position:relative;cursor:pointer;transition:all 0.2s}.badge-card:active{transform:scale(0.96)}.badge-card.unlocked{border:1.5px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(135deg,rgba(79,110,247,0.3),rgba(124,92,252,0.3)) border-box}.badge-card.locked{opacity:0.6}.badge-card .bc-medal{width:52px;height:52px;margin:0 auto 8px;position:relative}.badge-card .bc-medal svg{width:100%;height:100%}.badge-card.locked .bc-medal{filter:grayscale(1);opacity:0.6}.badge-card .bc-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3}.badge-card .bc-date{font-size:9px;color:var(--primary);font-weight:500}.badge-card.locked .bc-date{color:var(--text-tertiary)}.badge-card .bc-share{position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}.badge-card.unlocked .bc-share{opacity:1}.badge-card .bc-share svg{width:11px;height:11px;color:var(--text-tertiary)}
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:none;align-items:center;justify-content:center;padding:30px}.modal-overlay.show{display:flex}.modal{background:var(--card);border-radius:20px;padding:28px 20px;width:100%;max-width:320px;text-align:center;position:relative;animation:modalPop 0.3s ease}@keyframes modalPop{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}.modal .m-close{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer}.modal .m-close svg{width:14px;height:14px;color:var(--text-secondary)}.modal .m-medal{width:80px;height:80px;margin:0 auto 12px}.modal .m-medal svg{width:100%;height:100%}.modal .m-name{font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px}.modal .m-cat{font-size:11px;color:var(--text-tertiary);margin-bottom:12px}.modal .m-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;padding:0 10px}.modal .m-how{font-size:11px;color:var(--text-tertiary);background:var(--bg);padding:10px 14px;border-radius:8px;margin-bottom:16px;line-height:1.5}.modal .m-how b{color:var(--text-secondary)}.modal .m-date{font-size:12px;color:var(--success);font-weight:600;margin-bottom:16px}.modal .m-date.locked{color:var(--text-tertiary)}.modal .m-share{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;background:linear-gradient(135deg,#4F6EF7,#7C5CFC);color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(79,110,247,0.3)}.modal .m-share svg{width:14px;height:14px}.modal .m-share.disabled{background:#E5E7EB;color:var(--text-tertiary);box-shadow:none;cursor:default}.modal .m-progress{margin-top:12px;font-size:11px;color:var(--text-tertiary)}.modal .m-prog-bar{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:6px}.modal .m-prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4F6EF7,#7C5CFC)}
+.share-sheet-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end}.share-sheet-overlay.show{display:flex}.share-sheet{width:100%;background:var(--card);border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));animation:sheetUp 0.3s cubic-bezier(0.4,0,0.2,1)}@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}.share-sheet .ss-title{font-size:14px;font-weight:600;color:var(--text);text-align:center;margin-bottom:4px}.share-sheet .ss-sub{font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:20px}.share-sheet .ss-options{display:flex;justify-content:center;gap:36px;margin-bottom:18px}.ss-opt{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer}.ss-opt:active{opacity:0.7}.ss-icon{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center}.ss-icon svg{width:30px;height:30px;color:#fff}.ss-icon.wechat{background:#07C160}.ss-icon.moments{background:#07C160}.ss-opt .ss-label{font-size:12px;color:var(--text-secondary)}.share-sheet .ss-cancel{width:100%;padding:13px;background:var(--bg);border:none;border-radius:12px;font-size:14px;font-weight:500;color:var(--text-secondary);cursor:pointer}.share-sheet .ss-cancel:active{background:var(--border)}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);background:rgba(0,0,0,0.8);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:999}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}.animate-in{animation:fadeUp 0.4s ease both}
 </style>
 </head>
 <body>
-<div class="device">
-  <div class="status-bar">
-    <span class="time">9:41</span>
-    <div class="icons"><span>5G</span>
-      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1" fill="#1A1A2E"/><rect x="4.5" y="2" width="3" height="10" rx="1" fill="#1A1A2E"/><rect x="9" y="0" width="3" height="12" rx="1" fill="#1A1A2E"/><rect x="13.5" y="0" width="2.5" height="12" rx="1" fill="#1A1A2E" opacity="0.3"/></svg>
-      <svg width="22" height="12" viewBox="0 0 22 12"><rect x="0.5" y="0.5" width="19" height="11" rx="2" stroke="#1A1A2E" fill="none"/><rect x="20" y="3.5" width="2" height="5" rx="1" fill="#1A1A2E"/><rect x="2" y="2" width="14" height="8" rx="1" fill="#34C759"/></svg>
-    </div>
-  </div>
-
-  <div class="top-bar">
-    <div class="back" onclick="history.back()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
-    <span class="title">勋章馆</span>
-    <div class="placeholder"></div>
-  </div>
-
-  <div class="content">
-    <!-- Summary -->
-    <div class="summary-hero animate-in">
-      <div class="sh-count">18 <span>/ 32</span></div>
-      <div class="sh-label">已收集勋章</div>
-      <div class="sh-bar"><div class="sh-fill" style="width:56%"></div></div>
-    </div>
-
-    <!-- Category tabs -->
-    <div class="cat-tabs animate-in" style="animation-delay:0.04s">
-      <div class="cat-tab active" onclick="filterCat(this,'all')">全部</div>
-      <div class="cat-tab" onclick="filterCat(this,'vocab')">词汇积累</div>
-      <div class="cat-tab" onclick="filterCat(this,'streak')">坚持打卡</div>
-      <div class="cat-tab" onclick="filterCat(this,'mastery')">掌握率</div>
-      <div class="cat-tab" onclick="filterCat(this,'exam')">考试达标</div>
-      <div class="cat-tab" onclick="filterCat(this,'form')">变形达人</div>
-      <div class="cat-tab" onclick="filterCat(this,'topic')">话题精通</div>
-      <div class="cat-tab" onclick="filterCat(this,'speed')">学习效率</div>
-    </div>
-
-    <!-- Unlocked badges -->
-    <div class="badge-section animate-in" style="animation-delay:0.08s" id="unlockedSection">
-      <div class="badge-section-title">已获得勋章 <span class="bst-count">18枚</span></div>
-      <div class="badge-grid" id="unlockedGrid">
-        <!-- Vocab badges -->
-        <div class="badge-card unlocked" data-cat="vocab" onclick="showBadge(this)" data-name="初识百词" data-desc="累计学习词汇突破100词，迈出词汇积累第一步" data-how="累计学习词汇量达到100词时自动解锁" data-date="2022.10.15" data-color="gold">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('初识百词')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#gG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127942;</text></svg></div>
-          <div class="bc-name">初识百词</div>
-          <div class="bc-date">2022.10.15</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="vocab" onclick="showBadge(this)" data-name="五百词达人" data-desc="累计掌握词汇突破500词，词汇储备初具规模" data-how="累计掌握词汇量达到500词时自动解锁" data-date="2023.03.20" data-color="gold">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('五百词达人')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#gG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128170;</text></svg></div>
-          <div class="bc-name">五百词达人</div>
-          <div class="bc-date">2023.03.20</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="vocab" onclick="showBadge(this)" data-name="千词突破" data-desc="累计掌握词汇突破1000词，超越同龄60%学生" data-how="累计掌握词汇量达到1000词时自动解锁" data-date="2023.09.05" data-color="gold">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('千词突破')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#gG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#11088;</text></svg></div>
-          <div class="bc-name">千词突破</div>
-          <div class="bc-date">2023.09.05</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="vocab" onclick="showBadge(this)" data-name="两千词大关" data-desc="累计掌握词汇突破2000词，达到中考超纲水平" data-how="累计掌握词汇量达到2000词时自动解锁" data-date="2024.08.12" data-color="gold">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('两千词大关')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#gG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127881;</text></svg></div>
-          <div class="bc-name">两千词大关</div>
-          <div class="bc-date">2024.08.12</div>
-        </div>
-        <!-- Streak badges -->
-        <div class="badge-card unlocked" data-cat="streak" onclick="showBadge(this)" data-name="一周坚持" data-desc="连续打卡7天，养成学习习惯的开始" data-how="连续7天完成每日词汇任务即可解锁" data-date="2022.09.08" data-color="purple">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('一周坚持')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#pG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127775;</text></svg></div>
-          <div class="bc-name">一周坚持</div>
-          <div class="bc-date">2022.09.08</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="streak" onclick="showBadge(this)" data-name="月度达人" data-desc="连续打卡30天，坚持的力量开始显现" data-how="连续30天完成每日词汇任务即可解锁" data-date="2024.11.02" data-color="purple">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('月度达人')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#pG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128293;</text></svg></div>
-          <div class="bc-name">月度达人</div>
-          <div class="bc-date">2024.11.02</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="streak" onclick="showBadge(this)" data-name="持之以恒" data-desc="连续打卡45天，自律已成为习惯" data-how="连续45天完成每日词汇任务即可解锁" data-date="2025.05.20" data-color="purple">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('持之以恒')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#pG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#9889;</text></svg></div>
-          <div class="bc-name">持之以恒</div>
-          <div class="bc-date">2025.05.20</div>
-        </div>
-        <!-- Mastery badges -->
-        <div class="badge-card unlocked" data-cat="mastery" onclick="showBadge(this)" data-name="初具规模" data-desc="整体掌握率突破70%，基础扎实" data-how="整体词汇掌握率达到70%时自动解锁" data-date="2024.01.18" data-color="green">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('初具规模')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#grG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128077;</text></svg></div>
-          <div class="bc-name">初具规模</div>
-          <div class="bc-date">2024.01.18</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="mastery" onclick="showBadge(this)" data-name="扎实功底" data-desc="整体掌握率突破80%，优等生水平" data-how="整体词汇掌握率达到80%时自动解锁" data-date="2025.02.10" data-color="green">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('扎实功底')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#grG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127941;</text></svg></div>
-          <div class="bc-name">扎实功底</div>
-          <div class="bc-date">2025.02.10</div>
-        </div>
-        <!-- Exam badges -->
-        <div class="badge-card unlocked" data-cat="exam" onclick="showBadge(this)" data-name="中考全达标" data-desc="中考课标1600词全部掌握，中考词汇零死角" data-how="中考课标1600词全部标记为&quot;已掌握&quot;时解锁" data-date="2024.06.20" data-color="blue">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('中考全达标')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#bG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#9989;</text></svg></div>
-          <div class="bc-name">中考全达标</div>
-          <div class="bc-date">2024.06.20</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="exam" onclick="showBadge(this)" data-name="高考词汇过半" data-desc="高考课标3500词掌握率达50%，冲刺路上稳步前行" data-how="高考课标3500词中掌握达1750词时解锁" data-date="2024.12.08" data-color="blue">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('高考词汇过半')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#bG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128640;</text></svg></div>
-          <div class="bc-name">高考词汇过半</div>
-          <div class="bc-date">2024.12.08</div>
-        </div>
-        <!-- Form badges -->
-        <div class="badge-card unlocked" data-cat="form" onclick="showBadge(this)" data-name="名词变形入门" data-desc="名词变形掌握率达80%，复数和所有格运用自如" data-how="名词变形（复数/所有格等）掌握率达80%时解锁" data-date="2024.09.15" data-color="purple">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('名词变形入门')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#pG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128221;</text></svg></div>
-          <div class="bc-name">名词变形入门</div>
-          <div class="bc-date">2024.09.15</div>
-        </div>
-        <!-- Topic badges -->
-        <div class="badge-card unlocked" data-cat="topic" onclick="showBadge(this)" data-name="日常交际达人" data-desc="日常交际话题词汇掌握率达90%，口语无障碍" data-how="日常交际话题词汇掌握率达到90%时解锁" data-date="2025.01.10" data-color="green">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('日常交际达人')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#grG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128172;</text></svg></div>
-          <div class="bc-name">日常交际达人</div>
-          <div class="bc-date">2025.01.10</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="topic" onclick="showBadge(this)" data-name="文化学者" data-desc="文化教育话题词汇掌握率达85%，阅读理解得心应手" data-how="文化教育话题词汇掌握率达到85%时解锁" data-date="2025.03.22" data-color="green">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('文化学者')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#grG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128214;</text></svg></div>
-          <div class="bc-name">文化学者</div>
-          <div class="bc-date">2025.03.22</div>
-        </div>
-        <!-- Speed badges -->
-        <div class="badge-card unlocked" data-cat="speed" onclick="showBadge(this)" data-name="月度最佳" data-desc="单月新增词汇突破80词，学习效率惊人" data-how="任意一个月内新增掌握词汇达到80词时解锁" data-date="2024.03" data-color="blue">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('月度最佳')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#bG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127937;</text></svg></div>
-          <div class="bc-name">月度最佳</div>
-          <div class="bc-date">2024.03</div>
-        </div>
-        <div class="badge-card unlocked" data-cat="speed" onclick="showBadge(this)" data-name="超越自我" data-desc="词汇增速超越上一学期30%，进步明显" data-how="本学期词汇增速比上学期高30%以上时解锁" data-date="2025.01" data-color="blue">
-          <div class="bc-share" onclick="event.stopPropagation();shareBadge('超越自我')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></div>
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#bG)"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128171;</text></svg></div>
-          <div class="bc-name">超越自我</div>
-          <div class="bc-date">2025.01</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Locked badges -->
-    <div class="badge-section animate-in" style="animation-delay:0.12s" id="lockedSection">
-      <div class="badge-section-title">未获得勋章 <span class="bst-count">14枚待解锁</span></div>
-      <div class="badge-grid" id="lockedGrid">
-        <div class="badge-card locked" data-cat="vocab" onclick="showBadge(this)" data-name="三千词宗师" data-desc="累计掌握词汇突破3000词，词汇量达到优秀高中生水平" data-how="累计掌握词汇量达到3000词时自动解锁" data-date="" data-progress="95" data-left="还差140词">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#128142;</text></svg></div>
-          <div class="bc-name">三千词宗师</div>
-          <div class="bc-date">还差140词</div>
-        </div>
-        <div class="badge-card locked" data-cat="vocab" onclick="showBadge(this)" data-name="万词之巅" data-desc="累计掌握词汇突破5000词，词汇大师级别" data-how="累计掌握词汇量达到5000词时自动解锁" data-date="" data-progress="57" data-left="还差2140词">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#128081;</text></svg></div>
-          <div class="bc-name">万词之巅</div>
-          <div class="bc-date">还差2140词</div>
-        </div>
-        <div class="badge-card locked" data-cat="streak" onclick="showBadge(this)" data-name="百日之王" data-desc="连续打卡100天，超强意志力的象征" data-how="连续100天完成每日词汇任务即可解锁" data-date="" data-progress="45" data-left="还差55天">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#128081;</text></svg></div>
-          <div class="bc-name">百日之王</div>
-          <div class="bc-date">还差55天</div>
-        </div>
-        <div class="badge-card locked" data-cat="streak" onclick="showBadge(this)" data-name="全年无休" data-desc="连续打卡365天，一整年风雨无阻" data-how="连续365天完成每日词汇任务即可解锁" data-date="" data-progress="12" data-left="最高纪录45天">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#127775;</text></svg></div>
-          <div class="bc-name">全年无休</div>
-          <div class="bc-date">最高纪录45天</div>
-        </div>
-        <div class="badge-card locked" data-cat="mastery" onclick="showBadge(this)" data-name="融会贯通" data-desc="整体掌握率突破90%，真正的词汇高手" data-how="整体词汇掌握率达到90%时自动解锁" data-date="" data-progress="91" data-left="当前82%">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#127775;</text></svg></div>
-          <div class="bc-name">融会贯通</div>
-          <div class="bc-date">当前82%</div>
-        </div>
-        <div class="badge-card locked" data-cat="mastery" onclick="showBadge(this)" data-name="满分掌控" data-desc="整体掌握率达到95%以上，接近完美" data-how="整体词汇掌握率达到95%时自动解锁" data-date="" data-progress="86" data-left="当前82%">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#129351;</text></svg></div>
-          <div class="bc-name">满分掌控</div>
-          <div class="bc-date">当前82%</div>
-        </div>
-        <div class="badge-card locked" data-cat="exam" onclick="showBadge(this)" data-name="高考词汇全达标" data-desc="高考课标3500词全部掌握，高考词汇零盲区" data-how="高考课标3500词全部标记为&quot;已掌握&quot;时解锁" data-date="" data-progress="62" data-left="当前62%">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#127942;</text></svg></div>
-          <div class="bc-name">高考全达标</div>
-          <div class="bc-date">当前62%</div>
-        </div>
-        <div class="badge-card locked" data-cat="form" onclick="showBadge(this)" data-name="动词变形达人" data-desc="动词各形态（过去式/现在分词/过去分词）掌握率均达80%" data-how="动词的过去式、现在分词、过去分词掌握率均达80%时解锁" data-date="" data-progress="74" data-left="过去式74%">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#128736;</text></svg></div>
-          <div class="bc-name">动词变形达人</div>
-          <div class="bc-date">过去式74%</div>
-        </div>
-        <div class="badge-card locked" data-cat="form" onclick="showBadge(this)" data-name="全形态精通" data-desc="所有词汇变形掌握率均达85%，语法功底深厚" data-how="名词/动词/形容词/副词所有变形掌握率均达85%时解锁" data-date="" data-progress="65" data-left="副词65%">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#129351;</text></svg></div>
-          <div class="bc-name">全形态精通</div>
-          <div class="bc-date">副词65%</div>
-        </div>
-        <div class="badge-card locked" data-cat="topic" onclick="showBadge(this)" data-name="科技先锋" data-desc="科学技术话题词汇掌握率达75%，阅读科技文章不再难" data-how="科学技术话题词汇掌握率达到75%时解锁" data-date="" data-progress="73" data-left="当前55%">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#128300;</text></svg></div>
-          <div class="bc-name">科技先锋</div>
-          <div class="bc-date">当前55%</div>
-        </div>
-        <div class="badge-card locked" data-cat="topic" onclick="showBadge(this)" data-name="全话题通" data-desc="所有话题词汇掌握率均达80%，阅读题型通吃" data-how="所有6个话题领域的词汇掌握率均达80%时解锁" data-date="" data-progress="48" data-left="2个话题低于75%">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#127760;</text></svg></div>
-          <div class="bc-name">全话题通</div>
-          <div class="bc-date">2个话题低于75%</div>
-        </div>
-        <div class="badge-card locked" data-cat="speed" onclick="showBadge(this)" data-name="单周百词" data-desc="单周新增并掌握100词，爆发力惊人" data-how="任意一周内新增掌握词汇达到100词时解锁" data-date="" data-progress="68" data-left="最高纪录68词/周">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#127752;</text></svg></div>
-          <div class="bc-name">单周百词</div>
-          <div class="bc-date">最高68词/周</div>
-        </div>
-        <div class="badge-card locked" data-cat="speed" onclick="showBadge(this)" data-name="学期MVP" data-desc="学期内词汇增长排名年级前10%，全级瞩目" data-how="学期结束时词汇增长量排名进入年级前10%时解锁" data-date="" data-progress="22" data-left="当前前22%">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#127942;</text></svg></div>
-          <div class="bc-name">学期MVP</div>
-          <div class="bc-date">当前前22%</div>
-        </div>
-        <div class="badge-card locked" data-cat="speed" onclick="showBadge(this)" data-name="假期不掉队" data-desc="寒/暑假期间每日坚持，返校后掌握率不降反升" data-how="假期期间保持每日打卡且开学后掌握率不低于假期前" data-date="" data-progress="0" data-left="下个假期挑战">
-          <div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/><text x="30" y="36" text-anchor="middle" font-size="18" opacity="0.5">&#127796;</text></svg></div>
-          <div class="bc-name">假期不掉队</div>
-          <div class="bc-date">下个假期挑战</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Badge detail modal -->
-  <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="m-close" onclick="closeModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
-      <div class="m-medal" id="modalMedal"></div>
-      <div class="m-name" id="modalName"></div>
-      <div class="m-cat" id="modalCat"></div>
-      <div class="m-desc" id="modalDesc"></div>
-      <div class="m-how" id="modalHow"></div>
-      <div class="m-date" id="modalDate"></div>
-      <div id="modalProgress"></div>
-      <button class="m-share" id="modalShare" onclick="shareBadgeModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-        分享勋章
-      </button>
-    </div>
-  </div>
-
-  <!-- SVG Gradients -->
-  <svg width="0" height="0" style="position:absolute">
-    <defs>
-      <linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F5A623"/><stop offset="100%" stop-color="#F7C948"/></linearGradient>
-      <linearGradient id="pG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7C5CFC"/><stop offset="100%" stop-color="#A78BFA"/></linearGradient>
-      <linearGradient id="bG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4F6EF7"/><stop offset="100%" stop-color="#60A5FA"/></linearGradient>
-      <linearGradient id="grG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34C759"/><stop offset="100%" stop-color="#6EE7B7"/></linearGradient>
-    </defs>
-  </svg>
-  <div class="toast" id="toast"></div>
-</div>
-
-<script>
-const catNames={vocab:'词汇积累',streak:'坚持打卡',mastery:'掌握率',exam:'考试达标',form:'变形达人',topic:'话题精通',speed:'学习效率'};
-
-function filterCat(el,cat){
-  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.querySelectorAll('.badge-card').forEach(card=>{
-    if(cat==='all'||card.dataset.cat===cat) card.style.display='';
-    else card.style.display='none';
-  });
-}
-
-function showBadge(card){
-  const overlay=document.getElementById('modalOverlay');
-  const isLocked=card.classList.contains('locked');
-  const color=card.dataset.color||'';
-  const cat=card.dataset.cat;
-
-  // Medal
-  const medalEl=document.getElementById('modalMedal');
-  medalEl.innerHTML=card.querySelector('.bc-medal').innerHTML;
-
-  document.getElementById('modalName').textContent=card.dataset.name;
-  document.getElementById('modalCat').textContent=catNames[cat]||'';
-  document.getElementById('modalDesc').textContent=card.dataset.desc;
-  document.getElementById('modalHow').innerHTML='<b>获得方式：</b>'+card.dataset.how;
-
-  const dateEl=document.getElementById('modalDate');
-  const shareBtn=document.getElementById('modalShare');
-  const progressEl=document.getElementById('modalProgress');
-
-  if(!isLocked){
-    dateEl.textContent=card.dataset.date+' 获得';
-    dateEl.className='m-date';
-    shareBtn.className='m-share';
-    shareBtn.onclick=()=>shareBadgeModal(card.dataset.name);
-    progressEl.innerHTML='';
-  }else{
-    dateEl.textContent='尚未获得';
-    dateEl.className='m-date locked';
-    shareBtn.className='m-share disabled';
-    shareBtn.onclick=null;
-    const prog=card.dataset.progress||0;
-    const left=card.dataset.left||'';
-    progressEl.innerHTML=`
-      <div class="m-progress">${left}</div>
-      <div class="m-prog-bar"><div class="m-prog-fill" style="width:${prog}%"></div></div>
-    `;
-  }
-
-  overlay.classList.add('show');
-}
-
-function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('show');
-}
-
-function shareBadge(name){
-  showToast('已生成「'+name+'」勋章分享卡片');
-}
-function shareBadgeModal(name){
-  closeModal();
-  showToast('已生成「'+name+'」勋章分享卡片');
-}
-
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2000);
-}
-</script>
-</body>
-</html>
+<div class="device"><div class="status-bar"><span class="time">9:41</span><div class="icons"><span>5G</span></div></div><div class="top-bar"><div class="back" onclick="history.back()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div><span class="title">勋章馆</span><div class="placeholder"></div></div><div class="content"><div class="summary-hero animate-in"><div class="sh-count">18 <span>/ 32</span></div><div class="sh-label">已收集勋章</div><div class="sh-bar"><div class="sh-fill" style="width:56%"></div></div></div><div class="badge-section animate-in" style="animation-delay:0.08s" id="unlockedSection"><div class="badge-section-title">已获得勋章 <span class="bst-count">18枚</span></div><div class="badge-grid" id="unlockedGrid">
+<div class="badge-card unlocked" data-cat="vocab" onclick="showBadge(this)" data-name="初识百词" data-desc="累计学习词汇突破100词，迈出词汇积累第一步" data-how="累计学习词汇量达到100词时自动解锁" data-date="2022.10.15"><div class="bc-share" onclick="event.stopPropagation();shareBadge('初识百词')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#gG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127942;</text></svg></div><div class="bc-name">初识百词</div><div class="bc-date">2022.10.15</div></div>
+<div class="badge-card unlocked" data-cat="vocab" onclick="showBadge(this)" data-name="五百词达人" data-desc="累计掌握词汇突破500词，词汇储备初具规模" data-how="累计掌握词汇量达到500词时自动解锁" data-date="2023.03.20"><div class="bc-share" onclick="event.stopPropagation();shareBadge('五百词达人')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#gG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128170;</text></svg></div><div class="bc-name">五百词达人</div><div class="bc-date">2023.03.20</div></div>
+<div class="badge-card unlocked" data-cat="vocab" onclick="showBadge(this)" data-name="千词突破" data-desc="累计掌握词汇突破1000词，超越同龄60%学生" data-how="累计掌握词汇量达到1000词时自动解锁" data-date="2023.09.05"><div class="bc-share" onclick="event.stopPropagation();shareBadge('千词突破')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#gG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#11088;</text></svg></div><div class="bc-name">千词突破</div><div class="bc-date">2023.09.05</div></div>
+<div class="badge-card unlocked" data-cat="vocab" onclick="showBadge(this)" data-name="两千词大关" data-desc="累计掌握词汇突破2000词，达到中考超纲水平" data-how="累计掌握词汇量达到2000词时自动解锁" data-date="2024.08.12"><div class="bc-share" onclick="event.stopPropagation();shareBadge('两千词大关')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#gG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127881;</text></svg></div><div class="bc-name">两千词大关</div><div class="bc-date">2024.08.12</div></div>
+<div class="badge-card unlocked" data-cat="streak" onclick="showBadge(this)" data-name="一周坚持" data-desc="连续打卡7天，养成学习习惯的开始" data-how="连续7天完成每日词汇任务即可解锁" data-date="2022.09.08"><div class="bc-share" onclick="event.stopPropagation();shareBadge('一周坚持')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#pG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127775;</text></svg></div><div class="bc-name">一周坚持</div><div class="bc-date">2022.09.08</div></div>
+<div class="badge-card unlocked" data-cat="streak" onclick="showBadge(this)" data-name="月度达人" data-desc="连续打卡30天，坚持的力量开始显现" data-how="连续30天完成每日词汇任务即可解锁" data-date="2024.11.02"><div class="bc-share" onclick="event.stopPropagation();shareBadge('月度达人')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#pG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128293;</text></svg></div><div class="bc-name">月度达人</div><div class="bc-date">2024.11.02</div></div>
+<div class="badge-card unlocked" data-cat="streak" onclick="showBadge(this)" data-name="持之以恒" data-desc="连续打卡45天，自律已成为习惯" data-how="连续45天完成每日词汇任务即可解锁" data-date="2025.05.20"><div class="bc-share" onclick="event.stopPropagation();shareBadge('持之以恒')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#pG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#9889;</text></svg></div><div class="bc-name">持之以恒</div><div class="bc-date">2025.05.20</div></div>
+<div class="badge-card unlocked" data-cat="mastery" onclick="showBadge(this)" data-name="初具规模" data-desc="整体掌握率突破70%，基础扎实" data-how="整体词汇掌握率达到70%时自动解锁" data-date="2024.01.18"><div class="bc-share" onclick="event.stopPropagation();shareBadge('初具规模')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#grG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128077;</text></svg></div><div class="bc-name">初具规模</div><div class="bc-date">2024.01.18</div></div>
+<div class="badge-card unlocked" data-cat="mastery" onclick="showBadge(this)" data-name="扎实功底" data-desc="整体掌握率突破80%，优等生水平" data-how="整体词汇掌握率达到80%时自动解锁" data-date="2025.02.10"><div class="bc-share" onclick="event.stopPropagation();shareBadge('扎实功底')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#grG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127941;</text></svg></div><div class="bc-name">扎实功底</div><div class="bc-date">2025.02.10</div></div>
+<div class="badge-card unlocked" data-cat="exam" onclick="showBadge(this)" data-name="中考全达标" data-desc="中考课标1600词全部掌握，中考词汇零死角" data-how="中考课标1600词全部标记为已掌握时解锁" data-date="2024.06.20"><div class="bc-share" onclick="event.stopPropagation();shareBadge('中考全达标')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#bG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#9989;</text></svg></div><div class="bc-name">中考全达标</div><div class="bc-date">2024.06.20</div></div>
+<div class="badge-card unlocked" data-cat="exam" onclick="showBadge(this)" data-name="高考词汇过半" data-desc="高考课标3500词掌握率达50%，冲刺路上稳步前行" data-how="高考课标3500词中掌握达1750词时解锁" data-date="2024.12.08"><div class="bc-share" onclick="event.stopPropagation();shareBadge('高考词汇过半')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#bG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128640;</text></svg></div><div class="bc-name">高考词汇过半</div><div class="bc-date">2024.12.08</div></div>
+<div class="badge-card unlocked" data-cat="form" onclick="showBadge(this)" data-name="名词变形入门" data-desc="名词变形掌握率达80%，复数和所有格运用自如" data-how="名词变形掌握率达80%时解锁" data-date="2024.09.15"><div class="bc-share" onclick="event.stopPropagation();shareBadge('名词变形入门')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#pG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128221;</text></svg></div><div class="bc-name">名词变形入门</div><div class="bc-date">2024.09.15</div></div>
+<div class="badge-card unlocked" data-cat="topic" onclick="showBadge(this)" data-name="日常交际达人" data-desc="日常交际话题词汇掌握率达90%，口语无障碍" data-how="日常交际话题词汇掌握率达到90%时解锁" data-date="2025.01.10"><div class="bc-share" onclick="event.stopPropagation();shareBadge('日常交际达人')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#grG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128172;</text></svg></div><div class="bc-name">日常交际达人</div><div class="bc-date">2025.01.10</div></div>
+<div class="badge-card unlocked" data-cat="topic" onclick="showBadge(this)" data-name="文化学者" data-desc="文化教育话题词汇掌握率达85%，阅读理解得心应手" data-how="文化教育话题词汇掌握率达到85%时解锁" data-date="2025.03.22"><div class="bc-share" onclick="event.stopPropagation();shareBadge('文化学者')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#grG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128214;</text></svg></div><div class="bc-name">文化学者</div><div class="bc-date">2025.03.22</div></div>
+<div class="badge-card unlocked" data-cat="speed" onclick="showBadge(this)" data-name="月度最佳" data-desc="单月新增词汇突破80词，学习效率惊人" data-how="任意一个月内新增掌握词汇达到80词时解锁" data-date="2024.03"><div class="bc-share" onclick="event.stopPropagation();shareBadge('月度最佳')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#bG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127937;</text></svg></div><div class="bc-name">月度最佳</div><div class="bc-date">2024.03</div></div>
+<div class="badge-card unlocked" data-cat="speed" onclick="showBadge(this)" data-name="超越自我" data-desc="词汇增速超越上一学期30%，进步明显" data-how="本学期词汇增速比上学期高30%以上时解锁" data-date="2025.01"><div class="bc-share" onclick="event.stopPropagation();shareBadge('超越自我')">↗</div><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="url(#bG)"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128171;</text></svg></div><div class="bc-name">超越自我</div><div class="bc-date">2025.01</div></div>
+</div></div><div class="badge-section animate-in" id="lockedSection"><div class="badge-section-title">未获得勋章 <span class="bst-count">14枚待解锁</span></div><div class="badge-grid" id="lockedGrid">
+<div class="badge-card locked" data-cat="vocab" onclick="showBadge(this)" data-name="三千词宗师" data-desc="累计掌握词汇突破3000词，词汇量达到优秀高中生水平" data-how="累计掌握词汇量达到3000词时自动解锁" data-progress="95" data-left="还差140词"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128142;</text></svg></div><div class="bc-name">三千词宗师</div><div class="bc-date">还差140词</div></div>
+<div class="badge-card locked" data-cat="vocab" onclick="showBadge(this)" data-name="万词之巅" data-desc="累计掌握词汇突破5000词，词汇大师级别" data-how="累计掌握词汇量达到5000词时自动解锁" data-progress="57" data-left="还差2140词"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128081;</text></svg></div><div class="bc-name">万词之巅</div><div class="bc-date">还差2140词</div></div>
+<div class="badge-card locked" data-cat="streak" onclick="showBadge(this)" data-name="百日之王" data-desc="连续打卡100天，超强意志力的象征" data-how="连续100天完成每日词汇任务即可解锁" data-progress="45" data-left="还差55天"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128081;</text></svg></div><div class="bc-name">百日之王</div><div class="bc-date">还差55天</div></div>
+<div class="badge-card locked" data-cat="streak" onclick="showBadge(this)" data-name="全年无休" data-desc="连续打卡365天，一整年风雨无阻" data-how="连续365天完成每日词汇任务即可解锁" data-progress="12" data-left="最高纪录45天"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127775;</text></svg></div><div class="bc-name">全年无休</div><div class="bc-date">最高纪录45天</div></div>
+<div class="badge-card locked" data-cat="mastery" onclick="showBadge(this)" data-name="融会贯通" data-desc="整体掌握率突破90%，真正的词汇高手" data-how="整体词汇掌握率达到90%时自动解锁" data-progress="91" data-left="当前82%"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127775;</text></svg></div><div class="bc-name">融会贯通</div><div class="bc-date">当前82%</div></div>
+<div class="badge-card locked" data-cat="mastery" onclick="showBadge(this)" data-name="满分掌控" data-desc="整体掌握率达到95%以上，接近完美" data-how="整体词汇掌握率达到95%时自动解锁" data-progress="86" data-left="当前82%"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#129351;</text></svg></div><div class="bc-name">满分掌控</div><div class="bc-date">当前82%</div></div>
+<div class="badge-card locked" data-cat="exam" onclick="showBadge(this)" data-name="高考词汇全达标" data-desc="高考课标3500词全部掌握，高考词汇零盲区" data-how="高考课标3500词全部标记为已掌握时解锁" data-progress="62" data-left="当前62%"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127942;</text></svg></div><div class="bc-name">高考全达标</div><div class="bc-date">当前62%</div></div>
+<div class="badge-card locked" data-cat="form" onclick="showBadge(this)" data-name="动词变形达人" data-desc="动词各形态掌握率均达80%" data-how="动词的过去式、现在分词、过去分词掌握率均达80%时解锁" data-progress="74" data-left="过去式74%"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128736;</text></svg></div><div class="bc-name">动词变形达人</div><div class="bc-date">过去式74%</div></div>
+<div class="badge-card locked" data-cat="form" onclick="showBadge(this)" data-name="全形态精通" data-desc="所有词汇变形掌握率均达85%，语法功底深厚" data-how="名词/动词/形容词/副词所有变形掌握率均达85%时解锁" data-progress="65" data-left="副词65%"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#129351;</text></svg></div><div class="bc-name">全形态精通</div><div class="bc-date">副词65%</div></div>
+<div class="badge-card locked" data-cat="topic" onclick="showBadge(this)" data-name="科技先锋" data-desc="科学技术话题词汇掌握率达75%，阅读科技文章不再难" data-how="科学技术话题词汇掌握率达到75%时解锁" data-progress="73" data-left="当前55%"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#128300;</text></svg></div><div class="bc-name">科技先锋</div><div class="bc-date">当前55%</div></div>
+<div class="badge-card locked" data-cat="topic" onclick="showBadge(this)" data-name="全话题通" data-desc="所有话题词汇掌握率均达80%，阅读题型通吃" data-how="所有6个话题领域的词汇掌握率均达80%时解锁" data-progress="48" data-left="2个话题低于75%"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127760;</text></svg></div><div class="bc-name">全话题通</div><div class="bc-date">2个话题低于75%</div></div>
+<div class="badge-card locked" data-cat="speed" onclick="showBadge(this)" data-name="单周百词" data-desc="单周新增并掌握100词，爆发力惊人" data-how="任意一周内新增掌握词汇达到100词时解锁" data-progress="68" data-left="最高纪录68词/周"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127752;</text></svg></div><div class="bc-name">单周百词</div><div class="bc-date">最高68词/周</div></div>
+<div class="badge-card locked" data-cat="speed" onclick="showBadge(this)" data-name="学期MVP" data-desc="学期内词汇增长排名年级前10%，全级瞩目" data-how="学期结束时词汇增长量排名进入年级前10%时解锁" data-progress="22" data-left="当前前22%"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127942;</text></svg></div><div class="bc-name">学期MVP</div><div class="bc-date">当前前22%</div></div>
+<div class="badge-card locked" data-cat="speed" onclick="showBadge(this)" data-name="假期不掉队" data-desc="寒/暑假期间每日坚持，返校后掌握率不降反升" data-how="假期期间保持每日打卡且开学后掌握率不低于假期前" data-progress="0" data-left="下个假期挑战"><div class="bc-medal"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#E5E7EB"/><text x="30" y="36" text-anchor="middle" font-size="18">&#127796;</text></svg></div><div class="bc-name">假期不掉队</div><div class="bc-date">下个假期挑战</div></div>
+</div></div></div><div class="modal-overlay" id="modalOverlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()"><div class="m-close" onclick="closeModal()">×</div><div class="m-medal" id="modalMedal"></div><div class="m-name" id="modalName"></div><div class="m-cat" id="modalCat"></div><div class="m-desc" id="modalDesc"></div><div class="m-how" id="modalHow"></div><div class="m-date" id="modalDate"></div><div id="modalProgress"></div><button class="m-share" id="modalShare" onclick="shareBadgeModal()">分享勋章</button></div></div><div class="share-sheet-overlay" id="shareSheet" onclick="closeShareSheet()"><div class="share-sheet" onclick="event.stopPropagation()"><div class="ss-title">分享勋章</div><div class="ss-sub" id="shareSheetSub">选择分享方式</div><div class="ss-options"><div class="ss-opt" onclick="doShare('微信好友')"><div class="ss-icon wechat">微</div><span class="ss-label">微信好友</span></div><div class="ss-opt" onclick="doShare('朋友圈')"><div class="ss-icon moments">圈</div><span class="ss-label">朋友圈</span></div></div><button class="ss-cancel" onclick="closeShareSheet()">取消</button></div></div><svg width="0" height="0" style="position:absolute"><defs><linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F5A623"/><stop offset="100%" stop-color="#F7C948"/></linearGradient><linearGradient id="pG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7C5CFC"/><stop offset="100%" stop-color="#A78BFA"/></linearGradient><linearGradient id="bG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4F6EF7"/><stop offset="100%" stop-color="#60A5FA"/></linearGradient><linearGradient id="grG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34C759"/><stop offset="100%" stop-color="#6EE7B7"/></linearGradient></defs></svg><div class="toast" id="toast"></div></div><script>const catNames={vocab:'词汇积累',streak:'坚持打卡',mastery:'掌握率',exam:'考试达标',form:'变形达人',topic:'话题精通',speed:'学习效率'};function showBadge(card){const overlay=document.getElementById('modalOverlay');const isLocked=card.classList.contains('locked');const cat=card.dataset.cat;document.getElementById('modalMedal').innerHTML=card.querySelector('.bc-medal').innerHTML;document.getElementById('modalName').textContent=card.dataset.name;document.getElementById('modalCat').textContent=catNames[cat]||'';document.getElementById('modalDesc').textContent=card.dataset.desc;document.getElementById('modalHow').innerHTML='<b>获得方式：</b>'+card.dataset.how;const dateEl=document.getElementById('modalDate');const shareBtn=document.getElementById('modalShare');const progressEl=document.getElementById('modalProgress');if(!isLocked){dateEl.textContent=card.dataset.date+' 获得';dateEl.className='m-date';shareBtn.className='m-share';shareBtn.onclick=()=>shareBadgeModal(card.dataset.name);progressEl.innerHTML='';}else{dateEl.textContent='尚未获得';dateEl.className='m-date locked';shareBtn.className='m-share disabled';shareBtn.onclick=null;const prog=card.dataset.progress||0;const left=card.dataset.left||'';progressEl.innerHTML=`<div class="m-progress">${left}</div><div class="m-prog-bar"><div class="m-prog-fill" style="width:${prog}%"></div></div>`;}overlay.classList.add('show');}function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}let currentShareName='';function shareBadge(name){openShareSheet(name);}function shareBadgeModal(name){closeModal();openShareSheet(name);}function openShareSheet(name){currentShareName=name||'';document.getElementById('shareSheetSub').textContent='「'+currentShareName+'」勋章';document.getElementById('shareSheet').classList.add('show');}function closeShareSheet(){document.getElementById('shareSheet').classList.remove('show');}function doShare(channel){closeShareSheet();showToast('已分享「'+currentShareName+'」到'+channel);}function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}</script></body></html>
