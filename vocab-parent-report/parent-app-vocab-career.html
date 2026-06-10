@@ -113,17 +113,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC"
 .peer-stat .ps-l{font-size:10px;color:var(--text-tertiary);margin-top:2px}
 
 /* Topic mastery */
-.tp-legend{display:flex;gap:10px;margin-bottom:12px;font-size:10px;color:var(--text-tertiary)}
-.tp-lg{display:flex;align-items:center;gap:4px}
-.tp-ld{width:8px;height:8px;border-radius:2px}
-.tp-list{display:flex;flex-direction:column;gap:10px}
-.tp-row{display:flex;align-items:center;gap:8px}
-.tp-info{display:flex;align-items:center;gap:5px;width:72px;flex-shrink:0}
-.tp-icon{font-size:14px}
-.tp-name{font-size:11px;font-weight:500;color:var(--text)}
-.tp-bar{flex:1;height:14px;background:var(--bg);border-radius:7px;overflow:hidden;display:flex}
+.cw-summary{padding:14px 14px 12px;background:linear-gradient(135deg,rgba(79,110,247,0.05),rgba(124,92,252,0.05));border-radius:var(--radius-sm);margin-bottom:20px}
+.cw-sum-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.cw-cur{font-size:24px;font-weight:800;color:var(--text)}
+.cw-tot{font-size:12px;color:var(--text-tertiary);margin-left:4px}
+.cw-sum-label{font-size:11px;color:var(--text-secondary)}
+.cw-sb-track{height:8px;background:#fff;border-radius:4px;overflow:hidden;display:flex;margin-bottom:10px}
+.cw-sb-seg{height:100%}
+
+/* Inline colored stats (no box) */
+.cw-stats{display:flex;justify-content:space-between;gap:8px}
+.cw-stat{display:flex;align-items:baseline;gap:4px}
+.cw-stat i{width:6px;height:6px;border-radius:50%;align-self:center;flex-shrink:0}
+.cw-stat b{font-size:14px;font-weight:700}
+.cw-stat span{font-size:10px;color:var(--text-tertiary)}
+
+.tp-list{display:flex;flex-direction:column;gap:14px}
+.tp-row{display:flex;flex-direction:column;gap:6px}
+.tp-row-head{display:flex;align-items:center;justify-content:space-between}
+.tp-info{display:flex;align-items:center;gap:6px}
+.tp-icon{font-size:15px}
+.tp-name{font-size:13px;font-weight:600;color:var(--text)}
+.tp-meta{display:flex;align-items:baseline;gap:8px}
+.tp-mc{font-size:12px;font-weight:600;color:var(--text)}
+.tp-mc i{font-size:10px;color:var(--text-tertiary);font-weight:400;font-style:normal}
+.tp-pct{font-size:13px;font-weight:700}
+.tp-bar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;display:flex}
 .tp-seg{height:100%}
-.tp-pct{width:32px;text-align:right;font-size:11px;font-weight:600;flex-shrink:0}
 .tp-more{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:4px;padding:10px;background:var(--bg);border-radius:var(--radius-sm);font-size:12px;color:var(--primary);font-weight:500;cursor:pointer;transition:background 0.2s}
 .tp-more:active{background:var(--border)}
 
@@ -379,67 +395,86 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC"
         </div>
         <span class="more" onclick="openTopics()">查看全部 &#9654;</span>
       </h4>
-      <!-- Legend for segmented bars -->
-      <div class="tp-legend">
-        <div class="tp-lg"><span class="tp-ld" style="background:#34C759"></span>掌握(3项全过)</div>
-        <div class="tp-lg"><span class="tp-ld" style="background:#F5A623"></span>已练2项</div>
-        <div class="tp-lg"><span class="tp-ld" style="background:#4F6EF7"></span>已练1项</div>
-        <div class="tp-lg"><span class="tp-ld" style="background:#E5E7EB"></span>未练习</div>
+
+      <!-- Overall summary -->
+      <div class="cw-summary">
+        <div class="cw-sum-top">
+          <div>
+            <span class="cw-cur">1674</span>
+            <span class="cw-tot">/ 2440 词</span>
+          </div>
+          <div class="cw-sum-label">核心词已掌握 · 68.6%</div>
+        </div>
+        <div class="cw-sb-track">
+          <div class="cw-sb-seg" style="width:68.6%;background:#34C759"></div>
+          <div class="cw-sb-seg" style="width:9.0%;background:#F5A623"></div>
+          <div class="cw-sb-seg" style="width:6.6%;background:#4F6EF7"></div>
+        </div>
+        <div class="cw-stats">
+          <div class="cw-stat"><i style="background:#34C759"></i><b style="color:var(--success)">1674</b><span>掌握</span></div>
+          <div class="cw-stat"><i style="background:#F5A623"></i><b style="color:var(--warning)">220</b><span>练2项</span></div>
+          <div class="cw-stat"><i style="background:#4F6EF7"></i><b style="color:var(--primary)">160</b><span>练1项</span></div>
+          <div class="cw-stat"><i style="background:#E5E7EB"></i><b style="color:var(--text-tertiary)">386</b><span>未练</span></div>
+        </div>
       </div>
+
       <div class="tp-list">
         <div class="tp-row">
-          <div class="tp-info">
-            <span class="tp-icon">&#128172;</span>
-            <span class="tp-name">日常交际</span>
+          <div class="tp-row-head">
+            <div class="tp-info">
+              <span class="tp-icon">&#128172;</span>
+              <span class="tp-name">日常交际</span>
+            </div>
+            <span class="tp-mc">164<i>/200</i></span>
           </div>
           <div class="tp-bar">
             <div class="tp-seg" style="width:82%;background:#34C759"></div>
             <div class="tp-seg" style="width:10%;background:#F5A623"></div>
             <div class="tp-seg" style="width:5%;background:#4F6EF7"></div>
           </div>
-          <span class="tp-pct" style="color:var(--success)">92%</span>
         </div>
         <div class="tp-row">
-          <div class="tp-info">
-            <span class="tp-icon">&#128214;</span>
-            <span class="tp-name">文化教育</span>
+          <div class="tp-row-head">
+            <div class="tp-info">
+              <span class="tp-icon">&#128214;</span>
+              <span class="tp-name">文化教育</span>
+            </div>
+            <span class="tp-mc">190<i>/250</i></span>
           </div>
           <div class="tp-bar">
             <div class="tp-seg" style="width:76%;background:#34C759"></div>
             <div class="tp-seg" style="width:12%;background:#F5A623"></div>
             <div class="tp-seg" style="width:6%;background:#4F6EF7"></div>
           </div>
-          <span class="tp-pct" style="color:var(--success)">88%</span>
         </div>
         <div class="tp-row">
-          <div class="tp-info">
-            <span class="tp-icon">&#127758;</span>
-            <span class="tp-name">社会热点</span>
+          <div class="tp-row-head">
+            <div class="tp-info">
+              <span class="tp-icon">&#127758;</span>
+              <span class="tp-name">社会热点</span>
+            </div>
+            <span class="tp-mc">130<i>/250</i></span>
           </div>
           <div class="tp-bar">
             <div class="tp-seg" style="width:52%;background:#34C759"></div>
             <div class="tp-seg" style="width:16%;background:#F5A623"></div>
             <div class="tp-seg" style="width:8%;background:#4F6EF7"></div>
           </div>
-          <span class="tp-pct" style="color:var(--warning)">76%</span>
         </div>
         <div class="tp-row">
-          <div class="tp-info">
-            <span class="tp-icon">&#128188;</span>
-            <span class="tp-name">职业经济</span>
+          <div class="tp-row-head">
+            <div class="tp-info">
+              <span class="tp-icon">&#128188;</span>
+              <span class="tp-name">职业经济</span>
+            </div>
+            <span class="tp-mc">115<i>/240</i></span>
           </div>
           <div class="tp-bar">
             <div class="tp-seg" style="width:48%;background:#34C759"></div>
             <div class="tp-seg" style="width:14%;background:#F5A623"></div>
             <div class="tp-seg" style="width:10%;background:#4F6EF7"></div>
           </div>
-          <span class="tp-pct" style="color:var(--warning)">72%</span>
         </div>
-      </div>
-      <!-- View more entry -->
-      <div class="tp-more" onclick="openTopics()">
-        <span>查看全部核心词话题</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
 
