@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>助教端 - 授权选择</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      color: #25324a;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: #eef3fb;
+    }
+    .app {
+      min-height: 100vh;
+      background: #f2f5fb;
+      filter: none;
+    }
+    .topbar {
+      height: 86px;
+      display: flex;
+      align-items: center;
+      padding: 0 52px;
+      color: #1f3f82;
+      background: linear-gradient(90deg, #e9fbff, #eef0ff);
+      box-shadow: 0 2px 8px rgba(54, 88, 140, .06);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-right: 42px;
+      color: #2d5cae;
+      font-size: 30px;
+      font-weight: 900;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border: 4px solid #2d68ca;
+      border-radius: 50%;
+      position: relative;
+    }
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 17px;
+      height: 5px;
+      border-radius: 8px;
+      background: #2d68ca;
+      transform: rotate(42deg);
+    }
+    .brand-mark::after { transform: rotate(-42deg); }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .nav span { opacity: .72; }
+    .user {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 80px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .window-actions {
+      display: flex;
+      gap: 24px;
+      color: #2d5cae;
+      font-size: 40px;
+      line-height: 1;
+    }
+    .main { padding: 58px 76px; }
+    .title {
+      margin: 0 0 30px;
+      color: #0e1e36;
+      font-size: 38px;
+      font-weight: 900;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 28px;
+      margin-bottom: 36px;
+    }
+    .blue-btn {
+      min-width: 134px;
+      height: 42px;
+      border: 0;
+      border-radius: 6px;
+      color: #fff;
+      background: #2f55a8;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .school-card {
+      width: 86%;
+      min-height: 86px;
+      margin: 0 0 26px;
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      padding: 0 32px;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(32, 54, 91, .06);
+      opacity: .92;
+    }
+    .school-card strong { font-size: 28px; color: #0d1b33; }
+    .school-card small { margin-left: auto; color: #777; font-size: 17px; }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 30px;
+      background: rgba(0, 0, 0, .48);
+    }
+    .modal {
+      width: min(1050px, calc(100vw - 80px));
+      height: min(1180px, calc(100vh - 80px));
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .32);
+      overflow: hidden;
+    }
+    .modal-head {
+      height: 68px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1c2b45;
+      background: #f6f7ff;
+      border-bottom: 1px solid #e6e8f1;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .close {
+      position: absolute;
+      right: 28px;
+      top: 18px;
+      border: 0;
+      color: #7b9dff;
+      background: transparent;
+      font-size: 30px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .modal-body { flex: 1; min-height: 0; padding: 28px 30px 0; overflow: hidden; }
+    .mode-row { display: flex; align-items: center; margin-bottom: 24px; }
+    .segmented { display: inline-flex; border: 1px solid #6c92ff; border-radius: 5px; overflow: hidden; }
+    .segmented button {
+      width: 140px;
+      height: 44px;
+      border: 0;
+      color: #334057;
+      background: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .segmented .active { color: #fff; background: #5e86ff; }
+    .summary { margin-left: auto; color: #7f8795; font-size: 16px; font-weight: 800; }
+    .summary b { color: #4e73df; padding: 0 5px; }
+    .search-row { position: relative; display: flex; width: 555px; margin-bottom: 28px; }
+    .filter {
+      width: 112px;
+      height: 44px;
+      position: relative;
+      border: 1px solid #dfe3eb;
+      border-radius: 4px 0 0 4px;
+      background: #fff;
+      color: #3e4b62;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .filter::after {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-left: 6px;
+      border-right: 2px solid #a6afbf;
+      border-bottom: 2px solid #a6afbf;
+      transform: rotate(45deg) translateY(-2px);
+    }
+    .filter.open::after { transform: rotate(225deg) translate(-1px, -1px); }
+    .dropdown {
+      position: absolute;
+      left: 0;
+      top: 58px;
+      z-index: 4;
+      width: 136px;
+      padding: 10px 0;
+      border: 1px solid #dfe3eb;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 5px 14px rgba(33, 48, 84, .12);
+      display: none;
+    }
+    .dropdown.show { display: block; }
+    .dropdown::before {
+      content: "";
+      position: absolute;
+      left: 48px;
+      top: -8px;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-left: 1px solid #dfe3eb;
+      border-top: 1px solid #dfe3eb;
+      transform: rotate(45deg);
+    }
+    .dropdown button {
+      width: 100%;
+      height: 48px;
+      border: 0;
+      color: #6f7786;
+      background: transparent;
+      text-align: left;
+      padding-left: 28px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .dropdown .selected { color: #2f8cff; }
+    .search {
+      flex: 1;
+      height: 44px;
+      border: 1px solid #dfe3eb;
+      border-left: 0;
+      border-radius: 0 4px 4px 0;
+      padding: 0 54px 0 20px;
+      color: #9aa2ad;
+      outline: none;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .magnifier { position: absolute; right: 18px; top: 10px; width: 24px; height: 24px; border: 3px solid #a5abb7; border-radius: 50%; }
+    .magnifier::after { content: ""; position: absolute; right: -8px; bottom: -5px; width: 11px; height: 3px; border-radius: 3px; background: #a5abb7; transform: rotate(45deg); }
+    .list { height: calc(100% - 132px); overflow: hidden auto; padding-right: 2px; }
+    .list::-webkit-scrollbar { width: 6px; }
+    .list::-webkit-scrollbar-thumb { border-radius: 6px; background: #c9cdd6; }
+    .row { margin-bottom: 14px; background: #f1f1f3; transition: background .18s ease; }
+    .row-main {
+      min-height: 54px;
+      display: grid;
+      grid-template-columns: 44px minmax(360px, 1fr) 140px 88px;
+      align-items: center;
+      padding: 0 18px;
+      column-gap: 28px;
+      color: #2b3448;
+      font-size: 16px;
+      font-weight: 800;
+    }
+    .row:hover { background: #eceff5; }
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #e0e5ed;
+      border-radius: 3px;
+      background: #fff;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .checkbox.checked { border-color: #5b86ff; background: #5b86ff; }
+    .type { color: #969ba6; font-weight: 700; }
+    .expand { height: 30px; border: 1px solid #c6d5ff; border-radius: 4px; color: #4e78ee; background: #fff; font-size: 13px; font-weight: 800; cursor: pointer; }
+    .action-placeholder { display: block; width: 88px; height: 30px; }
+    .detail { display: none; margin: 0 18px 14px 62px; padding: 14px 18px; border: 1px solid #d9e2ff; border-radius: 6px; background: #fff; color: #667084; font-size: 14px; line-height: 1.7; }
+    .row.expanded .detail { display: block; }
+    .detail-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+    .detail-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 38px; padding: 0 12px; border-radius: 5px; background: #f6f8ff; color: #263247; font-weight: 800; }
+    .detail-tag { flex: 0 0 auto; min-width: 58px; padding: 2px 8px; border-radius: 999px; color: #4e78ee; background: #eaf0ff; text-align: center; font-size: 12px; font-weight: 900; }
+    .modal-foot { height: 84px; display: flex; align-items: center; justify-content: center; gap: 34px; background: #f7f8ff; border-top: 1px solid #e7e9f2; }
+    .foot-btn { width: 108px; height: 40px; border-radius: 5px; font-size: 16px; font-weight: 800; cursor: pointer; }
+    .cancel { color: #6c91ff; background: #fff; border: 2px solid #7fa0ff; }
+    .confirm { color: #999; background: #e5e5e5; border: 0; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <section class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"></span>天学网</div>
+      <nav class="nav"><span>首页</span><span>执行</span><span>资源</span><span>数据</span></nav>
+      <div class="user"><span>马诤</span><span class="window-actions">－ □ ×</span></div>
+    </header>
+    <main class="main">
+      <h1 class="title">我服务的学校3个</h1>
+      <div class="toolbar"><button class="blue-btn">批量操作⌄</button><button class="blue-btn">更多操作⌄</button></div>
+      <div class="school-card"><span class="checkbox"></span><strong>1.zyc专用</strong><small>2位老师</small></div>
+      <div class="school-card"><span class="checkbox checked">✓</span><strong>许帅（xushuai）</strong><small>授权中</small></div>
+      <div class="school-card"><span class="checkbox"></span><strong>2.北京市星辉中学</strong><small>12个班级</small></div>
+      <div class="school-card"><span class="checkbox"></span><strong>3.天学网</strong><small>1位助教</small></div>
+    </main>
+  </section>
+
+  <section class="overlay">
+    <div class="modal">
+      <header class="modal-head"><span>选择</span><button class="close" type="button">×</button></header>
+      <div class="modal-body">
+        <div class="mode-row">
+          <div class="segmented" id="authMode"><button class="active" type="button">新授权</button><button type="button">取消授权</button></div>
+          <div class="summary">已选择 <b id="courseCount">0</b> 个课本，授权给 <b>3</b> 个班级</div>
+        </div>
+        <div class="search-row">
+          <button class="filter" id="filterBtn" type="button">产品名称</button>
+          <input class="search" placeholder="请输入内容" />
+          <span class="magnifier"></span>
+          <div class="dropdown" id="dropdown"><button class="selected" type="button">产品名称</button><button type="button">产品编号</button><button type="button">套餐名称</button></div>
+        </div>
+        <div class="list" id="productList">
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>基础能力诊断测试（浙江省）</span><span class="type">标准产品</span><span class="action-placeholder"></span></div></div>
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>广西南溪一中词汇大赛</span><span class="type">产品套餐</span><button class="expand" type="button">展开</button></div><div class="detail"><div class="detail-list"><span class="detail-item">词汇同步练习<span class="detail-tag">标准产品</span></span><span class="detail-item">一中词汇大赛<span class="detail-tag">校本</span></span><span class="detail-item">高频错词复练<span class="detail-tag">标准产品</span></span><span class="detail-item">班级词汇周测<span class="detail-tag">校本</span></span></div></div></div>
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>房山区2023-2024第一学期高一期中听说考试</span><span class="type">标准产品</span><span class="action-placeholder"></span></div></div>
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>怀化市湖天中学</span><span class="type">校本</span><span class="action-placeholder"></span></div></div>
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>初中英语听说测试(1)-试题八</span><span class="type">标准产品</span><span class="action-placeholder"></span></div></div>
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>高三听说强化机房模考考试版（第12辑）</span><span class="type">产品套餐</span><button class="expand" type="button">展开</button></div><div class="detail"><div class="detail-list"><span class="detail-item">高三听说机房模考<span class="detail-tag">标准产品</span></span><span class="detail-item">高考冲刺听说训练<span class="detail-tag">标准产品</span></span><span class="detail-item">校本强化模拟卷<span class="detail-tag">校本</span></span><span class="detail-item">阶段成绩分析<span class="detail-tag">标准产品</span></span></div></div></div>
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>衡阳市第八中学</span><span class="type">校本</span><span class="action-placeholder"></span></div></div>
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>北京市第九十六中学</span><span class="type">校本</span><span class="action-placeholder"></span></div></div>
+          <div class="row"><div class="row-main"><span class="checkbox"></span><span>北师大实验中学高23级摸底口语考试</span><span class="type">标准产品</span><span class="action-placeholder"></span></div></div>
+        </div>
+      </div>
+      <footer class="modal-foot"><button class="foot-btn cancel" type="button">取消</button><button class="foot-btn confirm" type="button" id="confirmBtn">确定</button></footer>
+    </div>
+  </section>
+  <script>
+    const filterBtn = document.getElementById("filterBtn");
+    const dropdown = document.getElementById("dropdown");
+    const confirmBtn = document.getElementById("confirmBtn");
+    const courseCount = document.getElementById("courseCount");
+    const authMode = document.getElementById("authMode");
+    const checkboxes = Array.from(document.querySelectorAll(".list .checkbox"));
+    const params = new URLSearchParams(window.location.search);
+    authMode.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => {
+        authMode.querySelectorAll("button").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+      });
+    });
+    filterBtn.addEventListener("click", () => { filterBtn.classList.toggle("open"); dropdown.classList.toggle("show"); });
+    dropdown.querySelectorAll("button").forEach((item) => {
+      item.addEventListener("click", () => {
+        dropdown.querySelectorAll("button").forEach((button) => button.classList.remove("selected"));
+        item.classList.add("selected");
+        filterBtn.textContent = item.textContent;
+        filterBtn.classList.remove("open");
+        dropdown.classList.remove("show");
+      });
+    });
+    document.querySelectorAll(".expand").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const row = button.closest(".row");
+        row.classList.toggle("expanded");
+        button.textContent = row.classList.contains("expanded") ? "收起" : "展开";
+      });
+    });
+    if (params.get("state") === "expanded") {
+      const firstExpandButton = document.querySelector(".expand");
+      const firstPackageRow = firstExpandButton?.closest(".row");
+      firstPackageRow?.classList.add("expanded");
+      if (firstExpandButton) firstExpandButton.textContent = "收起";
+    }
+    function updateSelectedCount() {
+      const count = checkboxes.filter((box) => box.classList.contains("checked")).length;
+      courseCount.textContent = count;
+      confirmBtn.style.cursor = count ? "pointer" : "not-allowed";
+      confirmBtn.style.color = count ? "#fff" : "#999";
+      confirmBtn.style.background = count ? "#6b8fff" : "#e5e5e5";
+    }
+    checkboxes.forEach((box) => {
+      box.addEventListener("click", (event) => {
+        event.stopPropagation();
+        box.classList.toggle("checked");
+        box.textContent = box.classList.contains("checked") ? "✓" : "";
+        updateSelectedCount();
+      });
+    });
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".search-row")) {
+        filterBtn.classList.remove("open");
+        dropdown.classList.remove("show");
+      }
+    });
+    updateSelectedCount();
+  </script>
+</body>
+</html>
