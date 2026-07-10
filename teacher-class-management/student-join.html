@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学生端扫码加入班级</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #eef2f8;
+      color: #2c2f36;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      display: flex;
+      justify-content: center;
+    }
+    .phone { position: relative; width: 375px; min-height: 812px; background: #fff; overflow: hidden; }
+    .page { min-height: 812px; padding: 18px 12px 24px; position: relative; }
+    .topbar { height: 28px; display: flex; align-items: center; justify-content: space-between; }
+    .back { width: 18px; height: 18px; border-left: 2px solid #22262d; border-bottom: 2px solid #22262d; transform: rotate(45deg); margin-left: -1px; }
+    .scan { width: 22px; height: 22px; position: relative; margin-right: 1px; }
+    .scan::before, .scan::after { content: ""; position: absolute; inset: 0; border: 2px solid #2c2f36; border-radius: 5px; clip-path: polygon(0 0, 34% 0, 34% 12%, 12% 12%, 12% 34%, 0 34%, 0 0, 66% 0, 100% 0, 100% 34%, 88% 34%, 88% 12%, 66% 12%); }
+    .scan::after { transform: rotate(180deg); }
+    h1 { margin: 2px 0 26px; color: #2b2e34; font-size: 28px; line-height: 1.2; font-weight: 900; letter-spacing: 0; }
+    .search-pill { height: 47px; padding: 0 19px 0 34px; border-radius: 24px; background: #f1f2f7; display: flex; align-items: center; gap: 11px; color: #1f2228; font-size: 16px; position: relative; }
+    .search-pill::before { content: ""; position: absolute; left: 34px; top: 50%; width: 12px; height: 12px; border: 2px solid #cdd4df; border-radius: 50%; transform: translate(-19px, -50%); }
+    .search-pill::after { content: ""; position: absolute; left: 28px; top: 28px; width: 7px; height: 2px; border-radius: 2px; background: #cdd4df; transform: rotate(45deg); }
+    .clear { margin-left: auto; width: 16px; height: 16px; border-radius: 50%; background: #c8ced8; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; line-height: 1; }
+    .class-card { margin-top: 20px; height: 89px; border-radius: 8px; background: #5878ff; color: #fff; padding: 16px 20px 14px; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr; align-items: center; box-shadow: 0 8px 16px rgba(88, 120, 255, .15); }
+    .class-name { grid-column: 1 / 2; font-size: 17px; font-weight: 800; line-height: 1; }
+    .teacher { align-self: end; display: flex; align-items: center; gap: 10px; font-size: 16px; opacity: .95; }
+    .avatar { width: 22px; height: 22px; border-radius: 50%; background: rgba(255, 255, 255, .45); position: relative; }
+    .avatar::before { content: ""; position: absolute; left: 7px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+    .avatar::after { content: ""; position: absolute; left: 5px; top: 13px; width: 12px; height: 6px; border-radius: 9px 9px 4px 4px; background: #fff; }
+    .join-btn { grid-row: 1 / 3; grid-column: 2 / 3; width: 94px; height: 34px; border: 0; border-radius: 18px; background: #fff; color: #4f70ff; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .help { position: absolute; left: 0; right: 0; bottom: 26px; color: #8a8e98; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; }
+    .help-dot { width: 16px; height: 16px; border-radius: 50%; background: #6a8cff; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+    .toast { position: absolute; left: 50%; top: 318px; width: 286px; padding: 13px 16px; border-radius: 8px; background: rgba(34, 37, 45, .9); color: #fff; text-align: center; font-size: 14px; line-height: 20px; opacity: 0; pointer-events: none; transform: translate(-50%, 12px); transition: opacity .2s ease, transform .2s ease; box-shadow: 0 10px 24px rgba(25, 32, 52, .18); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <section class="page">
+      <div class="topbar"><span class="back" aria-hidden="true"></span><span class="scan" aria-hidden="true"></span></div>
+      <h1>加入新的教学班</h1>
+      <div class="search-pill"><span>1339414</span><span class="clear">×</span></div>
+      <article class="class-card">
+        <div class="class-name">审核班级【误操作】</div>
+        <div class="teacher"><span class="avatar"></span><span>许帅</span></div>
+        <button class="join-btn" type="button">申请加入</button>
+      </article>
+      <div class="help">如何获取课程码 <span class="help-dot">?</span></div>
+      <div class="toast" id="toast">学生机构与班级机构不一致，无法加入该班级</div>
+    </section>
+  </main>
+  <script>
+    const joinButton = document.querySelector(".join-btn");
+    const toast = document.querySelector("#toast");
+    let toastTimer = null;
+    joinButton.addEventListener("click", () => {
+      window.clearTimeout(toastTimer);
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2400);
+    });
+  </script>
+</body>
+</html>
