@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>账号体系升级 - Demo 目录</title>
+  <style>
+    :root {
+      --page: #f3f5f7;
+      --surface: #ffffff;
+      --border: #dfe3e8;
+      --text: #20252b;
+      --muted: #6b737c;
+      --blue: #3978e8;
+      --blue-hover: #2e67cf;
+      --green: #2f8f57;
+    }
+
+    * {
+      box-sizing: border-box;
+      letter-spacing: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--page);
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 14px;
+    }
+
+    .topbar {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 4px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .topbar-meta {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .main {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 42px 0 60px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.3;
+    }
+
+    .page-subtitle {
+      margin: 10px 0 30px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .demo-list {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    .demo-row {
+      min-height: 92px;
+      display: grid;
+      grid-template-columns: 70px minmax(240px, 1.3fr) minmax(260px, 1.5fr) 110px 144px;
+      align-items: center;
+      gap: 18px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .demo-row:last-child {
+      border-bottom: 0;
+    }
+
+    .demo-row.header {
+      min-height: 46px;
+      padding-top: 0;
+      padding-bottom: 0;
+      background: #eef1f4;
+      color: #4f5760;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .sequence {
+      color: #8a929b;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .demo-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .demo-path,
+    .demo-desc {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .demo-path {
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    .status::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+    }
+
+    .open-link {
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 3px;
+      background: var(--blue);
+      color: #fff;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .open-link:hover {
+      background: var(--blue-hover);
+    }
+
+    .open-link::after {
+      width: 7px;
+      height: 7px;
+      border-top: 1px solid currentColor;
+      border-right: 1px solid currentColor;
+      content: "";
+      transform: rotate(45deg);
+    }
+
+    .note {
+      margin-top: 20px;
+      padding-left: 12px;
+      border-left: 3px solid #aab2bc;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 760px) {
+      .main {
+        width: calc(100% - 28px);
+        padding-top: 28px;
+      }
+
+      .demo-row,
+      .demo-row.header {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .demo-row.header {
+        display: none;
+      }
+
+      .sequence::before {
+        content: "页面 ";
+      }
+
+      .open-link {
+        width: 100%;
+        margin-top: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">AS</span><span>账号体系升级</span></div>
+    <div class="topbar-meta">Demo 统一入口</div>
+  </header>
+
+  <main class="main">
+    <h1 class="page-title">Demo 目录</h1>
+    <p class="page-subtitle">集中查看账号体系升级项目中的现状页面与交互原型。页面均为单文件 HTML，可在新窗口独立操作。</p>
+
+    <section class="demo-list" aria-label="Demo 页面列表">
+      <div class="demo-row header" aria-hidden="true">
+        <div>序号</div>
+        <div>页面</div>
+        <div>说明</div>
+        <div>状态</div>
+        <div>操作</div>
+      </div>
+
+      <article class="demo-row">
+        <div class="sequence">01</div>
+        <div>
+          <div class="demo-name">组织机构管理 - 用户管理</div>
+          <div class="demo-path">0820-user-management-replica.html</div>
+        </div>
+        <div class="demo-desc">现有后台用户管理页，包含状态检索、停用原因和账号操作。</div>
+        <div><span class="status">可查看</span></div>
+        <a class="open-link" href="0820-user-management-replica.html" target="_blank" rel="noopener">打开页面</a>
+      </article>
+
+      <article class="demo-row">
+        <div class="sequence">02</div>
+        <div>
+          <div class="demo-name">学校管理员中心 - 学生列表</div>
+          <div class="demo-path">0820-school-admin-student-list.html</div>
+        </div>
+        <div class="demo-desc">学校班级树与学生列表页，包含名称与状态查询、班级切换、排序和工具菜单。</div>
+        <div><span class="status">可查看</span></div>
+        <a class="open-link" href="0820-school-admin-student-list.html" target="_blank" rel="noopener">打开页面</a>
+      </article>
+    </section>
+
+    <p class="note">目录页只负责页面导航，不会改变各页面的独立交互状态。</p>
+  </main>
+</body>
+</html>
