@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>组织机构管理 - 用户管理</title>
+  <style>
+    :root {
+      --topbar-height: 50px;
+      --sidebar-width: 240px;
+      --sidebar-top: 59px;
+      --topbar: #344952;
+      --sidebar: #1e2f35;
+      --sidebar-active: #354a53;
+      --sidebar-text: #c8d0d3;
+      --accent: #27afe9;
+      --success: #48ae52;
+      --success-hover: #3d9a47;
+      --page-bg: #f5f5f5;
+      --surface: #ffffff;
+      --border: #d8d8d8;
+      --text: #111820;
+      --muted: #9ba0a5;
+      --link: #078bc8;
+      --row-height: 57px;
+    }
+
+    * {
+      box-sizing: border-box;
+      letter-spacing: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 13px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button,
+    a,
+    select {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgba(39, 175, 233, 0.32);
+      outline-offset: 2px;
+    }
+
+    .topbar {
+      position: fixed;
+      z-index: 20;
+      inset: 0 0 auto 0;
+      height: var(--topbar-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px 0 29px;
+      background: var(--topbar);
+      color: #e6ecee;
+    }
+
+    .menu-toggle {
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #dce5e7;
+      cursor: pointer;
+    }
+
+    .menu-toggle span,
+    .menu-toggle::before,
+    .menu-toggle::after {
+      content: "";
+      display: block;
+      width: 15px;
+      height: 2px;
+      background: currentColor;
+    }
+
+    .menu-toggle span {
+      margin: 3px 0;
+    }
+
+    .account-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+
+    .account-label {
+      color: #91b4c3;
+    }
+
+    .account-links a {
+      color: #f4f7f8;
+      text-decoration: none;
+    }
+
+    .account-links a:hover {
+      text-decoration: underline;
+    }
+
+    .sidebar {
+      position: fixed;
+      z-index: 15;
+      top: var(--sidebar-top);
+      bottom: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: var(--sidebar);
+      color: var(--sidebar-text);
+      transition: transform 180ms ease;
+      scrollbar-width: thin;
+      scrollbar-color: #496069 transparent;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #496069;
+    }
+
+    .nav-root,
+    .nav-sub,
+    .nav-groups {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-heading,
+    .nav-group,
+    .nav-sub a {
+      min-width: var(--sidebar-width);
+    }
+
+    .nav-heading {
+      height: 45px;
+      display: grid;
+      grid-template-columns: 25px 1fr 13px;
+      align-items: center;
+      gap: 6px;
+      padding: 0 18px 0 19px;
+      border-left: 3px solid var(--accent);
+      background: var(--sidebar-active);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .layers-icon {
+      position: relative;
+      width: 18px;
+      height: 15px;
+    }
+
+    .layers-icon::before,
+    .layers-icon::after,
+    .layers-icon span {
+      position: absolute;
+      left: 1px;
+      width: 14px;
+      height: 8px;
+      border: 2px solid currentColor;
+      transform: rotate(30deg) skewX(-28deg);
+      content: "";
+    }
+
+    .layers-icon::before { top: 0; }
+    .layers-icon span { top: 3px; }
+    .layers-icon::after { top: 6px; }
+
+    .chevron {
+      width: 6px;
+      height: 6px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      justify-self: end;
+      transition: transform 150ms ease;
+    }
+
+    .nav-heading[aria-expanded="false"] .chevron {
+      transform: rotate(-45deg);
+    }
+
+    .nav-sub {
+      overflow: hidden;
+      background: #1b2b31;
+    }
+
+    .nav-heading[aria-expanded="false"] + .nav-sub {
+      display: none;
+    }
+
+    .nav-sub a {
+      height: 41px;
+      display: flex;
+      align-items: center;
+      padding-left: 51px;
+      color: #c5cccf;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .nav-sub a:hover,
+    .nav-sub a.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .nav-group {
+      height: 45px;
+      display: grid;
+      grid-template-columns: 23px 1fr 10px;
+      align-items: center;
+      gap: 6px;
+      padding: 0 19px 0 21px;
+      border-top: 1px solid rgba(255, 255, 255, 0.025);
+      color: #cbd2d5;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .nav-group:hover {
+      background: rgba(255, 255, 255, 0.045);
+      color: #fff;
+    }
+
+    .doc-icon {
+      position: relative;
+      width: 12px;
+      height: 16px;
+      border: 1px solid currentColor;
+      border-radius: 1px;
+    }
+
+    .doc-icon::before {
+      position: absolute;
+      top: -3px;
+      left: 2px;
+      width: 6px;
+      height: 3px;
+      border: 1px solid currentColor;
+      border-bottom: 0;
+      content: "";
+    }
+
+    .doc-icon::after {
+      position: absolute;
+      right: -2px;
+      bottom: 2px;
+      width: 4px;
+      height: 5px;
+      border-left: 1px solid currentColor;
+      background: var(--sidebar);
+      content: "";
+      transform: skewY(-34deg);
+    }
+
+    .nav-group .chevron {
+      width: 5px;
+      height: 5px;
+      border-width: 1px;
+      transform: rotate(-45deg);
+    }
+
+    .workspace {
+      min-height: 100vh;
+      margin-left: var(--sidebar-width);
+      padding-top: var(--topbar-height);
+      transition: margin-left 180ms ease;
+    }
+
+    .page-shell {
+      min-width: 1200px;
+      padding: 20px 19px 40px 19px;
+    }
+
+    .breadcrumb {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 30px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.72);
+      white-space: nowrap;
+    }
+
+    .breadcrumb a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .breadcrumb .current {
+      color: #9b9fa3;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: 721px 371px;
+      gap: 40px;
+      align-items: start;
+      min-height: 117px;
+      padding: 20px 10px 14px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 157px 158px 164px 157px;
+      gap: 10px 28px;
+    }
+
+    .field,
+    .search-combo {
+      height: 37px;
+    }
+
+    .field,
+    .search-combo input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input.field,
+    .search-combo input {
+      padding: 0 12px;
+    }
+
+    select.field {
+      padding: 0 26px 0 16px;
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #222 50%), linear-gradient(135deg, #222 50%, transparent 50%);
+      background-position: calc(100% - 11px) 16px, calc(100% - 7px) 16px;
+      background-repeat: no-repeat;
+      background-size: 4px 4px, 4px 4px;
+    }
+
+    .field::placeholder,
+    .search-combo input::placeholder {
+      color: var(--muted);
+      opacity: 1;
+    }
+
+    .field:hover,
+    .search-combo input:hover {
+      border-color: #b9bdc0;
+    }
+
+    .search-combo {
+      display: grid;
+      grid-template-columns: 113px 51px;
+    }
+
+    .search-combo input {
+      border-radius: 3px 0 0 3px;
+    }
+
+    .query-button {
+      border: 0;
+      border-radius: 0 3px 3px 0;
+      background: #f1f1f1;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .query-button:hover {
+      background: #e7e7e7;
+    }
+
+    .batch-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 13px 12px;
+    }
+
+    .action-button {
+      height: 33px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 3px;
+      background: var(--success);
+      color: #fff;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .action-button:hover {
+      background: var(--success-hover);
+    }
+
+    .action-button:active {
+      transform: translateY(1px);
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.09);
+    }
+
+    table {
+      width: 100%;
+      min-width: 1160px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+    }
+
+    th,
+    td {
+      height: var(--row-height);
+      padding: 7px 12px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: 0;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      font-weight: 700;
+    }
+
+    tbody tr:hover {
+      background: #fafcfd;
+    }
+
+    .compact-cell {
+      text-align: center;
+      word-break: break-all;
+    }
+
+    .stop-reason.empty {
+      color: #a1a6aa;
+      text-align: center;
+    }
+
+    .password-link,
+    .row-action {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .password-link {
+      color: var(--link);
+    }
+
+    .password-link:hover,
+    .row-action:hover {
+      text-decoration: underline;
+    }
+
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0 6px;
+      line-height: 1.3;
+    }
+
+    .empty-state {
+      height: 92px;
+      text-align: center;
+      color: #858b90;
+    }
+
+    .pagination {
+      display: flex;
+      width: max-content;
+      margin-top: 22px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .page-button {
+      width: 35px;
+      height: 34px;
+      border: 0;
+      border-right: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .page-button:last-child {
+      border-right: 0;
+    }
+
+    .page-button.active {
+      background: #2196ee;
+      color: #fff;
+    }
+
+    .page-button:hover:not(.active) {
+      background: #f0f3f5;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 60;
+      left: 50%;
+      bottom: 24px;
+      max-width: min(520px, calc(100vw - 40px));
+      padding: 9px 13px;
+      border-radius: 4px;
+      background: rgba(24, 35, 40, 0.94);
+      color: #fff;
+      opacity: 0;
+      transform: translate(-50%, 9px);
+      pointer-events: none;
+      transition: opacity 150ms ease, transform 150ms ease;
+      font-size: 12px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 50;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      background: rgba(11, 20, 24, 0.5);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(420px, 100%);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    .modal-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      background: transparent;
+      color: #5c6266;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 13px;
+      padding: 18px;
+    }
+
+    .modal-body label {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: #4d5559;
+    }
+
+    .modal-body input,
+    .modal-body select {
+      width: 100%;
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      padding: 13px 18px 18px;
+    }
+
+    .modal-button {
+      height: 34px;
+      min-width: 66px;
+      padding: 0 13px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .modal-button.primary {
+      border-color: var(--success);
+      background: var(--success);
+      color: #fff;
+    }
+
+    body.sidebar-collapsed .sidebar {
+      transform: translateX(-100%);
+    }
+
+    body.sidebar-collapsed .workspace {
+      margin-left: 0;
+    }
+
+    @media (max-width: 900px) {
+      :root {
+        --sidebar-width: 240px;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 8px 0 22px rgba(0, 0, 0, 0.18);
+      }
+
+      .workspace {
+        margin-left: 0;
+      }
+
+      body.mobile-menu-open .sidebar {
+        transform: translateX(0);
+      }
+
+      .account-label {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="折叠侧边栏" title="折叠侧边栏"><span></span></button>
+    <div class="account-links">
+      <span class="account-label">当前用户：admin</span>
+      <a href="#" data-top-action="修改密码">修改密码</a>
+      <a href="#" data-top-action="退出">退出</a>
+    </div>
+  </header>
+
+  <aside class="sidebar" aria-label="主导航">
+    <nav>
+      <ul class="nav-root">
+        <li>
+          <div class="nav-heading" role="button" tabindex="0" aria-expanded="true">
+            <span class="layers-icon" aria-hidden="true"><span></span></span>
+            <span>组织机构</span>
+            <span class="chevron" aria-hidden="true"></span>
+          </div>
+          <ul class="nav-sub">
+            <li><a href="#" data-nav="机构管理">机构管理</a></li>
+            <li><a class="active" href="#" data-nav="用户管理">用户管理</a></li>
+            <li><a href="#" data-nav="班级码管理">班级码管理</a></li>
+            <li><a href="#" data-nav="注册人数统计">注册人数统计</a></li>
+            <li><a href="#" data-nav="冻结管理与日志">冻结管理与日志</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav-groups">
+        <li class="nav-group" data-nav="注册产品审批"><span class="doc-icon" aria-hidden="true"></span><span>注册产品审批</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="账号安全管理"><span class="doc-icon" aria-hidden="true"></span><span>账号安全管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="产品管理"><span class="doc-icon" aria-hidden="true"></span><span>产品管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="订单管理"><span class="doc-icon" aria-hidden="true"></span><span>订单管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="促销管理"><span class="doc-icon" aria-hidden="true"></span><span>促销管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="账务管理"><span class="doc-icon" aria-hidden="true"></span><span>账务管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="销售管理"><span class="doc-icon" aria-hidden="true"></span><span>销售管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="渠道销售管理"><span class="doc-icon" aria-hidden="true"></span><span>渠道销售管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="App管理"><span class="doc-icon" aria-hidden="true"></span><span>App管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="消息管理"><span class="doc-icon" aria-hidden="true"></span><span>消息管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="标准教材（新）"><span class="doc-icon" aria-hidden="true"></span><span>标准教材（新）</span><span class="chevron" aria-hidden="true"></span></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="workspace">
+    <div class="page-shell">
+      <div class="breadcrumb" aria-label="面包屑">
+        <a href="#">Home</a>
+        <span>/</span>
+        <a href="#">组织机构管理</a>
+        <span>/</span>
+        <span class="current">用户管理</span>
+      </div>
+
+      <section class="filter-row" aria-label="用户筛选与批量操作">
+        <form class="filters" id="filterForm">
+          <select class="field" id="roleFilter" aria-label="用户类型">
+            <option value="">全部</option>
+            <option value="学生">学生</option>
+            <option value="老师">老师</option>
+          </select>
+          <input class="field" id="orgFilter" type="text" placeholder="所属机构" aria-label="所属机构">
+          <input class="field" id="studentFilter" type="text" placeholder="学号" aria-label="学号">
+          <select class="field" id="statusFilter" aria-label="状态">
+            <option value="">全部状态</option>
+            <option value="未激活">未激活</option>
+            <option value="活跃">活跃</option>
+            <option value="休眠">休眠</option>
+            <option value="停用">停用</option>
+          </select>
+          <input class="field" id="accountFilter" type="text" placeholder="账号" aria-label="账号">
+          <input class="field" id="mobileFilter" type="text" placeholder="手机" aria-label="手机">
+          <div class="search-combo">
+            <input id="nameFilter" type="text" value="示例用户" placeholder="姓名" aria-label="姓名">
+            <button class="query-button" type="submit">查询</button>
+          </div>
+        </form>
+
+        <div class="batch-actions" aria-label="批量操作">
+          <button class="action-button" type="button" data-batch="批量重置密码">批量重置密码</button>
+          <button class="action-button" type="button" data-batch="批量启用">批量启用</button>
+          <button class="action-button" type="button" data-batch="批量绑定手机号">批量绑定手机号</button>
+          <button class="action-button" type="button" data-batch="批量停用">批量停用</button>
+          <button class="action-button" type="button" id="createUser">新建用户</button>
+          <button class="action-button" type="button" id="mobileSearch">按手机查询</button>
+        </div>
+      </section>
+
+      <div class="table-scroll" role="region" aria-label="用户列表" tabindex="0">
+        <table>
+          <colgroup>
+            <col style="width:70px">
+            <col style="width:100px">
+            <col style="width:46px">
+            <col style="width:90px">
+            <col style="width:44px">
+            <col style="width:68px">
+            <col style="width:110px">
+            <col style="width:45px">
+            <col style="width:45px">
+            <col style="width:100px">
+            <col style="width:105px">
+            <col style="width:68px">
+            <col>
+          </colgroup>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>用户账号</th>
+              <th>姓名</th>
+              <th>手机</th>
+              <th>邮箱</th>
+              <th>用户类型</th>
+              <th>所属机构</th>
+              <th>学号</th>
+              <th>状态</th>
+              <th>停用原因</th>
+              <th>创建时间</th>
+              <th>备用密码</th>
+              <th class="compact-cell">操作</th>
+            </tr>
+          </thead>
+          <tbody id="userRows"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination" aria-label="分页">
+        <button class="page-button" type="button" data-page="previous" aria-label="上一页">«</button>
+        <button class="page-button active" type="button" aria-current="page">1</button>
+        <button class="page-button" type="button" data-page="next" aria-label="下一页">»</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-header">
+        <span id="modalTitle">新建用户</span>
+        <button class="modal-close" id="modalClose" type="button" aria-label="关闭">×</button>
+      </header>
+      <form id="modalForm">
+        <div class="modal-body" id="modalBody"></div>
+        <footer class="modal-footer">
+          <button class="modal-button" id="modalCancel" type="button">取消</button>
+          <button class="modal-button primary" type="submit">确定</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const users = [
+      { id: "9001001", account: "demo_user_01", name: "示例用户", mobile: "138****0001", email: "", role: "学生", org: "示例教师空间", studentId: "", status: "活跃", stopReason: "", created: "2027-07-16 11:06" },
+      { id: "9001002", account: "demo_user_02", name: "示例用户", mobile: "", email: "", role: "老师", org: "测试机构A", studentId: "", status: "未激活", stopReason: "", created: "2025-04-16 16:03" },
+      { id: "9001003", account: "demo_user_03", name: "示例用户", mobile: "", email: "", role: "老师", org: "示例学院", studentId: "", status: "休眠", stopReason: "", created: "2025-04-16 15:35" },
+      { id: "9001004", account: "demo_user_04", name: "示例用户", mobile: "", email: "", role: "老师", org: "示例学院", studentId: "", status: "停用", stopReason: "管理员手动停用", created: "2025-04-16 17:47" }
+    ];
+
+    const rows = document.getElementById("userRows");
+    const toast = document.getElementById("toast");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    const modalForm = document.getElementById("modalForm");
+    let toastTimer;
+    let modalSubmitMessage = "操作成功";
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        "\"": "&quot;"
+      }[char]));
+    }
+
+    function renderUsers(list) {
+      if (!list.length) {
+        rows.innerHTML = '<tr><td class="empty-state" colspan="13">未查询到符合条件的用户</td></tr>';
+        return;
+      }
+
+      rows.innerHTML = list.map((user) => {
+        const created = user.created.replace(" ", "<br>");
+        const lifecycleAction = user.status === "停用" ? "启用" : user.status === "未激活" ? "激活" : "停用";
+        const stopReason = user.stopReason || "--";
+        return `
+          <tr data-user-id="${escapeHtml(user.id)}">
+            <td>${escapeHtml(user.id)}</td>
+            <td>${escapeHtml(user.account)}</td>
+            <td class="compact-cell">${escapeHtml(user.name)}</td>
+            <td>${escapeHtml(user.mobile)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td>${escapeHtml(user.role)}</td>
+            <td>${escapeHtml(user.org)}</td>
+            <td>${escapeHtml(user.studentId)}</td>
+            <td class="compact-cell">${escapeHtml(user.status)}</td>
+            <td class="stop-reason${user.stopReason ? "" : " empty"}">${escapeHtml(stopReason)}</td>
+            <td>${created}</td>
+            <td><button class="password-link" type="button" data-password="${escapeHtml(user.account)}">生成</button></td>
+            <td>
+              <div class="row-actions">
+                ${["修改", "重置密码", lifecycleAction, "注销", "分配岗位", "操作记录", "解除锁定"].map((action) => `<button class="row-action" type="button" data-row-action="${action}" data-account="${escapeHtml(user.account)}">${action}</button>`).join("")}
+              </div>
+            </td>
+          </tr>`;
+      }).join("");
+    }
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function openModal(title, bodyHtml, submitMessage) {
+      modalTitle.textContent = title;
+      modalBody.innerHTML = bodyHtml;
+      modalSubmitMessage = submitMessage || `${title}成功`;
+      modalBackdrop.classList.add("open");
+      modalBackdrop.setAttribute("aria-hidden", "false");
+      const firstInput = modalBody.querySelector("input, select");
+      if (firstInput) window.setTimeout(() => firstInput.focus(), 0);
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove("open");
+      modalBackdrop.setAttribute("aria-hidden", "true");
+    }
+
+    function newUserFields() {
+      return `
+        <label>用户账号<input name="account" type="text" placeholder="请输入用户账号" required></label>
+        <label>姓名<input name="name" type="text" placeholder="请输入姓名" required></label>
+        <label>手机<input name="mobile" type="tel" placeholder="请输入手机号"></label>
+        <label>用户类型<select name="role"><option>学生</option><option>老师</option></select></label>`;
+    }
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+      if (window.innerWidth <= 900) {
+        document.body.classList.toggle("mobile-menu-open");
+      } else {
+        document.body.classList.toggle("sidebar-collapsed");
+      }
+    });
+
+    const navHeading = document.querySelector(".nav-heading");
+    function toggleNavHeading() {
+      navHeading.setAttribute("aria-expanded", navHeading.getAttribute("aria-expanded") !== "true");
+    }
+    navHeading.addEventListener("click", toggleNavHeading);
+    navHeading.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleNavHeading();
+      }
+    });
+
+    document.querySelectorAll("[data-nav]").forEach((item) => {
+      item.addEventListener("click", (event) => {
+        event.preventDefault();
+        showToast(`${item.dataset.nav}：原型暂未接入该页面`);
+      });
+    });
+
+    document.getElementById("filterForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const role = document.getElementById("roleFilter").value.trim();
+      const status = document.getElementById("statusFilter").value.trim();
+      const org = document.getElementById("orgFilter").value.trim().toLowerCase();
+      const student = document.getElementById("studentFilter").value.trim().toLowerCase();
+      const account = document.getElementById("accountFilter").value.trim().toLowerCase();
+      const mobile = document.getElementById("mobileFilter").value.trim().toLowerCase();
+      const name = document.getElementById("nameFilter").value.trim().toLowerCase();
+
+      const filtered = users.filter((user) =>
+        (!role || user.role === role) &&
+        (!status || user.status === status) &&
+        (!org || user.org.toLowerCase().includes(org)) &&
+        (!student || user.studentId.toLowerCase().includes(student)) &&
+        (!account || user.account.toLowerCase().includes(account)) &&
+        (!mobile || user.mobile.toLowerCase().includes(mobile)) &&
+        (!name || user.name.toLowerCase().includes(name))
+      );
+
+      renderUsers(filtered);
+      showToast(`查询完成，共 ${filtered.length} 条结果`);
+    });
+
+    document.querySelectorAll("[data-batch]").forEach((button) => {
+      button.addEventListener("click", () => showToast(`${button.dataset.batch}流程已打开`));
+    });
+
+    document.getElementById("createUser").addEventListener("click", () => {
+      openModal("新建用户", newUserFields(), "用户创建成功");
+    });
+
+    document.getElementById("mobileSearch").addEventListener("click", () => {
+      document.getElementById("mobileFilter").focus();
+      showToast("请输入手机号后点击查询");
+    });
+
+    rows.addEventListener("click", (event) => {
+      const passwordButton = event.target.closest("[data-password]");
+      if (passwordButton) {
+        const code = `TMP-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+        openModal("备用密码", `<label>用户账号<input value="${escapeHtml(passwordButton.dataset.password)}" readonly></label><label>备用密码<input value="${code}" readonly></label>`, "备用密码已生成");
+        return;
+      }
+
+      const actionButton = event.target.closest("[data-row-action]");
+      if (actionButton) {
+        showToast(`${actionButton.dataset.account}：${actionButton.dataset.rowAction}`);
+      }
+    });
+
+    document.querySelectorAll("[data-page]").forEach((button) => {
+      button.addEventListener("click", () => showToast(button.dataset.page === "previous" ? "已经是第一页" : "已经是最后一页"));
+    });
+
+    document.querySelectorAll("[data-top-action]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (link.dataset.topAction === "修改密码") {
+          openModal("修改密码", '<label>当前密码<input type="password" required></label><label>新密码<input type="password" required></label><label>确认新密码<input type="password" required></label>', "密码修改成功");
+        } else {
+          showToast("退出操作已触发");
+        }
+      });
+    });
+
+    document.getElementById("modalClose").addEventListener("click", closeModal);
+    document.getElementById("modalCancel").addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", (event) => {
+      if (event.target === modalBackdrop) closeModal();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeModal();
+    });
+    modalForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      closeModal();
+      showToast(modalSubmitMessage);
+    });
+
+    renderUsers(users);
+  </script>
+</body>
+</html>
