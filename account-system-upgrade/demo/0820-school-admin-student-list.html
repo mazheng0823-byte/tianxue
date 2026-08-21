@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>天学网 - 学校管理员中心 - 学生列表</title>
+  <style>
+    :root {
+      --brand: #668cff;
+      --brand-hover: #557cf2;
+      --brand-soft: #e9f0ff;
+      --page: #f0f3f7;
+      --surface: #ffffff;
+      --table-head: #f0f2f7;
+      --stripe: #f7f8fc;
+      --border: #dfe3ea;
+      --tree-line: #d9d9d9;
+      --text: #222326;
+      --muted: #58606b;
+      --placeholder: #c5c9d1;
+      --header-height: 72px;
+    }
+
+    * {
+      box-sizing: border-box;
+      letter-spacing: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--text);
+      background: var(--page);
+      font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    a:focus-visible,
+    [role="button"]:focus-visible {
+      outline: 3px solid rgba(102, 140, 255, 0.28);
+      outline-offset: 2px;
+    }
+
+    .app-header {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      min-width: 1200px;
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-top: 1px solid #eeeeee;
+      border-bottom: 1px solid #edf0f4;
+      background: #fff;
+    }
+
+    .brand-block {
+      width: 306px;
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      color: var(--brand);
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      margin-right: 5px;
+      border: 2px solid var(--brand);
+      border-right-color: transparent;
+      border-radius: 50%;
+      transform: rotate(-18deg);
+    }
+
+    .brand-mark::before {
+      position: absolute;
+      top: 8px;
+      left: 9px;
+      width: 4px;
+      height: 19px;
+      border-radius: 3px;
+      background: var(--brand);
+      box-shadow: 9px -7px 0 -1px var(--brand);
+      content: "";
+      transform: rotate(-31deg);
+    }
+
+    .brand-mark::after {
+      position: absolute;
+      top: 8px;
+      right: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--brand);
+      content: "";
+    }
+
+    .brand-name {
+      font-size: 27px;
+      font-weight: 800;
+      font-style: italic;
+    }
+
+    .brand-center {
+      margin-left: 8px;
+      font-size: 17px;
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    .main-nav {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 38px;
+      flex: 1 1 auto;
+      white-space: nowrap;
+    }
+
+    .main-nav a,
+    .account-nav a {
+      color: #161719;
+      text-decoration: none;
+    }
+
+    .main-nav a {
+      font-size: 17px;
+    }
+
+    .main-nav a:hover,
+    .main-nav a.active {
+      color: var(--brand);
+    }
+
+    .account-nav {
+      display: flex;
+      align-items: center;
+      gap: 37px;
+      margin-left: auto;
+      padding-left: 36px;
+      white-space: nowrap;
+      font-size: 17px;
+    }
+
+    .power-button {
+      width: 22px;
+      height: 22px;
+      position: relative;
+      padding: 0;
+      border: 2px solid #3d3f43;
+      border-top-color: transparent;
+      border-radius: 50%;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .power-button::before {
+      position: absolute;
+      top: -5px;
+      left: 8px;
+      width: 2px;
+      height: 12px;
+      background: #3d3f43;
+      content: "";
+    }
+
+    .page-body {
+      min-width: 1200px;
+      min-height: calc(100vh - var(--header-height));
+      display: grid;
+      grid-template-columns: 304px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+      padding: 40px 20px 38px;
+    }
+
+    .tree-panel,
+    .content-panel {
+      border-radius: 3px;
+      background: var(--surface);
+    }
+
+    .tree-panel {
+      min-height: 674px;
+      padding: 29px 24px;
+    }
+
+    .tree {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .tree-row {
+      position: relative;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 5px 7px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tree-row:hover {
+      color: #31343a;
+    }
+
+    .tree-row.selected {
+      background: var(--brand-soft);
+    }
+
+    .tree-toggle {
+      width: 18px;
+      height: 18px;
+      position: relative;
+      flex: 0 0 auto;
+      border: 2px solid #d2d2d2;
+      background: #fff;
+    }
+
+    .tree-toggle::before {
+      position: absolute;
+      top: 7px;
+      left: 3px;
+      width: 8px;
+      height: 2px;
+      background: #bdbdbd;
+      content: "";
+    }
+
+    .tree-toggle.collapsed::after {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      width: 2px;
+      height: 8px;
+      background: #bdbdbd;
+      content: "";
+    }
+
+    .folder-icon {
+      width: 22px;
+      height: 15px;
+      position: relative;
+      flex: 0 0 auto;
+      border-radius: 2px;
+      background: var(--brand);
+    }
+
+    .folder-icon::before {
+      position: absolute;
+      top: -4px;
+      left: 2px;
+      width: 9px;
+      height: 5px;
+      border-radius: 2px 2px 0 0;
+      background: var(--brand);
+      content: "";
+    }
+
+    .folder-icon::after {
+      position: absolute;
+      top: -1px;
+      left: -2px;
+      width: 24px;
+      height: 4px;
+      border-radius: 1px;
+      background: #86a5ff;
+      content: "";
+      transform: skewX(22deg);
+    }
+
+    .file-icon {
+      width: 16px;
+      height: 19px;
+      position: relative;
+      flex: 0 0 auto;
+      border: 2px solid var(--brand);
+      background: #fff;
+    }
+
+    .file-icon::after {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 6px;
+      height: 6px;
+      border-left: 2px solid var(--brand);
+      border-bottom: 2px solid var(--brand);
+      background: var(--brand-soft);
+      content: "";
+    }
+
+    .tree-children {
+      position: relative;
+      margin: 0 0 0 28px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tree-children::before {
+      position: absolute;
+      top: -5px;
+      bottom: 10px;
+      left: 11px;
+      width: 2px;
+      background: var(--tree-line);
+      content: "";
+    }
+
+    .tree-children .tree-row {
+      padding-left: 34px;
+    }
+
+    .tree-children .tree-row::before {
+      position: absolute;
+      top: 17px;
+      left: 11px;
+      width: 18px;
+      height: 2px;
+      background: var(--tree-line);
+      content: "";
+    }
+
+    .tree-children.hidden {
+      display: none;
+    }
+
+    .content-panel {
+      min-width: 0;
+      min-height: 674px;
+      padding: 24px;
+    }
+
+    .toolbar {
+      min-height: 64px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .search-form {
+      height: 30px;
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .search-form label {
+      margin-right: 6px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .search-form input {
+      width: 96px;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .search-form input::placeholder {
+      color: var(--placeholder);
+      opacity: 1;
+    }
+
+    .search-button {
+      width: 48px;
+      height: 30px;
+      margin-left: 6px;
+      padding: 0;
+      border: 1px solid var(--brand);
+      border-radius: 3px;
+      background: var(--brand);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .search-button:hover {
+      background: var(--brand-hover);
+    }
+
+    .status-select {
+      width: 82px;
+      height: 30px;
+      margin-left: 6px;
+      padding: 0 22px 0 9px;
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background-color: #fff;
+      background-image: linear-gradient(45deg, transparent 50%, #8e96a2 50%), linear-gradient(135deg, #8e96a2 50%, transparent 50%);
+      background-position: calc(100% - 12px) 12px, calc(100% - 8px) 12px;
+      background-repeat: no-repeat;
+      background-size: 4px 4px, 4px 4px;
+      color: #555d68;
+      cursor: pointer;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .tool-wrap {
+      position: relative;
+    }
+
+    .tool-button {
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--brand);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--brand);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tool-button:hover,
+    .tool-button[aria-expanded="true"] {
+      background: #f3f6ff;
+    }
+
+    .dropdown-caret {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin: 0 1px 3px 7px;
+      border-right: 1px solid currentColor;
+      border-bottom: 1px solid currentColor;
+      transform: rotate(45deg);
+    }
+
+    .tool-menu {
+      position: absolute;
+      z-index: 20;
+      top: 34px;
+      right: 0;
+      min-width: 118px;
+      display: none;
+      padding: 5px 0;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(62, 74, 97, 0.14);
+    }
+
+    .tool-menu.open {
+      display: block;
+    }
+
+    .tool-menu button {
+      width: 100%;
+      height: 30px;
+      padding: 0 12px;
+      border: 0;
+      background: transparent;
+      color: #3d4249;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .tool-menu button:hover {
+      background: #f2f5fb;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 970px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      color: var(--muted);
+    }
+
+    th,
+    td {
+      padding: 0 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      height: 59px;
+      background: var(--table-head);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    td {
+      height: 46px;
+      font-size: 15px;
+    }
+
+    tbody tr:nth-child(even) {
+      background: var(--stripe);
+    }
+
+    tbody tr:hover {
+      background: #eef3ff;
+    }
+
+    .sortable {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font-weight: inherit;
+      cursor: pointer;
+    }
+
+    .sort-arrows {
+      position: relative;
+      display: inline-block;
+      width: 10px;
+      height: 15px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    .sort-arrows::before,
+    .sort-arrows::after {
+      position: absolute;
+      left: 1px;
+      width: 0;
+      height: 0;
+      border-right: 4px solid transparent;
+      border-left: 4px solid transparent;
+      content: "";
+    }
+
+    .sort-arrows::before {
+      top: 0;
+      border-bottom: 5px solid #c5cbd5;
+    }
+
+    .sort-arrows::after {
+      bottom: 0;
+      border-top: 5px solid #c5cbd5;
+    }
+
+    .sortable[data-direction="asc"] .sort-arrows::before {
+      border-bottom-color: var(--brand);
+    }
+
+    .sortable[data-direction="desc"] .sort-arrows::after {
+      border-top-color: var(--brand);
+    }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .row-action {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--brand);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .row-action:hover {
+      text-decoration: underline;
+    }
+
+    .empty-row {
+      height: 240px;
+      text-align: center;
+      color: #9ba2ad;
+    }
+
+    .status-text[data-status="活跃"] {
+      color: #2f9660;
+    }
+
+    .status-text[data-status="未激活"] {
+      color: #8d95a0;
+    }
+
+    .status-text[data-status="休眠"] {
+      color: #c88428;
+    }
+
+    .status-text[data-status="停用"] {
+      color: #c15353;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 80;
+      left: 50%;
+      bottom: 26px;
+      max-width: min(440px, calc(100vw - 40px));
+      padding: 10px 16px;
+      border-radius: 3px;
+      background: rgba(35, 40, 48, 0.94);
+      color: #fff;
+      opacity: 0;
+      transform: translate(-50%, 10px);
+      pointer-events: none;
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 70;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(30, 37, 49, 0.42);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: 430px;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 18px 52px rgba(44, 53, 70, 0.24);
+    }
+
+    .modal-header {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #6b7179;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 14px;
+      padding: 20px;
+    }
+
+    .modal-body label {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      align-items: center;
+      gap: 10px;
+      color: #4f5661;
+    }
+
+    .modal-body input {
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 20px 20px;
+    }
+
+    .modal-button {
+      height: 32px;
+      min-width: 70px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: #444a52;
+      cursor: pointer;
+    }
+
+    .modal-button.primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    @media (max-width: 1200px) {
+      .main-nav {
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-block" aria-label="天学网学校管理员中心">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">天学网</span>
+      <span class="brand-center">· 学校管理员中心</span>
+    </div>
+
+    <nav class="main-nav" aria-label="主导航">
+      <a href="#" data-nav="行政班">行政班</a>
+      <a href="#" data-nav="教师列表">教师列表</a>
+      <a class="active" href="#" data-nav="学生列表">学生列表</a>
+      <a href="#" data-nav="科目管理">科目管理</a>
+      <a href="#" data-nav="课程管理">课程管理</a>
+      <a href="#" data-nav="报告">报告</a>
+      <a href="#" data-nav="报告（新）">报告（新）</a>
+      <a href="#" data-nav="账号规则设置">账号规则设置</a>
+    </nav>
+
+    <div class="account-nav">
+      <a href="#" data-nav="消息">消息</a>
+      <a href="#" data-nav="admin">admin</a>
+      <button class="power-button" type="button" aria-label="退出" title="退出"></button>
+    </div>
+  </header>
+
+  <main class="page-body">
+    <aside class="tree-panel" aria-label="班级树">
+      <ul class="tree">
+        <li>
+          <div class="tree-row" role="button" tabindex="0" data-tree-toggle="school">
+            <span class="tree-toggle" aria-hidden="true"></span>
+            <span class="folder-icon" aria-hidden="true"></span>
+            <span>示例实验中学</span>
+          </div>
+          <ul class="tree-children" data-tree="school">
+            <li>
+              <div class="tree-row" role="button" tabindex="0" data-tree-toggle="grade">
+                <span class="tree-toggle" aria-hidden="true"></span>
+                <span class="folder-icon" aria-hidden="true"></span>
+                <span>2024级（34人）</span>
+              </div>
+              <ul class="tree-children" data-tree="grade">
+                <li>
+                  <div class="tree-row selected" role="button" tabindex="0" data-class="2024级19班（34人）" data-count="34">
+                    <span class="file-icon" aria-hidden="true"></span>
+                    <span><u>2024级19班（34人）</u></span>
+                  </div>
+                </li>
+                <li>
+                  <div class="tree-row" role="button" tabindex="0" data-class="2024级调整班（0人）" data-count="0">
+                    <span class="file-icon" aria-hidden="true"></span>
+                    <span>2024级调整班（0人）</span>
+                  </div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </aside>
+
+    <section class="content-panel" aria-label="学生列表">
+      <div class="toolbar">
+        <form class="search-form" id="searchForm">
+          <label for="keyword">名称</label>
+          <input id="keyword" type="text" placeholder="姓名/用户名/手机号" autocomplete="off">
+          <select class="status-select" id="statusFilter" aria-label="状态">
+            <option value="">全部状态</option>
+            <option value="未激活">未激活</option>
+            <option value="活跃">活跃</option>
+            <option value="休眠">休眠</option>
+            <option value="停用">停用</option>
+          </select>
+          <button class="search-button" type="submit">查询</button>
+        </form>
+
+        <div class="toolbar-actions">
+          <div class="tool-wrap">
+            <button class="tool-button" type="button" data-menu-button="create" aria-expanded="false">新建学生<span class="dropdown-caret" aria-hidden="true"></span></button>
+            <div class="tool-menu" data-menu="create">
+              <button type="button" data-menu-action="单个新建学生">单个新建</button>
+              <button type="button" data-menu-action="批量新建学生">批量新建</button>
+            </div>
+          </div>
+          <div class="tool-wrap">
+            <button class="tool-button" type="button" data-menu-button="clear" aria-expanded="false">清空学号<span class="dropdown-caret" aria-hidden="true"></span></button>
+            <div class="tool-menu" data-menu="clear">
+              <button type="button" data-menu-action="清空当前班学号">清空当前班</button>
+              <button type="button" data-menu-action="清空全年级学号">清空全年级</button>
+            </div>
+          </div>
+          <div class="tool-wrap">
+            <button class="tool-button" type="button" data-menu-button="match" aria-expanded="false">导入匹配<span class="dropdown-caret" aria-hidden="true"></span></button>
+            <div class="tool-menu" data-menu="match">
+              <button type="button" data-menu-action="按姓名匹配">按姓名匹配</button>
+              <button type="button" data-menu-action="按账号匹配">按账号匹配</button>
+            </div>
+          </div>
+          <button class="tool-button" type="button" data-tool-action="导出学生">导出学生</button>
+          <button class="tool-button" type="button" data-tool-action="待审批">待审批</button>
+          <button class="tool-button" type="button" data-tool-action="批量删除">批量删除</button>
+          <button class="tool-button" type="button" data-tool-action="导入学号">导入学号</button>
+          <button class="tool-button" type="button" data-tool-action="更新学生">更新学生</button>
+        </div>
+      </div>
+
+      <div class="table-wrap" role="region" aria-label="学生数据表" tabindex="0">
+        <table>
+          <colgroup>
+            <col style="width:9%">
+            <col style="width:8%">
+            <col style="width:9%">
+            <col style="width:15%">
+            <col style="width:8%">
+            <col style="width:8%">
+            <col style="width:17%">
+            <col style="width:26%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>学生id</th>
+              <th>姓名</th>
+              <th><button class="sortable" type="button" data-sort="studentNo" data-direction="none">学号<span class="sort-arrows" aria-hidden="true"></span></button></th>
+              <th>用户账号</th>
+              <th>手机号</th>
+              <th>状态</th>
+              <th><button class="sortable" type="button" data-sort="joined" data-direction="desc">加入班级时间<span class="sort-arrows" aria-hidden="true"></span></button></th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="studentRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-header">
+        <span id="modalTitle">新建学生</span>
+        <button class="modal-close" id="modalClose" type="button" aria-label="关闭">×</button>
+      </header>
+      <form id="studentForm">
+        <div class="modal-body">
+          <label>姓名<input name="name" type="text" required></label>
+          <label>学号<input name="studentNo" type="text" required></label>
+          <label>用户账号<input name="account" type="text" required></label>
+          <label>手机号<input name="mobile" type="tel"></label>
+        </div>
+        <footer class="modal-footer">
+          <button class="modal-button" id="modalCancel" type="button">取消</button>
+          <button class="modal-button primary" type="submit">确定</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const students = [
+      { id: "9002001", name: "示例甲", studentNo: "240001", account: "demo240001", mobile: "", status: "活跃", joined: "2026-08-17 16:32" },
+      { id: "9002002", name: "示例乙", studentNo: "240002", account: "demo240002", mobile: "", status: "未激活", joined: "2026-08-17 16:32" },
+      { id: "9002003", name: "示例丙", studentNo: "240003", account: "demo240003", mobile: "", status: "休眠", joined: "2026-08-17 16:32" },
+      { id: "9002004", name: "示例丁", studentNo: "240004", account: "demo240004", mobile: "", status: "停用", joined: "2026-08-17 16:32" },
+      { id: "9002005", name: "示例戊", studentNo: "240005", account: "demo240005", mobile: "", status: "活跃", joined: "2026-08-17 16:32" },
+      { id: "9002006", name: "示例己", studentNo: "240006", account: "demo240006", mobile: "", status: "未激活", joined: "2026-08-17 16:32" },
+      { id: "9002007", name: "示例庚", studentNo: "240007", account: "demo240007", mobile: "", status: "活跃", joined: "2026-08-17 16:32" },
+      { id: "9002008", name: "示例辛", studentNo: "240008", account: "demo240008", mobile: "", status: "休眠", joined: "2026-08-17 16:32" },
+      { id: "9002009", name: "示例壬", studentNo: "240009", account: "demo240009", mobile: "", status: "活跃", joined: "2026-08-17 16:32" },
+      { id: "9002010", name: "示例癸", studentNo: "240010", account: "demo240010", mobile: "", status: "停用", joined: "2026-08-17 16:32" },
+      { id: "9002011", name: "示例子", studentNo: "240011", account: "demo240011", mobile: "", status: "活跃", joined: "2026-08-17 16:32" },
+      { id: "9002012", name: "示例丑", studentNo: "240012", account: "demo240012", mobile: "", status: "休眠", joined: "2026-08-17 16:32" }
+    ];
+
+    const rows = document.getElementById("studentRows");
+    const toast = document.getElementById("toast");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    let currentClassCount = 34;
+    let currentList = [...students];
+    let toastTimer;
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        "\"": "&quot;"
+      }[char]));
+    }
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function renderStudents(list) {
+      if (!list.length) {
+        rows.innerHTML = '<tr><td class="empty-row" colspan="8">暂无学生数据</td></tr>';
+        return;
+      }
+
+      rows.innerHTML = list.map((student) => `
+        <tr data-student-id="${escapeHtml(student.id)}">
+          <td>${escapeHtml(student.id)}</td>
+          <td>${escapeHtml(student.name)}</td>
+          <td>${escapeHtml(student.studentNo)}</td>
+          <td>${escapeHtml(student.account)}</td>
+          <td>${escapeHtml(student.mobile)}</td>
+          <td><span class="status-text" data-status="${escapeHtml(student.status)}">${escapeHtml(student.status)}</span></td>
+          <td>${escapeHtml(student.joined)}</td>
+          <td>
+            <div class="row-actions">
+              ${["编辑", "删除", "重置密码", "课程班"].map((action) => `<button class="row-action" type="button" data-row-action="${action}" data-student="${escapeHtml(student.name)}">${action}</button>`).join("")}
+            </div>
+          </td>
+        </tr>`).join("");
+    }
+
+    function closeMenus() {
+      document.querySelectorAll(".tool-menu.open").forEach((menu) => menu.classList.remove("open"));
+      document.querySelectorAll("[data-menu-button]").forEach((button) => button.setAttribute("aria-expanded", "false"));
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove("open");
+      modalBackdrop.setAttribute("aria-hidden", "true");
+    }
+
+    function openStudentModal() {
+      modalBackdrop.classList.add("open");
+      modalBackdrop.setAttribute("aria-hidden", "false");
+      window.setTimeout(() => modalBackdrop.querySelector("input").focus(), 0);
+    }
+
+    document.getElementById("searchForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const keyword = document.getElementById("keyword").value.trim().toLowerCase();
+      const status = document.getElementById("statusFilter").value;
+      if (currentClassCount === 0) {
+        currentList = [];
+      } else {
+        currentList = students.filter((student) =>
+          [student.id, student.name, student.studentNo, student.account, student.mobile]
+            .some((value) => value.toLowerCase().includes(keyword))
+          && (!status || student.status === status)
+        );
+      }
+      renderStudents(currentList);
+      showToast(`查询完成，共 ${currentList.length} 条结果`);
+    });
+
+    document.querySelectorAll("[data-tree-toggle]").forEach((row) => {
+      const toggle = row.querySelector(".tree-toggle");
+      const key = row.dataset.treeToggle;
+      const tree = document.querySelector(`[data-tree="${key}"]`);
+      const handler = () => {
+        tree.classList.toggle("hidden");
+        toggle.classList.toggle("collapsed");
+      };
+      row.addEventListener("click", handler);
+      row.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handler();
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-class]").forEach((row) => {
+      const selectClass = () => {
+        document.querySelectorAll("[data-class]").forEach((item) => item.classList.remove("selected"));
+        row.classList.add("selected");
+        currentClassCount = Number(row.dataset.count);
+        currentList = currentClassCount ? [...students] : [];
+        renderStudents(currentList);
+        showToast(`已切换至${row.dataset.class}`);
+      };
+      row.addEventListener("click", selectClass);
+      row.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          selectClass();
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-menu-button]").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const menu = document.querySelector(`[data-menu="${button.dataset.menuButton}"]`);
+        const shouldOpen = !menu.classList.contains("open");
+        closeMenus();
+        if (shouldOpen) {
+          menu.classList.add("open");
+          button.setAttribute("aria-expanded", "true");
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-menu-action]").forEach((button) => {
+      button.addEventListener("click", () => {
+        closeMenus();
+        if (button.dataset.menuAction === "单个新建学生") openStudentModal();
+        else showToast(`${button.dataset.menuAction}流程已打开`);
+      });
+    });
+
+    document.querySelectorAll("[data-tool-action]").forEach((button) => {
+      button.addEventListener("click", () => showToast(`${button.dataset.toolAction}流程已打开`));
+    });
+
+    document.querySelectorAll("[data-nav]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showToast(`${link.dataset.nav}：原型暂未接入该页面`);
+      });
+    });
+
+    document.querySelector(".power-button").addEventListener("click", () => showToast("退出操作已触发"));
+
+    document.querySelectorAll("[data-sort]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextDirection = button.dataset.direction === "asc" ? "desc" : "asc";
+        document.querySelectorAll("[data-sort]").forEach((item) => item.dataset.direction = "none");
+        button.dataset.direction = nextDirection;
+        const key = button.dataset.sort;
+        currentList.sort((a, b) => a[key].localeCompare(b[key]) * (nextDirection === "asc" ? 1 : -1));
+        renderStudents(currentList);
+      });
+    });
+
+    rows.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-row-action]");
+      if (button) showToast(`${button.dataset.student}：${button.dataset.rowAction}`);
+    });
+
+    document.addEventListener("click", closeMenus);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeMenus();
+        closeModal();
+      }
+    });
+
+    document.getElementById("modalClose").addEventListener("click", closeModal);
+    document.getElementById("modalCancel").addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", (event) => {
+      if (event.target === modalBackdrop) closeModal();
+    });
+    document.getElementById("studentForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      closeModal();
+      showToast("学生创建成功");
+    });
+
+    renderStudents(currentList);
+  </script>
+</body>
+</html>
