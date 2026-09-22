@@ -1,0 +1,2611 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>教师端挑题组卷优化 - 移动端</title>
+  <style>
+    :root {
+      --blue: #3287f6;
+      --blue-strong: #2378eb;
+      --blue-soft: #eaf3ff;
+      --blue-pale: #f4f8ff;
+      --ink: #172b48;
+      --muted: #91a0b5;
+      --line: #e7edf5;
+      --panel: #f4f7fb;
+      --green: #0ab884;
+      --yellow: #ffbf00;
+      --danger: #ff5364;
+      --shadow: 0 6px 24px rgba(32, 95, 172, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #edf4fb;
+      color: var(--ink);
+      font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      border: 0;
+      background: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .phone {
+      position: relative;
+      width: min(100vw, 430px);
+      min-height: 100dvh;
+      margin: 0 auto;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 0 34px rgba(31, 64, 104, .12);
+    }
+
+    .screen {
+      min-height: 100dvh;
+      padding-bottom: 84px;
+      background: #fff;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 72px 1fr 116px;
+      align-items: center;
+      height: 58px;
+      padding: env(safe-area-inset-top) 14px 0;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .98);
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      font-size: 34px;
+      line-height: 1;
+      color: #111d2b;
+    }
+
+    .back-btn::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-left: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      text-align: center;
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .help-link {
+      justify-self: end;
+      padding: 6px 0 4px;
+      color: #2577d6;
+      font-size: 14px;
+      border-bottom: 1px solid #2577d6;
+      white-space: nowrap;
+    }
+
+    .source-bar {
+      display: grid;
+      grid-template-columns: 84px 1fr 1fr 1fr;
+      align-items: center;
+      height: 64px;
+      border-bottom: 10px solid #f6f8fd;
+      background: #fff;
+    }
+
+    .grade-select {
+      position: relative;
+      padding: 0 28px 0 16px;
+      font-size: 15px;
+      border-right: 1px solid #cfd6e0;
+    }
+
+    .grade-select::after {
+      content: "";
+      position: absolute;
+      right: 17px;
+      top: 7px;
+      border: 4px solid transparent;
+      border-top-color: #21344f;
+    }
+
+    .source-tab {
+      position: relative;
+      height: 54px;
+      color: #a5afbd;
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    .source-tab.active {
+      color: var(--blue-strong);
+      font-weight: 700;
+    }
+
+    .source-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 7px;
+      width: 28px;
+      height: 4px;
+      transform: translateX(-50%);
+      border-radius: 2px;
+      background: var(--blue);
+    }
+
+    .mobile-filters {
+      padding: 12px 18px 10px;
+      border-bottom: 10px solid #f6f8fd;
+      background: #fff;
+    }
+
+    .filter-line {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .filter-line:last-child { margin-bottom: 0; }
+
+    .filter-label {
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .select-box {
+      min-height: 48px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #1e2e44;
+      background: var(--panel);
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .select-box::after {
+      content: "";
+      border: 4px solid transparent;
+      border-top-color: #21344f;
+      transform: translateY(3px);
+    }
+
+    .split-select {
+      display: grid;
+      grid-template-columns: 1fr 82px;
+      gap: 10px;
+    }
+
+    .collapse-btn {
+      min-height: 48px;
+      color: #237bdc;
+      background: var(--panel);
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    .chevron-up {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-left: 5px;
+      border-left: 1.5px solid currentColor;
+      border-top: 1.5px solid currentColor;
+      transform: translateY(2px) rotate(45deg);
+    }
+
+    .exercise-list {
+      padding: 16px 16px 110px;
+      background: #fff;
+    }
+
+    .group-head {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      height: 48px;
+      padding: 0 17px;
+      margin-bottom: 10px;
+      background: #eaf3ff;
+      border-radius: 7px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .group-head::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border: 5px solid transparent;
+      border-top-color: var(--blue);
+      transform: translateY(3px);
+    }
+
+    .exercise-card {
+      position: relative;
+      min-height: 125px;
+      margin-bottom: 11px;
+      padding: 14px 15px 16px;
+      background: #f7f9fc;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(35, 88, 150, .05);
+    }
+
+    .exercise-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .status-tag {
+      flex: none;
+      padding: 2px 7px;
+      color: #03a976;
+      border: 1px solid #03a976;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .exercise-bottom {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: end;
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .meta {
+      min-width: 108px;
+      color: #24364c;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .stars {
+      display: inline-flex;
+      gap: 1px;
+      vertical-align: -2px;
+    }
+
+    .star {
+      width: 14px;
+      height: 14px;
+      color: #d7dfe9;
+      font-size: 16px;
+      line-height: 14px;
+    }
+
+    .star.on { color: var(--yellow); }
+
+    .small-action {
+      height: 36px;
+      padding: 0 14px;
+      color: #1974d1;
+      border: 1px solid #1974d1;
+      border-radius: 18px;
+      background: #fff;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .small-action.soft {
+      color: #1974d1;
+      border-color: transparent;
+      background: #dceaff;
+    }
+
+    .basket-bar {
+      position: fixed;
+      z-index: 36;
+      left: 50%;
+      bottom: 0;
+      width: min(100vw, 430px);
+      height: 76px;
+      padding: 10px 16px max(10px, env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      align-items: center;
+      transform: translateX(-50%);
+      background: #fff;
+      border-top: 1px solid var(--line);
+      box-shadow: 0 -5px 18px rgba(38, 83, 137, .08);
+    }
+
+    .basket-count {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .cart-icon {
+      position: relative;
+      width: 44px;
+      height: 38px;
+    }
+
+    .cart-icon::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 7px;
+      width: 25px;
+      height: 19px;
+      border: 5px solid var(--blue-strong);
+      border-top: 0;
+      border-radius: 3px 3px 9px 9px;
+      transform: skew(-8deg);
+    }
+
+    .cart-icon::after {
+      content: "••";
+      position: absolute;
+      left: 13px;
+      top: 21px;
+      color: var(--blue-strong);
+      font-size: 20px;
+      letter-spacing: 7px;
+    }
+
+    .cart-handle {
+      position: absolute;
+      left: 1px;
+      top: 3px;
+      width: 14px;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--blue-strong);
+      transform: rotate(16deg);
+    }
+
+    .cart-badge {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #ff5d65;
+      box-shadow: 0 0 0 2px #fff;
+    }
+
+    .primary-action {
+      height: 48px;
+      color: #fff;
+      background: var(--blue-strong);
+      border-radius: 24px;
+      font-size: 18px;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 48;
+      left: calc(50% - min(50vw, 215px) + 16px);
+      bottom: 72px;
+      padding: 12px 17px;
+      color: #7147dd;
+      background: #e9f2ff;
+      border: 1px solid #d0e2fb;
+      border-radius: 7px;
+      box-shadow: 0 5px 14px rgba(31, 91, 163, .1);
+      font-size: 14px;
+    }
+
+    .toast-close {
+      display: inline-grid;
+      place-items: center;
+      width: 17px;
+      height: 17px;
+      margin-left: 12px;
+      color: #fff;
+      background: #a8c3dc;
+      border-radius: 50%;
+      font-size: 12px;
+      vertical-align: 1px;
+    }
+
+    .overlay {
+      position: fixed;
+      z-index: 50;
+      inset: 0;
+      background: rgba(0, 0, 0, .68);
+    }
+
+    .bottom-sheet {
+      position: fixed;
+      z-index: 55;
+      left: 50%;
+      bottom: 0;
+      width: min(100vw, 430px);
+      height: calc(100dvh - 126px);
+      min-height: 600px;
+      transform: translateX(-50%);
+      overflow: hidden;
+      background: #fff;
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -10px 35px rgba(0, 0, 0, .14);
+    }
+
+    .sheet-head {
+      position: relative;
+      height: 76px;
+      display: grid;
+      place-items: center;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .sheet-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .sheet-clear {
+      position: absolute;
+      right: 16px;
+      top: 26px;
+      color: #9aa9bb;
+      font-size: 14px;
+    }
+
+    .sheet-collapse {
+      position: absolute;
+      left: 16px;
+      top: 27px;
+      width: 11px;
+      height: 11px;
+      border-right: 2px solid #7b8da1;
+      border-bottom: 2px solid #7b8da1;
+      transform: rotate(45deg);
+    }
+
+    .sheet-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      margin: 14px 18px 12px;
+      padding: 3px;
+      border-radius: 26px;
+      background: #f4f7fc;
+    }
+
+    .sheet-tab {
+      height: 42px;
+      border-radius: 22px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .sheet-tab.active {
+      color: #fff;
+      background: var(--blue-strong);
+      box-shadow: 0 3px 10px rgba(35, 120, 235, .22);
+    }
+
+    .draft-panel {
+      height: calc(100% - 144px);
+      margin: 0 16px;
+      overflow-y: auto;
+      padding: 12px 9px 100px;
+      background: #eef5ff;
+      border-radius: 7px 7px 0 0;
+      scrollbar-width: thin;
+      scrollbar-color: #a8d2ff transparent;
+    }
+
+    .draft-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .draft-panel-head small {
+      color: #9ba9ba;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .new-btn {
+      color: #227bd8;
+      font-size: 14px;
+    }
+
+    .plus-circle {
+      display: inline-grid;
+      place-items: center;
+      width: 16px;
+      height: 16px;
+      margin-right: 4px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      font-size: 14px;
+    }
+
+    .draft-tip {
+      margin: 4px 0 10px;
+      color: #ff9029;
+      font-size: 12px;
+    }
+
+    .draft-card {
+      position: relative;
+      min-height: 105px;
+      margin-bottom: 10px;
+      padding: 17px 15px 13px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(50, 111, 176, .06);
+    }
+
+    .draft-name {
+      padding-right: 32px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .draft-name small {
+      margin-left: 5px;
+      color: #a3afbf;
+      font-size: 12px;
+    }
+
+    .delete-icon {
+      position: absolute;
+      right: 14px;
+      top: 17px;
+      width: 18px;
+      height: 20px;
+      color: #287ee2;
+    }
+
+    .delete-icon::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 5px;
+      width: 11px;
+      height: 12px;
+      border: 2px solid currentColor;
+      border-top: 0;
+      border-radius: 0 0 2px 2px;
+    }
+
+    .delete-icon::after {
+      content: "";
+      position: absolute;
+      left: 1px;
+      top: 2px;
+      width: 16px;
+      height: 2px;
+      background: currentColor;
+      box-shadow: 5px -3px 0 -1px currentColor;
+    }
+
+    .draft-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 15px;
+    }
+
+    .draft-actions button {
+      height: 30px;
+      padding: 0 11px;
+      color: #1974d1;
+      border: 1px solid #1974d1;
+      border-radius: 16px;
+      background: #fff;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .draft-actions button:last-child {
+      padding-inline: 16px;
+      color: #fff;
+      background: var(--blue-strong);
+    }
+
+    .mobile-package-row {
+      display: flex;
+      margin-top: 12px;
+    }
+
+    .mobile-package-trigger,
+    .mobile-saved-package-trigger {
+      height: 30px;
+      padding: 0 12px;
+      color: #1974d1;
+      border: 1px solid #1974d1;
+      border-radius: 16px;
+      background: #eef6ff;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .mobile-package-trigger:disabled,
+    .mobile-saved-package-trigger:disabled {
+      cursor: not-allowed;
+      opacity: .72;
+    }
+
+    .mobile-package-trigger.loading:disabled,
+    .mobile-saved-package-trigger.loading:disabled {
+      cursor: wait;
+      opacity: .78;
+    }
+
+    .mobile-package-trigger.generated,
+    .mobile-saved-package-trigger.generated {
+      color: #8fa1b4;
+      border-color: #c4d1df;
+      background: #f3f6f9;
+    }
+
+    .package-spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      margin-right: 6px;
+      vertical-align: -2px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: package-spin .7s linear infinite;
+    }
+
+    @keyframes package-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .mobile-package-result {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 5px 8px;
+      margin-top: 10px;
+      padding: 9px 10px;
+      border: 1px solid #cfe4ff;
+      border-radius: 6px;
+      background: #edf6ff;
+    }
+
+    .mobile-package-result.stale {
+      border-color: #ffd7ae;
+      background: #fff7ee;
+    }
+
+    .mobile-package-result.stale .mobile-package-result-label {
+      color: #f28a25;
+    }
+
+    .mobile-package-result-label {
+      color: #16a36d;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .mobile-package-name {
+      grid-column: 1 / -1;
+      color: #48637d;
+      font-size: 12px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .mobile-copy-package {
+      height: 25px;
+      padding: 0 9px;
+      color: #1974d1;
+      border: 1px solid #1974d1;
+      border-radius: 13px;
+      background: #fff;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .mobile-saved-panel {
+      height: calc(100% - 144px);
+      margin: 0 10px;
+      overflow-y: auto;
+      padding: 0 0 100px;
+      background: #f6f8fb;
+      border-radius: 6px 6px 0 0;
+      scrollbar-width: thin;
+      scrollbar-color: #a8d2ff transparent;
+    }
+
+    .mobile-saved-group {
+      margin-bottom: 8px;
+      background: #f8fafc;
+    }
+
+    .mobile-saved-title {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 12px;
+      color: #173653;
+      font-size: 15px;
+      font-weight: 700;
+      border-bottom: 1px solid #edf1f6;
+    }
+
+    .mobile-saved-title::before {
+      content: "";
+      width: 3px;
+      height: 16px;
+      border-radius: 2px;
+      background: var(--blue);
+    }
+
+    .mobile-saved-title small {
+      margin-left: auto;
+      color: #a1afbf;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .mobile-saved-item {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 12px;
+      color: #53677e;
+      font-size: 12px;
+    }
+
+    .mobile-saved-item.package-capable {
+      flex-wrap: wrap;
+    }
+
+    .mobile-saved-item .mobile-saved-package-trigger {
+      flex: 0 0 auto;
+      height: 26px;
+      padding-inline: 8px;
+      background: #fff;
+      font-size: 11px;
+    }
+
+    .mobile-saved-item .mobile-saved-package-trigger.generated {
+      color: #8fa1b4;
+      border-color: #c4d1df;
+      background: #f3f6f9;
+    }
+
+    .mobile-saved-item .mobile-package-result {
+      flex: 1 0 100%;
+      margin: 2px 0 4px;
+    }
+
+    .mobile-saved-item.previewing {
+      background: #e9f3ff;
+    }
+
+    .mobile-saved-name {
+      min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .saved-delete {
+      position: relative;
+      right: auto;
+      top: auto;
+      width: 17px;
+      height: 19px;
+      flex: 0 0 17px;
+    }
+
+    .mobile-eye {
+      position: relative;
+      width: 20px;
+      height: 18px;
+      flex: 0 0 20px;
+      color: var(--blue-strong);
+    }
+
+    .mobile-eye::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 4px;
+      width: 15px;
+      height: 9px;
+      border: 1.5px solid currentColor;
+      border-radius: 50% / 60%;
+    }
+
+    .mobile-eye::after {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 7px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .mobile-saved-empty {
+      padding: 80px 10px;
+      color: #a1afbf;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .draft-sheet .basket-bar,
+    .edit-sheet .basket-bar { z-index: 60; }
+
+    .edit-sheet {
+      height: calc(100dvh - 90px);
+      min-height: 650px;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .edit-head {
+      height: 72px;
+      display: grid;
+      grid-template-columns: 48px 1fr 62px;
+      align-items: center;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .edit-head h2 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 0;
+      margin: 0;
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .edit-head .back-btn { color: #7890a8; }
+
+    .edit-points {
+      color: #1c70cb;
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    .pencil {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-left: 4px;
+      border: 2px solid var(--blue-strong);
+      border-radius: 2px;
+      transform: rotate(-45deg);
+      vertical-align: -2px;
+    }
+
+    .edit-scroll {
+      height: calc(100% - 136px);
+      overflow-y: auto;
+      padding: 16px 16px 120px;
+    }
+
+    .question-card {
+      border: 1px solid #e2e8ef;
+      border-radius: 6px;
+      box-shadow: 0 2px 7px rgba(26, 69, 120, .05);
+      overflow: hidden;
+    }
+
+    .question-group-head {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      background: #f1f6fe;
+    }
+
+    .question-group-head strong {
+      margin-right: auto;
+      font-size: 17px;
+    }
+
+    .outline-action {
+      height: 32px;
+      padding: 0 15px;
+      color: #5a93c8;
+      border: 1px solid #8ab7de;
+      border-radius: 18px;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .outline-action.danger {
+      color: #1370c8;
+      border-color: #1370c8;
+    }
+
+    .item-toolbar {
+      display: flex;
+      align-items: center;
+      min-height: 54px;
+      padding: 9px 12px;
+      gap: 6px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mini-tag {
+      padding: 4px 7px;
+      color: #2076cf;
+      border: 1px solid #2076cf;
+      border-radius: 2px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .item-operations {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin-left: auto;
+    }
+
+    .item-operations button {
+      min-width: 34px;
+      height: 30px;
+      padding: 0 4px;
+      color: #227bd8;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .arrow-operation {
+      font-size: 24px !important;
+      color: #9db0c6 !important;
+    }
+
+    .question-content { padding: 0 12px 14px; }
+
+    .word-box {
+      margin-top: 0;
+      border: 1px solid #7f8790;
+      font-size: 18px;
+    }
+
+    .word-line {
+      min-height: 48px;
+      padding: 11px 0;
+      border-bottom: 1px solid #aeb3ba;
+    }
+
+    .word-line:last-child { border-bottom: 0; }
+
+    .audio-tools {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 23px 5px 26px;
+      text-align: center;
+    }
+
+    .audio-tool { color: #999; font-size: 12px; }
+
+    .audio-icon {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 8px;
+      border: 5px solid #dfe9ff;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .audio-tool:nth-child(2) .audio-icon {
+      border-color: #f1f1f1;
+      background: #eee;
+    }
+
+    .audio-tool:nth-child(3) .audio-icon { border-color: #ededed; }
+
+    .speaker-shape {
+      position: absolute;
+      left: 12px;
+      top: 15px;
+      width: 10px;
+      height: 14px;
+      background: #4e83e9;
+      clip-path: polygon(0 35%, 42% 35%, 100% 0, 100% 100%, 42% 65%, 0 65%);
+    }
+
+    .speaker-shape::after {
+      content: "))";
+      position: absolute;
+      left: 7px;
+      top: -5px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .mic-shape {
+      position: absolute;
+      left: 15px;
+      top: 10px;
+      width: 10px;
+      height: 21px;
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .mic-shape::after {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 12px;
+      width: 16px;
+      height: 13px;
+      border: 2px solid #fff;
+      border-top: 0;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .analysis-row {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 3px 0 5px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .triangle-up {
+      display: inline-block;
+      margin-left: 4px;
+      border: 5px solid transparent;
+      border-bottom-color: #222;
+      transform: translateY(-2px);
+    }
+
+    .save-draft-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      height: 78px;
+      padding: 12px 16px max(12px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .save-draft-bar button {
+      width: 100%;
+      height: 50px;
+      color: #fff;
+      background: var(--blue-strong);
+      border-radius: 26px;
+      font-size: 18px;
+    }
+
+    .picker-page {
+      position: fixed;
+      z-index: 80;
+      left: 50%;
+      top: 0;
+      width: min(100vw, 430px);
+      height: 100dvh;
+      transform: translateX(-50%);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .picker-head {
+      height: 58px;
+      display: grid;
+      grid-template-columns: 52px 1fr 52px;
+      align-items: center;
+      padding: env(safe-area-inset-top) 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .picker-head h2 {
+      margin: 0;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    .close-btn {
+      width: 40px;
+      height: 40px;
+      justify-self: end;
+      position: relative;
+    }
+
+    .close-btn::before,
+    .close-btn::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 19px;
+      width: 18px;
+      height: 1.5px;
+      background: #687b90;
+    }
+
+    .close-btn::before { transform: rotate(45deg); }
+    .close-btn::after { transform: rotate(-45deg); }
+
+    .picker-scroll {
+      height: calc(100% - 132px);
+      overflow-y: auto;
+      padding-bottom: 22px;
+      background: #f6f8fc;
+    }
+
+    .picker-source-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      height: 52px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .picker-source-tab {
+      position: relative;
+      font-size: 14px;
+      color: #77869a;
+    }
+
+    .picker-source-tab.active {
+      color: var(--blue-strong);
+      font-weight: 700;
+    }
+
+    .picker-source-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 5px;
+      width: 24px;
+      height: 3px;
+      transform: translateX(-50%);
+      background: var(--blue);
+      border-radius: 2px;
+    }
+
+    .picker-filters {
+      padding: 12px 14px 6px;
+      background: #fff;
+      border-bottom: 8px solid #f4f7fb;
+    }
+
+    .picker-filter-row {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      align-items: start;
+      gap: 7px;
+      margin-bottom: 9px;
+    }
+
+    .picker-filter-label {
+      padding-top: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 6px;
+    }
+
+    .filter-chip {
+      min-height: 30px;
+      padding: 4px 9px;
+      border-radius: 4px;
+      color: #43536a;
+      background: #f3f6fa;
+      font-size: 13px;
+      line-height: 20px;
+    }
+
+    .filter-chip.active {
+      color: #fff;
+      background: var(--blue);
+    }
+
+    .filter-chip.check-chip {
+      position: relative;
+      padding-left: 27px;
+      border: 1px solid #e0e7f0;
+      background: #fff;
+    }
+
+    .filter-chip.check-chip::before {
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      width: 12px;
+      height: 12px;
+      border: 1px solid #bdcad9;
+      border-radius: 3px;
+      background: #fff;
+    }
+
+    .filter-chip.check-chip.active {
+      color: #2479d7;
+      border-color: #bdd8f7;
+      background: #edf5ff;
+    }
+
+    .filter-chip.check-chip.active::before {
+      border-color: var(--blue);
+      background: var(--blue);
+      box-shadow: inset 0 0 0 3px #fff;
+    }
+
+    .mobile-wrongbook-result {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 7px 0 3px;
+      color: #72839a;
+      font-size: 13px;
+    }
+
+    .mobile-wrongbook-result button {
+      height: 34px;
+      padding: 0 13px;
+      color: #fff;
+      background: var(--blue);
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    .selected-path {
+      margin: 10px 14px 0;
+      padding: 10px 12px;
+      color: #4c6682;
+      background: #edf5ff;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .picker-question {
+      margin: 12px 14px;
+      padding: 13px;
+      background: #fff;
+      border-radius: 7px;
+      box-shadow: 0 2px 9px rgba(36, 78, 129, .06);
+    }
+
+    .picker-question-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .radio-select {
+      margin-left: auto;
+      color: #8798ad;
+      font-size: 13px;
+    }
+
+    .radio-dot {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+      border: 1px solid #b9c8d9;
+      border-radius: 50%;
+      vertical-align: -2px;
+    }
+
+    .radio-select.selected { color: var(--blue-strong); }
+    .radio-select.selected .radio-dot { border: 4px solid var(--blue); }
+
+    .passage {
+      margin: 12px 0 14px;
+      color: #5e6d82;
+      font-size: 14px;
+      line-height: 1.75;
+      text-align: justify;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .option span:last-child {
+      padding: 10px 12px;
+      background: #f1f4f8;
+      border-radius: 5px;
+    }
+
+    .picker-footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 74px;
+      padding: 11px 14px max(11px, env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 10px;
+      background: #fff;
+      border-top: 1px solid var(--line);
+    }
+
+    .picker-footer button {
+      height: 48px;
+      border-radius: 24px;
+      font-size: 16px;
+    }
+
+    .picker-footer .cancel {
+      color: #2578d5;
+      border: 1px solid #2578d5;
+    }
+
+    .picker-footer .confirm {
+      color: #fff;
+      background: var(--blue-strong);
+    }
+
+    .mobile-assignment-page {
+      position: fixed;
+      z-index: 80;
+      inset: 0;
+      width: min(100vw, 430px);
+      margin: 0 auto;
+      overflow: hidden;
+      color: #173653;
+      background: #f3f7fc;
+    }
+
+    .mobile-assignment-head {
+      position: absolute;
+      z-index: 2;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 60px;
+      display: grid;
+      place-items: center;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .mobile-assignment-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .mobile-assignment-back {
+      position: absolute;
+      left: 20px;
+      top: 21px;
+      width: 14px;
+      height: 14px;
+      border-left: 2px solid #253a50;
+      border-bottom: 2px solid #253a50;
+      transform: rotate(45deg);
+    }
+
+    .mobile-assignment-scroll {
+      position: absolute;
+      inset: 60px 0 76px;
+      overflow-y: auto;
+      padding: 12px 0 28px;
+      scrollbar-width: thin;
+      scrollbar-color: #a8d2ff transparent;
+    }
+
+    .mobile-assignment-section {
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .mobile-assignment-section-head {
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 18px;
+      border-bottom: 1px solid #edf1f6;
+    }
+
+    .mobile-assignment-section-head strong {
+      position: relative;
+      padding-left: 11px;
+      font-size: 17px;
+    }
+
+    .mobile-assignment-section-head strong::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 2px;
+      width: 4px;
+      height: 18px;
+      border-radius: 2px;
+      background: var(--blue);
+    }
+
+    .mobile-assignment-section-head span {
+      color: #8698ad;
+      font-size: 12px;
+    }
+
+    .mobile-assignment-practice {
+      padding: 16px 18px 6px;
+    }
+
+    .mobile-assignment-practice h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .mobile-assignment-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 12px;
+      color: #8497ad;
+      font-size: 12px;
+    }
+
+    .mobile-assignment-tag {
+      padding: 5px 8px;
+      border-radius: 4px;
+      color: #287ee2;
+      background: #eaf4ff;
+    }
+
+    .mobile-assignment-tag.time {
+      color: #12a774;
+      background: #e8f8f2;
+    }
+
+    .mobile-setting-row {
+      min-height: 49px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid #edf1f6;
+      font-size: 14px;
+    }
+
+    .mobile-setting-label {
+      flex: 0 0 auto;
+      font-weight: 700;
+    }
+
+    .mobile-setting-options {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 14px;
+    }
+
+    .mobile-setting-choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #53677e;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .mobile-setting-choice::before {
+      content: "";
+      width: 15px;
+      height: 15px;
+      border: 1px solid #c7d2df;
+      border-radius: 50%;
+      background: #fff;
+      box-sizing: border-box;
+    }
+
+    .mobile-setting-choice.active {
+      color: var(--blue-strong);
+    }
+
+    .mobile-setting-choice.active::before {
+      border: 5px solid var(--blue);
+    }
+
+    .mobile-flow-switch {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      border-radius: 12px;
+      background: #d8e0e9;
+    }
+
+    .mobile-flow-switch::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(29, 57, 89, .2);
+      transition: left .18s ease;
+    }
+
+    .mobile-flow-switch.on {
+      background: var(--blue);
+    }
+
+    .mobile-flow-switch.on::after {
+      left: 21px;
+    }
+
+    .mobile-target-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      padding: 15px 18px 18px;
+    }
+
+    .mobile-target-chip {
+      padding: 8px 13px;
+      border: 1px solid #dce5ef;
+      border-radius: 5px;
+      color: #61758c;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .mobile-target-chip.active {
+      color: #2479d7;
+      border-color: #9cc9ff;
+      background: #edf6ff;
+    }
+
+    .mobile-time-list {
+      padding: 4px 18px 12px;
+    }
+
+    .mobile-time-list .mobile-setting-row:first-child {
+      border-top: 0;
+    }
+
+    .mobile-assignment-footer {
+      position: absolute;
+      z-index: 2;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 76px;
+      display: grid;
+      grid-template-columns: 104px 1fr;
+      gap: 10px;
+      padding: 11px 16px max(11px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .mobile-assignment-footer button {
+      height: 48px;
+      border-radius: 24px;
+      font-size: 16px;
+    }
+
+    .mobile-mock-guide-layer {
+      position: fixed;
+      z-index: 120;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      width: min(100vw, 430px);
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .mobile-mock-guide-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(16, 33, 51, .62);
+    }
+
+    .mobile-mock-guide-modal {
+      position: relative;
+      width: 100%;
+      max-width: 390px;
+      overflow: hidden;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(20, 47, 76, .26);
+    }
+
+    .mobile-mock-guide-head {
+      position: relative;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      padding: 0 48px 0 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mobile-mock-guide-head h2 {
+      margin: 0;
+      color: #173653;
+      font-size: 19px;
+      letter-spacing: 0;
+    }
+
+    .mobile-mock-guide-close {
+      position: absolute;
+      right: 18px;
+      top: 17px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .mobile-mock-guide-close::before,
+    .mobile-mock-guide-close::after {
+      content: "";
+      position: absolute;
+      left: 11px;
+      top: 2px;
+      width: 2px;
+      height: 20px;
+      border-radius: 2px;
+      background: #8192a4;
+    }
+
+    .mobile-mock-guide-close::before { transform: rotate(45deg); }
+    .mobile-mock-guide-close::after { transform: rotate(-45deg); }
+
+    .mobile-mock-guide-body {
+      padding: 18px 20px 16px;
+    }
+
+    .mobile-mock-guide-status {
+      margin: 0 0 7px;
+      color: #16a879;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .mobile-mock-guide-name {
+      display: block;
+      color: #173653;
+      font-size: 15px;
+      line-height: 1.45;
+      word-break: break-all;
+    }
+
+    .mobile-mock-guide-name-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .mobile-mock-guide-copy {
+      min-width: 72px;
+      height: 32px;
+      padding: 0 9px;
+      border: 1px solid var(--blue-strong);
+      border-radius: 6px;
+      color: var(--blue-strong);
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .mobile-mock-guide-description {
+      margin: 0 0 14px;
+      color: #61758b;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .mobile-mock-guide-media {
+      aspect-ratio: 16 / 9;
+      display: grid;
+      place-items: center;
+      border: 1px dashed #8fc4ff;
+      border-radius: 7px;
+      color: #2f8cff;
+      background: #eef7ff;
+      text-align: center;
+    }
+
+    .mobile-mock-guide-media strong {
+      display: block;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .mobile-mock-guide-media span {
+      display: block;
+      margin-top: 5px;
+      color: #8aa0b6;
+      font-size: 11px;
+    }
+
+    .mobile-mock-guide-contact {
+      margin: 13px 0 0;
+      color: #8395a9;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .mobile-mock-guide-confirm {
+      width: calc(100% - 40px);
+      height: 46px;
+      margin: 0 20px 18px;
+      border-radius: 23px;
+      color: #fff;
+      background: var(--blue-strong);
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .mobile-assignment-cancel {
+      color: #287ee2;
+      border: 1px solid #287ee2;
+    }
+
+    .mobile-assignment-confirm {
+      color: #fff;
+      background: var(--blue-strong);
+    }
+
+    .success-hint {
+      position: fixed;
+      z-index: 100;
+      left: 50%;
+      top: 44%;
+      transform: translate(-50%, -50%);
+      padding: 12px 18px;
+      color: #fff;
+      background: rgba(22, 39, 60, .82);
+      border-radius: 6px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 365px) {
+      .exercise-bottom { gap: 6px; }
+      .small-action { padding-inline: 10px; font-size: 13px; }
+      .basket-bar { grid-template-columns: 1fr 160px; }
+      .draft-actions { gap: 4px; }
+      .draft-actions button { padding-inline: 8px; font-size: 12px; }
+      .question-group-head { flex-wrap: wrap; }
+      .question-group-head strong { flex-basis: 100%; }
+      .item-toolbar { flex-wrap: wrap; }
+      .item-operations { width: 100%; justify-content: flex-end; }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone" id="app">
+    <section class="screen" id="homeScreen">
+      <header class="topbar">
+        <button class="back-btn" type="button" aria-label="返回目录" onclick="location.href='index.html'"></button>
+        <h1>布置练习</h1>
+        <button class="help-link" type="button">学生如何作答?</button>
+      </header>
+
+      <nav class="source-bar" aria-label="练习来源">
+        <button class="grade-select" type="button">高一</button>
+        <button class="source-tab" type="button">同步</button>
+        <button class="source-tab active" type="button">专项</button>
+        <button class="source-tab" type="button">模拟</button>
+      </nav>
+
+      <section class="mobile-filters">
+        <div class="filter-line">
+          <div class="filter-label">类别：</div>
+          <button class="select-box" type="button">听说专项</button>
+        </div>
+        <div class="filter-line">
+          <div class="filter-label">模块：</div>
+          <button class="select-box" type="button">专项</button>
+        </div>
+        <div class="filter-line">
+          <div class="filter-label">栏目：</div>
+          <div class="split-select">
+            <button class="select-box" type="button">Part A</button>
+            <button class="collapse-btn" type="button">收起<span class="chevron-up"></span></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="exercise-list">
+        <div class="group-head">变形训练</div>
+        <div id="exerciseCards"></div>
+      </section>
+    </section>
+
+    <div class="toast" id="toast">2道题目已加入到草稿中<span class="toast-close">×</span></div>
+
+    <footer class="basket-bar" id="homeBasketBar">
+      <div class="basket-count">
+        <span class="cart-icon"><i class="cart-handle"></i><i class="cart-badge"></i></span>
+        <span>已选6份</span>
+      </div>
+      <button class="primary-action" type="button" id="openDraft">布置</button>
+    </footer>
+
+    <div class="overlay hidden" id="overlay"></div>
+
+    <section class="bottom-sheet draft-sheet hidden" id="draftSheet" aria-label="试卷篮">
+      <header class="sheet-head">
+        <button class="sheet-collapse" type="button" id="closeDraft" aria-label="收起"></button>
+        <h2>布置练习</h2>
+        <button class="sheet-clear hidden" type="button" id="mobileClearSaved">清空</button>
+      </header>
+      <div class="sheet-tabs">
+        <button class="sheet-tab active" type="button" data-mobile-basket-tab="draft">组卷草稿（6）</button>
+        <button class="sheet-tab" type="button" data-mobile-basket-tab="saved">已保存试卷（7）</button>
+      </div>
+      <div class="draft-panel" data-mobile-basket-view="draft">
+        <div class="draft-panel-head">
+          <span>组卷草稿 <small>（共 6 份草稿）</small></span>
+          <button class="new-btn" type="button"><span class="plus-circle">+</span>新建</button>
+        </div>
+        <p class="draft-tip">保存草稿后可以批量布置哦~</p>
+        <div id="draftCards"></div>
+      </div>
+      <div class="mobile-saved-panel hidden" data-mobile-basket-view="saved">
+        <section class="mobile-saved-group" data-mobile-saved-group>
+          <header class="mobile-saved-title"><span>同步</span><small>（共 6 份试卷）</small></header>
+          <div class="mobile-saved-item"><span class="mobile-saved-name">Unit 10 Connections/Topic Talk/听音识词</span><button class="delete-icon saved-delete" type="button" data-mobile-delete-saved aria-label="删除听音识词"></button></div>
+          <div class="mobile-saved-item"><span class="mobile-saved-name">Unit 10 Connections/Topic Talk/单词听写</span><button class="delete-icon saved-delete" type="button" data-mobile-delete-saved aria-label="删除单词听写"></button></div>
+          <div class="mobile-saved-item"><span class="mobile-saved-name">Unit 10 Connections/Topic Talk/看中选英</span><button class="delete-icon saved-delete" type="button" data-mobile-delete-saved aria-label="删除看中选英"></button></div>
+          <div class="mobile-saved-item"><span class="mobile-saved-name">Unit 10 Connections/Topic Talk/单词默写</span><button class="delete-icon saved-delete" type="button" data-mobile-delete-saved aria-label="删除单词默写"></button></div>
+          <div class="mobile-saved-item"><span class="mobile-saved-name">Unit 10 Connections/Topic Talk/看英选中</span><button class="delete-icon saved-delete" type="button" data-mobile-delete-saved aria-label="删除看英选中"></button></div>
+          <div class="mobile-saved-item"><span class="mobile-saved-name">Unit 10 Connections/Topic Talk/口语跟读</span><button class="delete-icon saved-delete" type="button" data-mobile-delete-saved aria-label="删除口语跟读"></button></div>
+        </section>
+        <section class="mobile-saved-group" data-mobile-saved-group>
+          <header class="mobile-saved-title"><span>试卷/答题卡</span><small>（共 1 份试卷）</small></header>
+          <div class="mobile-saved-item package-capable" data-package-key="draft-1" data-paper-name="9月2日组卷">
+            <span class="mobile-saved-name">9月2日组卷</span>
+            <button class="mobile-saved-package-trigger" type="button" data-generate-package data-idle-label="生成考试包" data-complete-label="重新生成">生成考试包</button>
+            <button class="mobile-eye" type="button" aria-label="预览9月2日组卷"></button>
+            <button class="delete-icon saved-delete" type="button" data-mobile-delete-saved aria-label="删除9月2日组卷"></button>
+            <div class="mobile-package-result hidden" data-package-result data-success-label="考试名称" aria-live="polite">
+              <span class="mobile-package-result-label">考试名称</span>
+              <button class="mobile-copy-package" type="button" data-copy-package>复制名称</button>
+              <strong class="mobile-package-name" data-package-name></strong>
+            </div>
+          </div>
+        </section>
+        <div class="mobile-saved-empty hidden">暂无已保存试卷</div>
+      </div>
+      <footer class="basket-bar">
+        <div class="basket-count">
+          <span class="cart-icon"><i class="cart-handle"></i><i class="cart-badge"></i></span>
+          <span id="sheetBasketCount">已选6份</span>
+        </div>
+        <button class="primary-action" type="button" id="mobileSheetAssign">布置</button>
+      </footer>
+    </section>
+
+    <section class="bottom-sheet edit-sheet hidden" id="editSheet" aria-label="编辑试卷">
+      <header class="edit-head">
+        <button class="back-btn" type="button" id="backToDraft" aria-label="返回草稿"></button>
+        <h2>3月31日默认试卷<span class="pencil"></span></h2>
+        <button class="edit-points" type="button">2分<span class="pencil"></span></button>
+      </header>
+      <div class="edit-scroll">
+        <article class="question-card">
+          <header class="question-group-head">
+            <strong>一、词汇跟读</strong>
+            <button class="outline-action" type="button">上移</button>
+            <button class="outline-action" type="button">下移</button>
+            <button class="outline-action danger" type="button">删除</button>
+          </header>
+          <div class="item-toolbar">
+            <span class="mini-tag">1</span>
+            <span class="mini-tag">词汇跟读</span>
+            <span class="mini-tag">2分</span>
+            <div class="item-operations">
+              <button type="button" data-picker="add">加题</button>
+              <button type="button" data-picker="replace">换题</button>
+              <button class="arrow-operation" type="button" aria-label="上移">↑</button>
+              <button class="arrow-operation" type="button" aria-label="下移">↓</button>
+              <button type="button" aria-label="删除"><span class="delete-icon" style="position:relative;right:auto;top:auto;display:block"></span></button>
+            </div>
+          </div>
+          <div class="question-content">
+            <div class="word-box">
+              <div class="word-line">potential</div>
+              <div class="word-line">[pəˈtenʃl]</div>
+              <div class="word-line">n. 潜力；可能性 adj. 潜在的，可能的</div>
+            </div>
+            <div class="audio-tools">
+              <div class="audio-tool"><div class="audio-icon"><span class="speaker-shape"></span></div>播放原音</div>
+              <div class="audio-tool"><div class="audio-icon"><span class="mic-shape"></span></div>点击录音</div>
+              <div class="audio-tool"><div class="audio-icon"><span class="speaker-shape" style="background:#d6d6d6"></span></div>播放录音</div>
+            </div>
+            <div class="analysis-row"><span>答案解析<span class="triangle-up"></span></span><span>原文精讲&nbsp;♧</span></div>
+          </div>
+        </article>
+      </div>
+      <footer class="save-draft-bar"><button type="button" id="saveDraft">保存草稿</button></footer>
+    </section>
+
+    <section class="mobile-assignment-page hidden" id="mobileAssignmentPage" aria-label="布置设置">
+      <header class="mobile-assignment-head">
+        <button class="mobile-assignment-back" type="button" id="closeMobileAssignment" aria-label="返回试卷篮"></button>
+        <h2>布置设置</h2>
+      </header>
+      <div class="mobile-assignment-scroll" id="mobileAssignmentScroll">
+        <section class="mobile-assignment-section" aria-label="练习列表">
+          <header class="mobile-assignment-section-head">
+            <strong>练习列表</strong>
+            <span>共1个练习 · 预计4min30s</span>
+          </header>
+          <div class="mobile-assignment-practice">
+            <h3>前元音</h3>
+            <div class="mobile-assignment-meta">
+              <span class="mobile-assignment-tag">36道题</span>
+              <span class="mobile-assignment-tag time">预计用时4min30s</span>
+              <span>专项 / 听说专项 / 语音·基础</span>
+            </div>
+            <div class="mobile-setting-row">
+              <span class="mobile-setting-label">达标线</span>
+              <button class="mobile-flow-switch" type="button" id="mobileStandardSwitch" aria-label="开启达标线" aria-pressed="false"></button>
+            </div>
+            <div class="mobile-setting-row">
+              <span class="mobile-setting-label">是否配置中高考流程</span>
+              <div class="mobile-setting-options" data-mobile-flow-control>
+                <button class="mobile-setting-choice active" type="button" data-flow-value="yes" aria-pressed="true">是</button>
+                <button class="mobile-setting-choice" type="button" data-flow-value="no" aria-pressed="false">否</button>
+              </div>
+            </div>
+            <div class="mobile-setting-row" id="mobileLearningModeSetting">
+              <span class="mobile-setting-label">学习模式</span>
+              <div class="mobile-setting-options" data-mobile-learning-mode>
+                <button class="mobile-setting-choice" type="button" aria-pressed="false">考试模式</button>
+                <button class="mobile-setting-choice active" type="button" aria-pressed="true">练习模式</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="mobile-assignment-section" aria-label="布置对象">
+          <header class="mobile-assignment-section-head">
+            <strong>布置对象</strong>
+            <span>已选5/17人</span>
+          </header>
+          <div class="mobile-target-list">
+            <button class="mobile-target-chip active" type="button">1班（5/5人）</button>
+            <button class="mobile-target-chip" type="button">未分组</button>
+            <button class="mobile-target-chip" type="button">测试1（0/9人）</button>
+          </div>
+        </section>
+
+        <section class="mobile-assignment-section" aria-label="练习时间">
+          <header class="mobile-assignment-section-head"><strong>练习时间</strong></header>
+          <div class="mobile-time-list">
+            <div class="mobile-setting-row">
+              <span class="mobile-setting-label">开始时间</span>
+              <div class="mobile-setting-options"><button class="mobile-setting-choice active" type="button">立即开始</button><button class="mobile-setting-choice" type="button">指定时间</button></div>
+            </div>
+            <div class="mobile-setting-row">
+              <span class="mobile-setting-label">结束时间</span>
+              <div class="mobile-setting-options"><button class="mobile-setting-choice active" type="button">一周后</button><button class="mobile-setting-choice" type="button">自选时间</button></div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <footer class="mobile-assignment-footer">
+        <button class="mobile-assignment-cancel" type="button" id="cancelMobileAssignment">取消</button>
+        <button class="mobile-assignment-confirm" type="button" id="confirmMobileAssignment">确认布置</button>
+      </footer>
+    </section>
+
+    <section class="mobile-mock-guide-layer hidden" id="mobileMockGuideLayer" aria-hidden="true">
+      <div class="mobile-mock-guide-overlay" data-close-mobile-mock-guide></div>
+      <div class="mobile-mock-guide-modal" role="dialog" aria-modal="true" aria-labelledby="mobileMockGuideTitle">
+        <header class="mobile-mock-guide-head">
+          <h2 id="mobileMockGuideTitle">模考任务创建成功</h2>
+          <button class="mobile-mock-guide-close" type="button" aria-label="关闭引导" data-close-mobile-mock-guide></button>
+        </header>
+        <div class="mobile-mock-guide-body">
+          <p class="mobile-mock-guide-status">已生成模考任务</p>
+          <div class="mobile-mock-guide-name-row">
+            <strong class="mobile-mock-guide-name" data-mobile-guide-package-name></strong>
+            <button class="mobile-mock-guide-copy" type="button" data-copy-mobile-guide-name>复制名称</button>
+          </div>
+          <p class="mobile-mock-guide-description">您可以前往模考教师端，找到对应考试并直接发起。</p>
+          <div class="mobile-mock-guide-media" role="img" aria-label="模考教师端发起考试 GIF 引导占位">
+            <div><strong>GIF 操作引导占位</strong><span>后续替换为模考教师端发起考试演示</span></div>
+          </div>
+          <p class="mobile-mock-guide-contact">如有使用问题，请联系教学顾问。</p>
+        </div>
+        <button class="mobile-mock-guide-confirm" type="button" data-close-mobile-mock-guide>我知道了</button>
+      </div>
+    </section>
+
+    <section class="picker-page hidden" id="pickerPage" aria-label="加题换题">
+      <header class="picker-head">
+        <button class="back-btn" type="button" id="backToEdit" aria-label="返回编辑"></button>
+        <h2 id="pickerTitle">加题</h2>
+        <button class="close-btn" type="button" id="closePicker" aria-label="关闭"></button>
+      </header>
+      <div class="picker-scroll">
+        <nav class="picker-source-tabs" id="pickerSourceTabs"></nav>
+        <div class="picker-filters" id="pickerFilters"></div>
+        <div class="selected-path" id="selectedPath"></div>
+        <article class="picker-question">
+          <div class="picker-question-head">
+            <span class="mini-tag">语法选择</span>
+            <span class="mini-tag">10.0</span>
+            <button class="radio-select" type="button" id="questionSelect"><span class="radio-dot"></span>选择</button>
+          </div>
+          <p class="passage">When you move to a new school, you may feel worried. Do you want to meet new classmates? Be brave to greet them and share your hobbies. Remember that a friendly conversation may be the beginning of your friendship.</p>
+          <div class="option"><b>A</b><span>or</span></div>
+          <div class="option"><b>B</b><span>because</span></div>
+          <div class="option"><b>C</b><span>and</span></div>
+        </article>
+      </div>
+      <footer class="picker-footer">
+        <button class="cancel" type="button" id="cancelPicker">取消</button>
+        <button class="confirm" type="button" id="confirmPicker">确认加题</button>
+      </footer>
+    </section>
+
+    <div class="success-hint hidden" id="successHint">已保存草稿</div>
+  </main>
+
+  <script>
+    const exercises = [
+      { title: 'Unit 1 个人情况', count: 18, arranged: true },
+      { title: 'Unit 2 家庭情况', count: 20, arranged: true },
+      { title: 'Unit 3 社区生活', count: 36, arranged: false },
+      { title: 'Unit 4 学校生活', count: 28, arranged: false }
+    ];
+
+    const drafts = [
+      ['3月31日默认试卷', 1],
+      ['9月2日组卷', 58],
+      ['9月2日组卷听说', 30],
+      ['9月2日组卷222', 15],
+      ['9月4日组卷3333', 7],
+      ['9月5日组卷', 12]
+    ];
+
+    const filterData = {
+      sync: {
+        label: '同步',
+        rows: [
+          ['类型', ['同步课文', '同步词汇', '同步视频', '读写同步'], 2],
+          ['书本', ['必修1', '必修2', '必修3', '选择性必修1', '选择性必修2', '选择性必修3', '选择性必修4'], 6],
+          ['章节', ['Unit 10 Connections', 'Unit 11 Conflict and Compromise', 'Unit 12 Innovation'], 0],
+          ['练习', ['Unit 10 视频练习1', 'Unit 10 视频练习2', 'Unit 10 读写训练'], 0]
+        ]
+      },
+      special: {
+        label: '专项',
+        rows: [
+          ['类别', ['听说专项', '写作专项', '阅读专项', '语言运用专项'], 1],
+          ['题型', ['应用文', '读后续写'], 1],
+          ['话题', ['全部', '人与自我', '人与社会', '人与自然'], 2],
+          ['来源', ['全部', '高考真题', '地区考题', '其他'], 1],
+          ['年份', ['全部', '2020', '2021', '2022', '2023', '2024', '2025', '2026'], 1],
+          ['练习', ['2020全国卷读后续写', '2020浙江卷读后续写', '2020山东卷读后续写'], 0]
+        ]
+      },
+      mock: {
+        label: '模拟',
+        rows: [
+          ['年级', ['高一', '高二', '高三'], 1],
+          ['模块', ['听说模拟', '读写模拟'], 0],
+          ['栏目', ['单元测试', '综合模拟', '历年真题'], 1],
+          ['练习', ['模拟试题24', '模拟试题25', '模拟试题30', '模拟试题31'], 0]
+        ]
+      },
+      school: {
+        label: '校本飞书',
+        rows: [
+          ['书本', ['新同步听说训练（广东外研版）', '校本英语听说训练'], 0],
+          ['篇', ['必修篇', '选择性必修篇'], 0],
+          ['章', ['必修一', '必修二', '必修三'], 0],
+          ['节', ['Unit 1', 'Unit 2', 'Unit 3'], 0],
+          ['课', ['听说课', '词汇课', '阅读课'], 0],
+          ['练习', ['先来复习', '快来听听（考试模式）', '开口说说1', '互动看看'], 1]
+        ]
+      },
+      wrongbook: {
+        label: '错题本',
+        rows: [
+          ['班级', ['1班', '2班', '3班'], 0],
+          ['时间', ['一周内', '一个月内', '六个月内', '一年内', '自选时间范围'], 1],
+          ['类型', ['全部', '听说', '笔试'], 0],
+          ['题型', ['全部', '短对话', '长对话', '独白', '听后记录', '听后转述', '朗读短文', '回答问题', '词汇跟读', '词汇听写', '中英检测', '单词拼写', '看中选英', '看英选中', '词形变化', '单句语法填空', '语境填词', '一词多义', '完成句子', '句子翻译', '选词填空', '单项选择', '阅读理解', '七选五', '完形填空', '语法填空'], [0], true],
+          ['错误率', ['全部', '20%以下', '20%-50%', '50%以上'], 0],
+          ['得分率', ['全部', '30%以下', '30%-60%', '60%以上'], 0],
+          ['知识点', ['全部', '词汇', '语法', '阅读', '听说'], 0]
+        ]
+      }
+    };
+
+    let activeSource = 'sync';
+    let pickerMode = 'add';
+    const selections = {};
+
+    const exerciseCards = document.getElementById('exerciseCards');
+    exerciseCards.innerHTML = exercises.map(item => `
+      <article class="exercise-card">
+        <div class="exercise-title">${item.title}${item.arranged ? '<span class="status-tag">已布置</span>' : ''}</div>
+        <div class="exercise-bottom">
+          <div class="meta">难度：<span class="stars"><i class="star on">★</i><i class="star on">★</i><i class="star">★</i><i class="star">★</i><i class="star">★</i></span><br>共${item.count}题　|　10min</div>
+          <button class="small-action" type="button">预览/挑题</button>
+          <button class="small-action soft add-basket" type="button">加入篮子</button>
+        </div>
+      </article>
+    `).join('');
+
+    const draftCards = document.getElementById('draftCards');
+    draftCards.innerHTML = drafts.map((item, index) => `
+      <article class="draft-card" data-package-key="draft-${index}" data-paper-name="${item[0]}">
+        <div class="draft-name">${item[0]} <small>共 ${item[1]} 题</small></div>
+        <button class="delete-icon" type="button" aria-label="删除草稿"></button>
+        <div class="mobile-package-row">
+          <button class="mobile-package-trigger" type="button" data-generate-package data-idle-label="生成模考考试包" data-complete-label="重新生成">生成模考考试包</button>
+        </div>
+        <div class="draft-actions">
+          <button type="button">继续组卷</button>
+          <button type="button" class="edit-draft" data-index="${index}">编辑</button>
+          <button type="button">保存</button>
+          <button type="button" class="mobile-open-assignment">布置</button>
+        </div>
+        <div class="mobile-package-result hidden" data-package-result data-success-label="已生成" aria-live="polite">
+          <span class="mobile-package-result-label">已生成</span>
+          <button class="mobile-copy-package" type="button" data-copy-package>复制名称</button>
+          <strong class="mobile-package-name" data-package-name></strong>
+        </div>
+      </article>
+    `).join('');
+
+    const overlay = document.getElementById('overlay');
+    const draftSheet = document.getElementById('draftSheet');
+    const editSheet = document.getElementById('editSheet');
+    const pickerPage = document.getElementById('pickerPage');
+    const mobileAssignmentPage = document.getElementById('mobileAssignmentPage');
+    const mobileAssignmentScroll = document.getElementById('mobileAssignmentScroll');
+    const mobileMockGuideLayer = document.getElementById('mobileMockGuideLayer');
+    const toast = document.getElementById('toast');
+    const successHint = document.getElementById('successHint');
+
+    function showOverlay() { overlay.classList.remove('hidden'); }
+    function hideOverlay() { overlay.classList.add('hidden'); }
+
+    function openDraft() {
+      mobileAssignmentPage.classList.add('hidden');
+      showOverlay();
+      draftSheet.classList.remove('hidden');
+      editSheet.classList.add('hidden');
+    }
+
+    function updateMobileSavedCounts() {
+      let total = 0;
+      document.querySelectorAll('[data-mobile-saved-group]').forEach(group => {
+        const count = group.querySelectorAll('.mobile-saved-item').length;
+        total += count;
+        group.classList.toggle('hidden', count === 0);
+        const countLabel = group.querySelector('.mobile-saved-title small');
+        if (countLabel) countLabel.textContent = `（共 ${count} 份试卷）`;
+      });
+      const savedTab = document.querySelector('[data-mobile-basket-tab="saved"]');
+      if (savedTab) savedTab.textContent = `已保存试卷（${total}）`;
+      document.querySelector('.mobile-saved-empty')?.classList.toggle('hidden', total !== 0);
+      if (savedTab?.classList.contains('active')) {
+        document.getElementById('sheetBasketCount').textContent = `已选${total}份`;
+      }
+    }
+
+    function setMobileBasketView(view) {
+      document.querySelectorAll('[data-mobile-basket-tab]').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.mobileBasketTab === view);
+      });
+      document.querySelectorAll('[data-mobile-basket-view]').forEach(panel => {
+        panel.classList.toggle('hidden', panel.dataset.mobileBasketView !== view);
+      });
+      document.getElementById('mobileClearSaved').classList.toggle('hidden', view !== 'saved');
+      document.getElementById('sheetBasketCount').textContent = view === 'saved'
+        ? `已选${document.querySelectorAll('.mobile-saved-item').length}份`
+        : '已选6份';
+    }
+
+    function closeAllSheets() {
+      draftSheet.classList.add('hidden');
+      editSheet.classList.add('hidden');
+      mobileAssignmentPage.classList.add('hidden');
+      hideOverlay();
+    }
+
+    function openMobileAssignment() {
+      closeAllSheets();
+      pickerPage.classList.add('hidden');
+      mobileAssignmentPage.classList.remove('hidden');
+      mobileAssignmentScroll.scrollTop = 0;
+    }
+
+    function closeMobileAssignment() {
+      mobileAssignmentPage.classList.add('hidden');
+      openDraft();
+    }
+
+    let activeEditPackageKey = 'draft-0';
+
+    function openEdit(event) {
+      const sourceKey = event?.currentTarget?.closest?.('[data-package-key]')?.dataset.packageKey;
+      if (sourceKey) activeEditPackageKey = sourceKey;
+      showOverlay();
+      draftSheet.classList.add('hidden');
+      editSheet.classList.remove('hidden');
+    }
+
+    function showHint(message) {
+      successHint.textContent = message;
+      successHint.classList.remove('hidden');
+      window.setTimeout(() => successHint.classList.add('hidden'), 1300);
+    }
+
+    const generatedPackageNames = new Map();
+    const dirtyPackageKeys = new Set();
+
+    function buildPackageName(paperName) {
+      return `新北师大版-高一1班-${paperName}-模考考试`;
+    }
+
+    function mobilePackageContainers(key) {
+      return document.querySelectorAll(`[data-package-key="${key}"]`);
+    }
+
+    function setMobilePackageLoading(key, isLoading) {
+      mobilePackageContainers(key).forEach(container => {
+        const button = container.querySelector('[data-generate-package]');
+        if (!button) return;
+        const hasGenerated = generatedPackageNames.has(key);
+        const needsRegeneration = dirtyPackageKeys.has(key);
+        button.setAttribute('aria-busy', String(isLoading));
+        button.classList.toggle('loading', isLoading);
+        button.classList.toggle('generated', hasGenerated && !needsRegeneration && !isLoading);
+        if (isLoading) {
+          button.disabled = true;
+          button.innerHTML = '<i class="package-spinner" aria-hidden="true"></i>生成中';
+        } else if (hasGenerated && !needsRegeneration) {
+          button.disabled = true;
+          button.textContent = '已生成';
+        } else {
+          button.disabled = false;
+          button.textContent = hasGenerated
+            ? button.dataset.completeLabel
+            : button.dataset.idleLabel;
+        }
+        button.setAttribute('aria-disabled', String(button.disabled));
+      });
+    }
+
+    function showMobilePackageResult(key, packageName) {
+      mobilePackageContainers(key).forEach(container => {
+        const result = container.querySelector('[data-package-result]');
+        const name = container.querySelector('[data-package-name]');
+        if (name) name.textContent = packageName;
+        result?.classList.remove('stale');
+        const label = result?.querySelector('.mobile-package-result-label');
+        if (label) label.textContent = result.dataset.successLabel || '已生成';
+        result?.classList.remove('hidden');
+      });
+    }
+
+    function markMobilePackageDirty(key) {
+      if (!key || !generatedPackageNames.has(key)) return;
+      dirtyPackageKeys.add(key);
+      mobilePackageContainers(key).forEach(container => {
+        const result = container.querySelector('[data-package-result]');
+        result?.classList.add('stale');
+        const label = result?.querySelector('.mobile-package-result-label');
+        if (label) label.textContent = '内容已修改';
+      });
+      setMobilePackageLoading(key, false);
+    }
+
+    function openMobileMockGuide(packageName) {
+      mobileMockGuideLayer.querySelector('[data-mobile-guide-package-name]').textContent = packageName;
+      mobileMockGuideLayer.classList.remove('hidden');
+      mobileMockGuideLayer.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeMobileMockGuide() {
+      mobileMockGuideLayer.classList.add('hidden');
+      mobileMockGuideLayer.setAttribute('aria-hidden', 'true');
+    }
+
+    function generateMobileExamPackage(button) {
+      const container = button.closest('[data-package-key]');
+      if (!container || button.disabled) return;
+      const key = container.dataset.packageKey;
+      const paperName = container.dataset.paperName || '未命名试卷';
+      setMobilePackageLoading(key, true);
+      window.setTimeout(() => {
+        const packageName = buildPackageName(paperName);
+        generatedPackageNames.set(key, packageName);
+        dirtyPackageKeys.delete(key);
+        showMobilePackageResult(key, packageName);
+        setMobilePackageLoading(key, false);
+        openMobileMockGuide(packageName);
+      }, 1400);
+    }
+
+    async function copyMobilePackageName(text) {
+      try {
+        if (!navigator.clipboard || !window.isSecureContext) throw new Error('clipboard fallback');
+        await navigator.clipboard.writeText(text);
+      } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+      }
+    }
+
+    document.getElementById('openDraft').addEventListener('click', openDraft);
+    document.getElementById('closeDraft').addEventListener('click', closeAllSheets);
+    overlay.addEventListener('click', closeAllSheets);
+    document.querySelectorAll('[data-mobile-basket-tab]').forEach(tab => {
+      tab.addEventListener('click', () => setMobileBasketView(tab.dataset.mobileBasketTab));
+    });
+    document.querySelectorAll('[data-mobile-delete-saved]').forEach(button => {
+      button.addEventListener('click', () => {
+        button.closest('.mobile-saved-item')?.remove();
+        updateMobileSavedCounts();
+      });
+    });
+    document.getElementById('mobileClearSaved').addEventListener('click', () => {
+      document.querySelectorAll('.mobile-saved-item').forEach(item => item.remove());
+      updateMobileSavedCounts();
+    });
+    document.querySelector('.mobile-eye').addEventListener('click', event => {
+      event.currentTarget.closest('.mobile-saved-item')?.classList.toggle('previewing');
+    });
+    document.querySelectorAll('[data-generate-package]').forEach(button => {
+      button.addEventListener('click', () => generateMobileExamPackage(button));
+    });
+    document.querySelectorAll('[data-close-mobile-mock-guide]').forEach(target => {
+      target.addEventListener('click', closeMobileMockGuide);
+    });
+    document.querySelector('[data-copy-mobile-guide-name]').addEventListener('click', async event => {
+      const button = event.currentTarget;
+      const name = mobileMockGuideLayer.querySelector('[data-mobile-guide-package-name]').textContent.trim();
+      if (!name) return;
+      button.textContent = '已复制';
+      await copyMobilePackageName(name);
+      window.setTimeout(() => { button.textContent = '复制名称'; }, 1200);
+    });
+    document.querySelectorAll('[data-copy-package]').forEach(button => {
+      button.addEventListener('click', async () => {
+        const name = button.closest('[data-package-result]')?.querySelector('[data-package-name]')?.textContent.trim();
+        if (!name) return;
+        await copyMobilePackageName(name);
+        button.textContent = '已复制';
+        showHint('考试名称已复制');
+        window.setTimeout(() => { button.textContent = '复制名称'; }, 1200);
+      });
+    });
+    document.getElementById('mobileSheetAssign').addEventListener('click', openMobileAssignment);
+    document.querySelectorAll('.mobile-open-assignment').forEach(button => button.addEventListener('click', openMobileAssignment));
+    document.getElementById('closeMobileAssignment').addEventListener('click', closeMobileAssignment);
+    document.getElementById('cancelMobileAssignment').addEventListener('click', closeMobileAssignment);
+    document.getElementById('confirmMobileAssignment').addEventListener('click', event => {
+      event.currentTarget.textContent = '布置成功';
+      showHint('练习已布置');
+    });
+    document.getElementById('mobileStandardSwitch').addEventListener('click', event => {
+      const isOn = event.currentTarget.classList.toggle('on');
+      event.currentTarget.setAttribute('aria-pressed', String(isOn));
+    });
+    document.querySelectorAll('[data-mobile-flow-control] .mobile-setting-choice').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('[data-mobile-flow-control] .mobile-setting-choice').forEach(option => {
+          const isActive = option === button;
+          option.classList.toggle('active', isActive);
+          option.setAttribute('aria-pressed', String(isActive));
+        });
+        const supportsFlowControl = button.dataset.flowValue === 'yes';
+        document.getElementById('mobileLearningModeSetting').classList.toggle('hidden', !supportsFlowControl);
+      });
+    });
+    document.querySelectorAll('[data-mobile-learning-mode] .mobile-setting-choice').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('[data-mobile-learning-mode] .mobile-setting-choice').forEach(option => {
+          const isActive = option === button;
+          option.classList.toggle('active', isActive);
+          option.setAttribute('aria-pressed', String(isActive));
+        });
+      });
+    });
+    document.querySelectorAll('.mobile-target-chip').forEach(button => {
+      button.addEventListener('click', () => button.classList.toggle('active'));
+    });
+    document.querySelectorAll('.edit-draft').forEach(button => button.addEventListener('click', openEdit));
+    document.getElementById('backToDraft').addEventListener('click', openDraft);
+    document.getElementById('saveDraft').addEventListener('click', () => {
+      markMobilePackageDirty(activeEditPackageKey);
+      showHint('已保存草稿');
+    });
+    document.querySelector('.toast-close').addEventListener('click', () => toast.classList.add('hidden'));
+    document.querySelectorAll('.add-basket').forEach(button => button.addEventListener('click', () => {
+      toast.classList.remove('hidden');
+      showHint('已加入草稿篮');
+    }));
+
+    function initializeSelections(source) {
+      if (!selections[source]) {
+        selections[source] = filterData[source].rows.map(row => row[2]);
+      }
+    }
+
+    function renderSourceTabs() {
+      const tabs = document.getElementById('pickerSourceTabs');
+      tabs.innerHTML = Object.entries(filterData).map(([key, source]) => `
+        <button type="button" class="picker-source-tab ${activeSource === key ? 'active' : ''}" data-source="${key}">${source.label}</button>
+      `).join('');
+      tabs.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
+        activeSource = button.dataset.source;
+        renderPicker();
+      }));
+    }
+
+    function renderFilters() {
+      initializeSelections(activeSource);
+      const rows = filterData[activeSource].rows;
+      const filterBox = document.getElementById('pickerFilters');
+      filterBox.innerHTML = rows.map((row, rowIndex) => `
+        <div class="picker-filter-row">
+          <div class="picker-filter-label">${row[0]}：</div>
+          <div class="filter-options">
+            ${row[1].map((option, optionIndex) => {
+              const selection = selections[activeSource][rowIndex];
+              const isActive = Array.isArray(selection) ? selection.includes(optionIndex) : selection === optionIndex;
+              const isCheck = row[3] === true && optionIndex !== 0;
+              return `<button type="button" class="filter-chip ${isCheck ? 'check-chip' : ''} ${isActive ? 'active' : ''}" data-row="${rowIndex}" data-option="${optionIndex}">${option}</button>`;
+            }).join('')}
+          </div>
+        </div>
+      `).join('') + (activeSource === 'wrongbook' ? '<div class="mobile-wrongbook-result"><span>共2错题</span><button type="button" id="mobileAddAll">＋ 本页全部添加</button></div>' : '');
+      filterBox.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', () => {
+        const rowIndex = Number(chip.dataset.row);
+        const optionIndex = Number(chip.dataset.option);
+        const row = rows[rowIndex];
+        if (row[3] === true) {
+          let current = selections[activeSource][rowIndex];
+          if (!Array.isArray(current)) current = [current];
+          if (optionIndex === 0) {
+            current = [0];
+          } else {
+            current = current.filter(index => index !== 0);
+            current = current.includes(optionIndex) ? current.filter(index => index !== optionIndex) : [...current, optionIndex];
+            if (!current.length) current = [0];
+          }
+          selections[activeSource][rowIndex] = current;
+        } else {
+          selections[activeSource][rowIndex] = optionIndex;
+        }
+        renderFilters();
+        renderPath();
+      }));
+      document.getElementById('mobileAddAll')?.addEventListener('click', event => {
+        event.currentTarget.textContent = '已全部添加';
+      });
+    }
+
+    function renderPath() {
+      const source = filterData[activeSource];
+      initializeSelections(activeSource);
+      const path = source.rows.flatMap((row, index) => {
+        const selection = selections[activeSource][index];
+        return Array.isArray(selection) ? selection.map(optionIndex => row[1][optionIndex]) : row[1][selection];
+      });
+      document.getElementById('selectedPath').textContent = `当前筛选：${source.label} / ${path.join(' / ')}`;
+    }
+
+    function renderPicker() {
+      renderSourceTabs();
+      renderFilters();
+      renderPath();
+    }
+
+    function openPicker(mode) {
+      pickerMode = mode;
+      document.getElementById('pickerTitle').textContent = mode === 'add' ? '加题' : '换题';
+      document.getElementById('confirmPicker').textContent = mode === 'add' ? '确认加题' : '确认换题';
+      pickerPage.classList.remove('hidden');
+      renderPicker();
+    }
+
+    function closePicker() { pickerPage.classList.add('hidden'); }
+
+    document.querySelectorAll('[data-picker]').forEach(button => button.addEventListener('click', () => openPicker(button.dataset.picker)));
+    document.getElementById('backToEdit').addEventListener('click', closePicker);
+    document.getElementById('closePicker').addEventListener('click', closePicker);
+    document.getElementById('cancelPicker').addEventListener('click', closePicker);
+    document.getElementById('questionSelect').addEventListener('click', event => event.currentTarget.classList.toggle('selected'));
+    document.getElementById('confirmPicker').addEventListener('click', () => {
+      markMobilePackageDirty(activeEditPackageKey);
+      closePicker();
+      showHint(pickerMode === 'add' ? '题目已添加' : '题目已替换');
+    });
+
+    window.prototypeState = {
+      home: closeAllSheets,
+      draft: openDraft,
+      saved: () => { openDraft(); setMobileBasketView('saved'); },
+      assignment: openMobileAssignment,
+      edit: openEdit,
+      add: () => { openEdit(); openPicker('add'); },
+      replace: () => { openEdit(); openPicker('replace'); }
+    };
+  </script>
+</body>
+</html>

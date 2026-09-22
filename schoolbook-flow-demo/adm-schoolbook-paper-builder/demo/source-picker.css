@@ -1,0 +1,55 @@
+.sp-entry-tabs { display:flex; align-items:center; gap:8px; margin:0 0 16px; padding:0 16px; background:#fff; border-bottom:1px solid var(--line); }
+.sp-entry-tabs button { min-height:50px; min-width:110px; display:inline-flex; gap:8px; align-items:center; justify-content:center; position:relative; color:#697584; }
+.sp-entry-tabs button.active { color:var(--blue-dark); font-weight:600; }
+.sp-entry-tabs button.active:after { content:""; position:absolute; height:3px; bottom:-1px; left:14px; right:14px; background:var(--blue); }
+.sp-data-label { margin-left:auto; font-size:11px; color:var(--muted); }
+.sp-workspace>* { min-width:0; }
+.sp-workspace .question-top { flex-wrap:wrap; }
+.sp-workspace .question-top .right { flex-shrink:0; }
+.sp-workspace .question-foot .source-path { overflow-wrap:anywhere; }
+.sp-question-detail { max-width:100%; overflow-x:auto; }
+.sp-question-detail table { min-width:360px; table-layout:auto; }
+.sp-empty-source { padding:24px 12px; color:var(--muted); font-size:12px; text-align:center; }
+.sp-bank-stage { margin:12px; padding:3px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:3px; border:1px solid var(--line); border-radius:4px; background:#f4f6f8; }
+.sp-bank-stage button { min-height:32px; color:var(--muted); border-radius:3px; }
+.sp-bank-stage button.active { color:var(--blue-dark); font-weight:600; background:#fff; box-shadow:0 1px 3px rgba(30,57,82,.1); }
+.sp-bank-source .book-select { min-height:50px; align-items:center; }
+.sp-bank-source .book-select input { margin-top:0; }
+.sp-word-list { background:#fff; border:1px solid var(--line); }
+.sp-word-head,.sp-word-row { display:grid; grid-template-columns:18px minmax(110px,1.1fr) minmax(100px,1fr) 32px; gap:12px; align-items:center; padding:13px 16px; }
+.sp-word-head { background:#f5f7fa; color:#87919e; font-size:12px; }
+.sp-word-row { border-top:1px solid #edf0f4; min-height:80px; }
+.sp-word-row.selected { background:#f0f7ff; }
+.sp-word-row strong { font-weight:600; font-size:15px; overflow-wrap:anywhere; }
+.sp-word-row p { font-size:12px; color:#737f8c; }
+.sp-word-source { font-size:12px; overflow-wrap:anywhere; }
+.sp-word-source small { display:block; color:#99a3af; font-size:11px; }
+.sp-word-added { color:var(--green); font-size:11px; }
+.sp-word-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:14px 16px; background:#fff; border:1px solid var(--line); border-top:0; position:sticky; bottom:0; z-index:4; }
+.sp-word-footer strong { font-weight:500; font-size:13px; margin-right:12px; }
+.sp-vocab-form { border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:16px; }
+.sp-generated-question { border:1px solid var(--line); border-radius:4px; padding:16px; margin-top:12px; }
+.sp-generated-meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.sp-generated-question details { margin-top:12px; font-size:12px; color:#608675; }
+.sp-generated-question summary { cursor:pointer; padding:5px 0; }
+.sp-generated-question>input { display:block; margin-top:12px; width:100%; }
+.sp-generated-question>small { display:block; margin-top:8px; font-size:11px; }
+@media(min-width:1191px) {
+  .sp-workspace .basket-pane { display:flex; flex-direction:column; max-height:max(360px,calc(100dvh - 370px)); }
+  .sp-workspace .basket-pane .pane-head,.sp-workspace .basket-stats,.sp-workspace .basket-footer { flex-shrink:0; }
+  .sp-workspace .basket-sources { max-height:90px; overflow:auto; flex-shrink:0; }
+  .sp-workspace .basket-list { flex:1; min-height:70px; }
+}
+@media(min-width:1191px) and (max-width:1400px) {
+  .workspace.sp-workspace { grid-template-columns:210px minmax(310px,1fr) 224px; gap:12px; }
+}
+@media(max-width:760px) {
+  .sp-entry-tabs { padding:0 4px; gap:0; }
+  .sp-entry-tabs button { min-width:0; flex:1; font-size:13px; gap:5px; }
+  .sp-data-label { display:none; }
+  .sp-word-head,.sp-word-row { grid-template-columns:16px minmax(0,1fr) 32px; gap:10px; padding:12px; }
+  .sp-word-head>span:nth-child(3),.sp-word-source { display:none; }
+  .sp-word-footer { position:static; padding:12px; }
+  .sp-word-footer>.btn { width:100%; }
+  .sp-generated-question { padding:12px; }
+}

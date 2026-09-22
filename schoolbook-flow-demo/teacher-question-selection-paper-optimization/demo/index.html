@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=../../adm-schoolbook-paper-builder/demo/portal.html">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>教师端挑题组卷优化 - 原型目录</title>
+  <style>
+    :root { --blue:#3287f6; --ink:#17304f; --muted:#7f91a8; --line:#dfe9f5; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif; letter-spacing:0; }
+    body { background:#edf7ff; color:var(--ink); }
+    .shell { min-height:100vh; display:grid; grid-template-rows:72px 1fr; }
+    header { display:flex; align-items:center; padding:0 34px; background:#fff; border-bottom:1px solid var(--line); }
+    header strong { font-size:20px; }
+    header span { margin-left:14px; color:var(--muted); font-size:14px; }
+    main { width:min(1040px,calc(100% - 40px)); margin:0 auto; padding:54px 0; }
+    h1 { margin:0 0 10px; font-size:28px; }
+    .intro { margin:0 0 34px; color:var(--muted); }
+    .entries { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; }
+    .entry { min-height:220px; padding:28px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; background:#fff; box-shadow:0 8px 24px rgba(45,94,150,.08); text-decoration:none; color:inherit; transition:transform .18s,box-shadow .18s; }
+    .entry:hover { transform:translateY(-3px); box-shadow:0 13px 30px rgba(45,94,150,.13); }
+    .device { width:54px; height:44px; margin-bottom:24px; position:relative; color:var(--blue); }
+    .desktop::before { content:""; position:absolute; inset:0 0 8px; border:3px solid currentColor; border-radius:4px; }
+    .desktop::after { content:""; position:absolute; left:15px; right:15px; bottom:0; height:3px; background:currentColor; box-shadow:9px -8px 0 -7px currentColor; }
+    .mobile { width:29px; height:49px; border:3px solid currentColor; border-radius:7px; }
+    .mobile::after { content:""; position:absolute; left:8px; bottom:3px; width:7px; height:2px; border-radius:2px; background:currentColor; }
+    .entry h2 { margin:0 0 9px; font-size:22px; }
+    .entry p { margin:0; color:var(--muted); line-height:1.7; }
+    .open { margin-top:auto; color:var(--blue); font-weight:600; }
+    @media(max-width:680px){ header{padding:0 20px}.entries{grid-template-columns:1fr}main{padding:34px 0}.entry{min-height:190px} }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header><strong>教师端挑题组卷优化</strong><span>交互原型目录</span></header>
+    <main>
+      <h1>选择体验入口</h1>
+      <p class="intro">PC 与移动端为两套独立比例，可分别查看完整组卷链路。</p>
+      <div class="entries">
+        <a class="entry" href="0902-question-list-page.html">
+          <span class="device desktop"></span>
+          <h2>PC 端</h2>
+          <p>练习列表、预览挑题、试卷篮、草稿编辑、加题换题与布置设置。</p>
+          <span class="open">进入 PC 原型 →</span>
+        </a>
+        <a class="entry" href="0907-mobile-question-list-page.html">
+          <span class="device mobile"></span>
+          <h2>移动端</h2>
+          <p>移动列表、草稿底部面板、试卷编辑，以及五入口分层加题换题。</p>
+          <span class="open">进入移动端原型 →</span>
+        </a>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
