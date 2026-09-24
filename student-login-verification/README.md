@@ -3,7 +3,8 @@
 ## 项目入口
 
 - 本地 Demo：`demo/index.html`
-- 线上地址：
+- 线上地址：https://mazheng0823-byte.github.io/tianxue/student-login-verification/
+- GitHub：https://github.com/mazheng0823-byte/tianxue/tree/main/student-login-verification
 - Figma：
 - PRD：
 
