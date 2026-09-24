@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>学生详情 - 移动端登录验证码</title>
+  <style>
+    :root { --blue: #337ff4; --navy: #25364d; --page: #f7f7ff; --red: #ff5a62; --muted: #96a3b5; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; min-height: 100%; background: #e9edf4; font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; color: var(--navy); }
+    body { display: flex; justify-content: center; }
+    button { font: inherit; cursor: pointer; }
+    .phone { position: relative; width: min(100vw, 430px); min-height: 100vh; overflow: hidden; background: var(--page); box-shadow: 0 0 24px rgba(33,47,67,.08); }
+    .topbar { height: 52px; display: grid; grid-template-columns: 52px 1fr 52px; align-items: center; background: white; }
+    .back { width: 42px; height: 42px; border: 0; background: transparent; position: relative; }
+    .back::before { content: ""; position: absolute; left: 18px; top: 14px; width: 11px; height: 11px; border-left: 2px solid #26374d; border-bottom: 2px solid #26374d; transform: rotate(45deg); }
+    .title { text-align: center; font-size: 18px; font-weight: 600; color: #252525; }
+    .content { padding: 18px 20px 126px; }
+
+    .student-card { height: 91px; padding: 16px 18px; display: grid; grid-template-columns: 52px 1fr auto; align-items: center; border-radius: 13px; background: linear-gradient(180deg,#e8f7ff 0%,#fff 100%); }
+    .avatar { width: 50px; height: 50px; display: grid; place-items: center; border-radius: 50%; background: #ffe5cf; }
+    .cow { position: relative; width: 34px; height: 31px; border-radius: 45% 45% 50% 50%; background: #ff8a59; }
+    .cow::before, .cow::after { content: ""; position: absolute; top: -5px; width: 13px; height: 8px; border-radius: 50%; background: #a8603e; }
+    .cow::before { left: -4px; transform: rotate(28deg); } .cow::after { right: -4px; transform: rotate(-28deg); }
+    .cow-face { position: absolute; left: 5px; top: 8px; width: 24px; height: 20px; border-radius: 45%; background: white; }
+    .cow-face::before { content: ""; position: absolute; left: 5px; top: 5px; width: 3px; height: 3px; border-radius: 50%; background: #4b5660; box-shadow: 11px 0 #4b5660, 5px 8px 0 1px #7cb4dd; }
+    .student-main { padding-left: 13px; line-height: 1.35; }
+    .student-name { display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 600; }
+    .tag { padding: 2px 5px; border-radius: 5px; background: #edf2ff; color: #6a82eb; font-size: 11px; font-weight: 400; }
+    .account { margin-top: 6px; font-size: 14px; color: #40536b; }
+    .student-meta { align-self: stretch; display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; font-size: 14px; color: #40536b; }
+    .unbind { border: 0; padding: 0; background: transparent; color: #3f77dd; }
+    .info-dot { display: inline-grid; place-items: center; width: 13px; height: 13px; margin-left: 4px; border-radius: 50%; background: #9aa8bb; color: white; font-size: 9px; vertical-align: 1px; }
+
+    .rank-card { margin-top: 13px; height: 319px; padding: 17px 10px 12px; border-radius: 13px; background: white; }
+    .rank-title { margin-bottom: 10px; font-size: 15px; font-weight: 600; }
+    .chart { width: 100%; height: 256px; border-radius: 12px; background: linear-gradient(180deg,#fbfbfd,#fff); }
+    .chart text { font-family: inherit; }
+
+    .group-card { margin-top: 13px; height: 50px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; border-radius: 12px; background: white; }
+    .group-card strong { font-size: 14px; }
+    .group-right { display: flex; align-items: center; gap: 12px; color: #9caabd; font-size: 13px; }
+    .chevron { width: 8px; height: 8px; border-right: 1px solid #92a0b1; border-top: 1px solid #92a0b1; transform: rotate(45deg); }
+
+    .actions { position: absolute; left: 0; right: 0; bottom: 0; height: 116px; padding: 24px 24px 21px; display: grid; grid-template-columns: repeat(3, 1fr); align-items: end; gap: 8px; background: white; box-shadow: 0 -4px 14px rgba(61,79,105,.02); }
+    .action-btn { height: 46px; border: 1px solid var(--blue); border-radius: 24px; background: white; color: var(--blue); font-size: 14px; white-space: nowrap; }
+    .action-btn.danger { border-color: var(--red); color: var(--red); }
+    .action-btn.primary { background: var(--blue); color: white; }
+
+    .overlay { position: fixed; z-index: 20; inset: 0; display: flex; justify-content: center; align-items: flex-end; background: rgba(22,38,59,.45); }
+    .overlay[hidden] { display: none; }
+    .sheet { width: min(100vw,430px); padding: 12px 24px 28px; border-radius: 22px 22px 0 0; background: white; text-align: center; animation: rise .18s ease-out; }
+    @keyframes rise { from { transform: translateY(30px); opacity: .4; } }
+    .handle { width: 38px; height: 4px; margin: 0 auto 17px; border-radius: 4px; background: #d9dee7; }
+    .sheet-title { font-size: 18px; font-weight: 600; }
+    .sheet-student { margin: 9px 0 18px; color: #7f8da1; font-size: 13px; }
+    .code { padding: 16px 0; border-radius: 13px; background: #f2f7ff; color: var(--blue); font-size: 38px; font-weight: 700; letter-spacing: 16px; text-indent: 16px; }
+    .valid { margin-top: 13px; color: #77879b; font-size: 13px; line-height: 1.8; }
+    .valid strong { color: #f18b2b; }
+    .sheet-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+    .sheet-btn { height: 45px; border: 1px solid var(--blue); border-radius: 23px; background: white; color: var(--blue); }
+    .sheet-btn.primary { background: var(--blue); color: white; }
+    .toast { position: fixed; z-index: 30; left: 50%; top: 72px; transform: translateX(-50%) translateY(-8px); padding: 9px 16px; border-radius: 18px; background: rgba(30,48,70,.9); color: white; font-size: 13px; opacity: 0; transition: .18s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header class="topbar"><button class="back" aria-label="返回"></button><div class="title">马诤</div><span></span></header>
+    <section class="content">
+      <article class="student-card">
+        <div class="avatar"><span class="cow"><i class="cow-face"></i></span></div>
+        <div class="student-main"><div class="student-name">马诤 <span class="tag">家长已关注</span></div><div class="account">账号:mazheng7370</div></div>
+        <div class="student-meta"><button class="unbind">解绑家长</button><span>学号:---<i class="info-dot">!</i></span></div>
+      </article>
+
+      <article class="rank-card">
+        <div class="rank-title">Rank值变化趋势</div>
+        <svg class="chart" viewBox="0 0 336 256" role="img" aria-label="Rank值变化趋势图">
+          <g stroke="#edf0f5" stroke-width="1" stroke-dasharray="3 4">
+            <line x1="52" y1="32" x2="315" y2="32"/><line x1="52" y1="70" x2="315" y2="70"/><line x1="52" y1="108" x2="315" y2="108"/><line x1="52" y1="146" x2="315" y2="146"/><line x1="52" y1="184" x2="315" y2="184"/>
+          </g>
+          <g stroke="#d7dce4" stroke-width="1.2"><line x1="52" y1="26" x2="52" y2="222"/><line x1="52" y1="222" x2="315" y2="222"/></g>
+          <g fill="#c8ced7" font-size="12"><text x="22" y="36">100</text><text x="27" y="74">80</text><text x="27" y="112">60</text><text x="27" y="150">40</text><text x="27" y="188">20</text><text x="27" y="226">0</text><text x="42" y="242">&lt;</text><text x="62" y="244" fill="#a9bdd2">09.23</text><text x="116" y="244">09.23</text><text x="305" y="242">&gt;</text></g>
+          <line x1="78" y1="222" x2="132" y2="222" stroke="#ff835f" stroke-width="2"/>
+          <circle cx="78" cy="222" r="4" fill="white" stroke="#ff835f" stroke-width="2"/>
+          <circle cx="78" cy="196" r="15" fill="#ff835f"/>
+          <text x="78" y="201" text-anchor="middle" fill="white" font-size="14">0</text>
+        </svg>
+      </article>
+
+      <article class="group-card"><strong>所在分组</strong><span class="group-right">1组 <i class="chevron"></i></span></article>
+    </section>
+
+    <footer class="actions"><button class="action-btn danger">移出学生</button><button class="action-btn primary">重置密码</button><button class="action-btn" id="generateCode">生成登录码</button></footer>
+  </main>
+
+  <div class="overlay" id="overlay" hidden>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+      <div class="handle"></div><div class="sheet-title" id="sheetTitle">学生登录验证码</div>
+      <div class="sheet-student">马诤（账号：mazheng7370）</div>
+      <div class="code" id="loginCode">4826</div>
+      <div class="valid">验证码有效期 <strong>1 小时</strong><br>有效期至：<span id="expireAt">--</span></div>
+      <div class="sheet-actions"><button class="sheet-btn" id="closeSheet">关闭</button><button class="sheet-btn primary" id="copyCode">复制验证码</button></div>
+    </section>
+  </div>
+  <div class="toast" id="toast">验证码已复制</div>
+
+  <script>
+    const overlay = document.getElementById("overlay");
+    const codeNode = document.getElementById("loginCode");
+    const expireNode = document.getElementById("expireAt");
+    const toast = document.getElementById("toast");
+    const makeCode = () => {
+      const values = new Uint32Array(1); crypto.getRandomValues(values);
+      return String(values[0] % 10000).padStart(4,"0");
+    };
+    const formatTime = date => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")} ${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}`;
+    document.getElementById("generateCode").addEventListener("click", () => {
+      codeNode.textContent = makeCode();
+      expireNode.textContent = formatTime(new Date(Date.now() + 60 * 60 * 1000));
+      overlay.hidden = false;
+    });
+    document.getElementById("closeSheet").addEventListener("click", () => overlay.hidden = true);
+    overlay.addEventListener("click", event => { if (event.target === overlay) overlay.hidden = true; });
+    document.getElementById("copyCode").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(codeNode.textContent); } catch { /* file 协议下保留演示反馈 */ }
+      toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 1500);
+    });
+  </script>
+</body>
+</html>

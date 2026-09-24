@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>成员管理 - 登录验证码</title>
+  <style>
+    :root {
+      --blue: #338cf4;
+      --blue-deep: #257df1;
+      --blue-soft: #eaf6ff;
+      --navy: #1e3c63;
+      --muted: #8da3bc;
+      --line: #edf1f6;
+      --panel: #ffffff;
+      --page: #e5f9ff;
+      --row-alt: #fafafa;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      min-width: 1180px;
+      overflow: hidden;
+      background: var(--page);
+      color: var(--navy);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      font-size: 15px;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      position: fixed;
+      z-index: 20;
+      inset: 0 0 auto 0;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      background: #e8fbff;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--blue); font-weight: 700; font-size: 20px; }
+    .brand-mark { position: relative; width: 27px; height: 27px; border: 2px solid var(--blue); border-radius: 50%; transform: rotate(-18deg); }
+    .brand-mark::before, .brand-mark::after { content: ""; position: absolute; background: var(--blue); border-radius: 50%; }
+    .brand-mark::before { width: 6px; height: 6px; left: 5px; top: 2px; }
+    .brand-mark::after { width: 4px; height: 4px; right: 3px; bottom: 4px; }
+    .version { color: #6e8399; font-size: 14px; font-weight: 400; }
+
+    .class-switcher {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      min-width: 380px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      border: 2px solid rgba(255,255,255,.85);
+      border-top: 0;
+      border-radius: 0 0 40px 40px;
+      background: rgba(255,255,255,.18);
+      font-size: 18px;
+    }
+    .switch-chip { padding: 3px 8px; border-radius: 8px; background: #d8f2ff; color: var(--blue); font-size: 14px; }
+    .divider { width: 1px; height: 19px; background: #bed6e4; }
+    .top-actions { display: flex; align-items: center; gap: 20px; font-size: 16px; }
+    .top-action { display: flex; align-items: center; gap: 8px; }
+    .top-line { width: 1px; height: 24px; background: #c4dce9; }
+    .mini-icon { width: 18px; height: 18px; border: 2px solid #254b72; border-radius: 5px; position: relative; }
+    .mini-icon.chat::after { content: ""; position: absolute; left: 3px; right: 3px; top: 5px; border-top: 2px dotted #254b72; }
+    .window-icons { display: flex; gap: 22px; margin-left: 24px; font-size: 23px; line-height: 1; }
+
+    .sidebar {
+      position: fixed;
+      z-index: 18;
+      left: 0;
+      top: 76px;
+      bottom: 0;
+      width: 103px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-radius: 0 22px 22px 0;
+      background: #3795f7;
+      color: white;
+      overflow: hidden;
+    }
+    .profile { height: 132px; width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 22px; }
+    .avatar { width: 60px; height: 60px; display: grid; place-items: center; border-radius: 50%; background: #ffb323; border: 2px solid #ffc950; }
+    .cat { position: relative; width: 33px; height: 37px; border: 3px solid #1f2f31; border-radius: 15px 15px 12px 12px; background: #ffda20; }
+    .cat::before, .cat::after { content: ""; position: absolute; top: -8px; width: 10px; height: 12px; border: 3px solid #1f2f31; background: #ffda20; transform: rotate(32deg); }
+    .cat::before { left: -4px; } .cat::after { right: -4px; transform: rotate(-32deg); }
+    .cat-face { position: absolute; left: 7px; top: 13px; width: 4px; height: 4px; border-radius: 50%; background: #293338; box-shadow: 12px 0 #293338, 6px 8px 0 -1px #ec6c32; }
+    .profile-name { margin-top: 10px; font-size: 17px; }
+
+    .nav-list { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .nav-item { width: 100%; min-height: 74px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 15px; text-align: center; }
+    .nav-symbol { width: 29px; height: 29px; border: 2px solid white; border-radius: 9px; position: relative; }
+    .nav-symbol.home::after { content: ""; position: absolute; left: 7px; top: 8px; width: 11px; height: 11px; border-left: 2px solid white; border-top: 2px solid white; transform: rotate(45deg); }
+    .nav-symbol.check::after { content: ""; position: absolute; left: 7px; top: 6px; width: 11px; height: 7px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg); }
+    .nav-symbol.lines::before, .nav-symbol.lines::after { content: ""; position: absolute; left: 7px; width: 13px; border-top: 2px solid white; }
+    .nav-symbol.lines::before { top: 9px; } .nav-symbol.lines::after { top: 16px; }
+    .nav-spacer { flex: 1; }
+    .more-item { padding-bottom: 16px; }
+    .more-dots::after { content: "•••"; position: absolute; inset: 2px 0 0; font-size: 15px; }
+    .back { flex: 0 0 72px; width: 100%; display: grid; place-items: center; border-top: 16px solid var(--page); font-size: 19px; }
+
+    .main {
+      position: absolute;
+      left: 123px;
+      top: 76px;
+      right: 20px;
+      bottom: 20px;
+      padding: 25px 20px 24px;
+      border-radius: 22px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .tabs { height: 65px; display: flex; align-items: flex-start; gap: 40px; }
+    .tab { position: relative; padding: 8px 2px 17px; font-size: 23px; color: #1d385a; }
+    .tab.active { color: var(--blue); }
+    .tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--blue); }
+
+    .quick-actions { height: 190px; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; border-radius: 4px; background: #f3f9ff; }
+    .quick { display: flex; flex-direction: column; align-items: center; gap: 19px; font-size: 17px; color: #26384d; }
+    .quick-icon { position: relative; width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(150deg,#eef8ff 0 38%,#2e83ff 39% 100%); box-shadow: 0 6px 13px rgba(62,133,226,.25); }
+    .quick-card { position: absolute; left: 10px; top: 7px; width: 47px; height: 50px; border-radius: 5px; background: white; box-shadow: 0 2px 8px rgba(69,96,124,.25); }
+    .quick-card::before { content: ""; position: absolute; left: 9px; top: 10px; width: 12px; height: 12px; border-radius: 50%; background: #72c9f5; box-shadow: 17px 0 #6cbdf1; }
+    .quick-card::after { content: ""; position: absolute; left: 8px; top: 28px; width: 31px; height: 10px; border-radius: 8px 8px 2px 2px; background: #8cd5f7; }
+    .plus { position: absolute; right: -4px; bottom: 3px; width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; background: #ffab00; color: white; font-size: 27px; line-height: 1; }
+    .quick:nth-child(3) .plus { font-size: 17px; }
+
+    .section-title { margin: 34px 0 26px; font-size: 22px; font-weight: 500; }
+    .table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .table th { height: 61px; background: #f6f6f6; font-size: 17px; font-weight: 600; }
+    .table td { height: 58px; text-align: center; font-size: 16px; color: #264264; }
+    .tutor-table th:nth-child(1) { width: 9%; } .tutor-table th:nth-child(2) { width: 18%; } .tutor-table th:nth-child(3) { width: 18%; }
+    .tutor-table th:nth-child(4) { width: 13%; } .tutor-table th:nth-child(5) { width: 17%; } .tutor-table th:nth-child(6) { width: 16%; }
+
+    .student-head { height: 86px; display: flex; align-items: center; justify-content: space-between; }
+    .student-tabs { display: flex; gap: 22px; align-self: stretch; align-items: center; }
+    .student-tab { position: relative; font-size: 21px; color: #555; }
+    .student-tab.active { color: var(--blue); }
+    .student-tab.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -13px; height: 3px; background: var(--blue); }
+    .tools { display: flex; gap: 10px; align-items: center; }
+    .search { position: relative; width: 465px; }
+    .search input { width: 100%; height: 49px; padding: 0 50px 0 25px; border: 1px solid #edf1f5; border-radius: 16px; outline: 0; color: #405a78; background: #fafcff; }
+    .search input::placeholder { color: #a8bad0; }
+    .search-icon { position: absolute; right: 17px; top: 13px; width: 22px; height: 22px; border: 2px solid #a9bdd1; border-radius: 50%; }
+    .search-icon::after { content: ""; position: absolute; right: -4px; bottom: -3px; width: 8px; border-top: 2px solid #a9bdd1; transform: rotate(48deg); }
+    .tool-btn { height: 49px; padding: 0 24px; border: 1px solid #dcdfe4; border-radius: 14px; background: white; color: #c8c8c8; white-space: nowrap; }
+    .tool-btn.primary { border-color: var(--blue); background: var(--blue); color: white; }
+    .tool-btn.outline { border-color: var(--blue); color: var(--blue); }
+
+    .student-table th:nth-child(1) { width: 5%; } .student-table th:nth-child(2) { width: 8%; } .student-table th:nth-child(3) { width: 14%; }
+    .student-table th:nth-child(4) { width: 15%; } .student-table th:nth-child(5) { width: 15%; } .student-table th:nth-child(6) { width: 16%; }
+    .student-table th:nth-child(7) { width: 16%; } .student-table th:nth-child(8) { width: 17%; }
+    .student-table tbody tr:nth-child(even) { background: var(--row-alt); }
+    .check { width: 21px; height: 21px; border: 2px solid var(--blue); border-radius: 6px; background: white; }
+    .link-btn { border: 0; padding: 3px 5px; background: transparent; color: var(--blue); white-space: nowrap; }
+    .code-action { font-weight: 500; }
+    .bottom-line { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; color: #9b9b9b; }
+    .bottom-line::before, .bottom-line::after { content: ""; width: 44px; border-top: 1px solid #e3e6eb; }
+    .right-float { position: fixed; right: 0; bottom: 28px; width: 58px; height: 138px; display: grid; place-items: center; border-radius: 20px 0 0 20px; background: #3192f6; color: white; writing-mode: vertical-rl; letter-spacing: 4px; box-shadow: 0 5px 12px rgba(35,99,166,.25); }
+
+    .overlay { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; background: rgba(24,45,67,.42); backdrop-filter: blur(1px); }
+    .overlay[hidden] { display: none; }
+    .code-dialog { width: 480px; padding: 0 38px 34px; border-radius: 18px; background: white; box-shadow: 0 16px 48px rgba(30,60,99,.22); text-align: center; }
+    .dialog-head { height: 72px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #eef1f5; font-size: 21px; font-weight: 600; }
+    .dialog-student { margin-top: 24px; font-size: 16px; color: #667f9c; }
+    .dialog-student strong { color: var(--navy); }
+    .code-box { margin: 21px 0 15px; padding: 18px 20px; border-radius: 14px; background: #f3f8ff; color: var(--blue-deep); font-size: 42px; font-weight: 700; letter-spacing: 18px; text-indent: 18px; }
+    .validity { color: #788fa9; line-height: 1.9; }
+    .validity strong { color: #f39031; }
+    .dialog-actions { display: flex; gap: 14px; justify-content: center; margin-top: 25px; }
+    .dialog-btn { width: 142px; height: 44px; border: 1px solid var(--blue); border-radius: 12px; background: white; color: var(--blue); }
+    .dialog-btn.primary { background: var(--blue); color: white; }
+    .toast { position: fixed; z-index: 70; left: 50%; top: 96px; transform: translateX(-50%) translateY(-8px); padding: 11px 22px; border-radius: 8px; background: rgba(26,49,72,.92); color: white; opacity: 0; transition: .18s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-height: 900px) {
+      .main { overflow-y: auto; }
+      .quick-actions { height: 160px; }
+      .section-title { margin: 24px 0 18px; }
+      .table th { height: 50px; }
+      .table td { height: 50px; }
+      .student-head { height: 72px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark"></span><span>天学网 · 数字化教学</span><span class="version">版本：6.5.2.557d37a</span></div>
+    <div class="class-switcher"><span>新人教版</span><span class="switch-chip">⇄ 切换</span><i class="divider"></i><span>1班</span><span class="switch-chip">⇄ 切换</span></div>
+    <div class="top-actions"><span class="top-action"><i class="mini-icon chat"></i>消息</span><i class="top-line"></i><span class="top-action"><i class="mini-icon"></i>下载APP</span><div class="window-icons"><span>≡</span><span>−</span><span>▣</span><span>×</span></div></div>
+  </header>
+
+  <aside class="sidebar">
+    <div class="profile"><div class="avatar"><span class="cat"><i class="cat-face"></i></span></div><div class="profile-name">许帅</div></div>
+    <nav class="nav-list">
+      <div class="nav-item"><i class="nav-symbol home"></i><span>首页</span></div>
+      <div class="nav-item"><i class="nav-symbol"></i><span>我的备课</span></div>
+      <div class="nav-item"><i class="nav-symbol check"></i><span>智能阅卷</span></div>
+      <div class="nav-item"><i class="nav-symbol lines"></i><span>错题本</span></div>
+      <div class="nav-item"><i class="nav-symbol"></i><span>班级错词本</span></div>
+      <div class="nav-item"><i class="nav-symbol lines"></i><span>学生个性化<br>词本</span></div>
+      <div class="nav-item"><i class="nav-symbol"></i><span>教师智能体</span></div>
+    </nav>
+    <div class="nav-spacer"></div>
+    <div class="nav-item more-item"><i class="nav-symbol more-dots"></i><span>更多功能</span></div>
+    <div class="back">‹ 返回</div>
+  </aside>
+
+  <main class="main">
+    <div class="tabs"><div class="tab active">成员管理</div><div class="tab">待审核</div></div>
+    <section class="quick-actions">
+      <div class="quick"><div class="quick-icon"><i class="quick-card"></i><b class="plus">+</b></div><span>添加学生</span></div>
+      <div class="quick"><div class="quick-icon"><i class="quick-card"></i><b class="plus">+</b></div><span>添加助教</span></div>
+      <div class="quick"><div class="quick-icon"><i class="quick-card"></i><b class="plus">↗</b></div><span>绑定家长</span></div>
+    </section>
+
+    <h2 class="section-title">我的助教</h2>
+    <table class="table tutor-table">
+      <thead><tr><th>序号</th><th>姓名</th><th>账号</th><th>角色</th><th>手机号</th><th>邮箱</th><th>操作</th></tr></thead>
+      <tbody><tr><td>1</td><td>许帅</td><td>xushuails</td><td>主讲</td><td>182****7170</td><td></td><td></td></tr></tbody>
+    </table>
+
+    <div class="student-head">
+      <div class="student-tabs"><div class="student-tab active">我的学生</div><div class="student-tab">学生分组</div></div>
+      <div class="tools"><label class="search"><input placeholder="搜索姓名/学号/账号,多个可用空格隔开"><i class="search-icon"></i></label><button class="tool-btn primary">新建分组</button><button class="tool-btn">重置密码</button><button class="tool-btn">删除</button><button class="tool-btn outline">更多操作</button></div>
+    </div>
+
+    <table class="table student-table">
+      <thead><tr><th><button class="check" aria-label="全选"></button></th><th>序号</th><th>姓名</th><th>账号</th><th>手机号</th><th>学号</th><th>家长</th><th>操作</th></tr></thead>
+      <tbody id="studentRows"></tbody>
+    </table>
+    <div class="bottom-line">这是我的底线</div>
+  </main>
+  <div class="right-float">我的备课</div>
+
+  <div class="overlay" id="codeOverlay" hidden>
+    <section class="code-dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+      <div class="dialog-head" id="dialogTitle">学生登录验证码</div>
+      <div class="dialog-student"><strong id="dialogName">马诤</strong>（账号：<span id="dialogAccount">mazheng7370</span>）</div>
+      <div class="code-box" id="loginCode">4826</div>
+      <div class="validity">验证码有效期 <strong>1 小时</strong><br>有效期至：<span id="expireAt">--</span></div>
+      <div class="dialog-actions"><button class="dialog-btn" id="closeDialog">关闭</button><button class="dialog-btn primary" id="copyCode">复制验证码</button></div>
+    </section>
+  </div>
+  <div class="toast" id="toast">验证码已复制</div>
+
+  <script>
+    const students = [
+      { name: "nimo-fmxs02", account: "nimo-fmxs02", phone: "158****0001", no: "", parent: "up366家长", extra: "解绑" },
+      { name: "王锦虹", account: "wangjinhong", phone: "", no: "", parent: "未绑定", extra: "" },
+      { name: "xx1", account: "ceshixx01", phone: "141****6778", no: "20240001", parent: "x x", extra: "解绑" },
+      { name: "测试X2", account: "ceshixx02", phone: "", no: "", parent: "未绑定", extra: "" },
+      { name: "马诤", account: "mazheng7370", phone: "150****3745", no: "", parent: "小王王 / up366家长", extra: "解绑" }
+    ];
+    const rows = document.getElementById("studentRows");
+    rows.innerHTML = students.map((student, index) => `
+      <tr>
+        <td><button class="check" aria-label="选择${student.name}"></button></td><td>${index + 1}</td><td>${student.name}</td><td>${student.account}</td><td>${student.phone}</td><td>${student.no}</td>
+        <td>${student.parent}${student.extra ? ` <button class="link-btn">${student.extra}</button>` : ""}</td>
+        <td><button class="link-btn">重置密码</button><button class="link-btn">删除</button><button class="link-btn code-action" data-index="${index}">生成登录码</button></td>
+      </tr>`).join("");
+
+    const overlay = document.getElementById("codeOverlay");
+    const loginCode = document.getElementById("loginCode");
+    const expireAt = document.getElementById("expireAt");
+    const toast = document.getElementById("toast");
+    const formatTime = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")} ${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}`;
+    const generateCode = () => {
+      const values = new Uint32Array(1);
+      crypto.getRandomValues(values);
+      return String(values[0] % 10000).padStart(4, "0");
+    };
+    const openDialog = student => {
+      document.getElementById("dialogName").textContent = student.name;
+      document.getElementById("dialogAccount").textContent = student.account;
+      loginCode.textContent = generateCode();
+      expireAt.textContent = formatTime(new Date(Date.now() + 60 * 60 * 1000));
+      overlay.hidden = false;
+    };
+    document.querySelectorAll(".code-action").forEach(button => button.addEventListener("click", () => openDialog(students[Number(button.dataset.index)])));
+    document.getElementById("closeDialog").addEventListener("click", () => overlay.hidden = true);
+    overlay.addEventListener("click", event => { if (event.target === overlay) overlay.hidden = true; });
+    document.addEventListener("keydown", event => { if (event.key === "Escape") overlay.hidden = true; });
+    document.getElementById("copyCode").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(loginCode.textContent); } catch { /* 本地文件协议可能不允许剪贴板，仍保留演示反馈 */ }
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1500);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>编辑机构信息 - 登录验证设置</title>
+  <style>
+    :root {
+      --topbar: #344952;
+      --sidebar: #17252b;
+      --sidebar-deep: #101b20;
+      --sidebar-active: #263a42;
+      --green: #40a84a;
+      --green-hover: #35933e;
+      --orange: #ff7b22;
+      --page: #f4f4f4;
+      --border: #d6d6d6;
+      --text: #555;
+      --muted: #888;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-width: 1180px;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      color: var(--text);
+      background: var(--page);
+      font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 13px;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      position: fixed;
+      z-index: 10;
+      inset: 0 0 auto 0;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px 0 28px;
+      background: var(--topbar);
+      color: #e3eaed;
+    }
+
+    .hamburger {
+      width: 18px;
+      height: 16px;
+      padding: 2px 0;
+      border: 0;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hamburger i { display: block; width: 14px; height: 2px; background: #dce5e7; }
+    .account { display: flex; gap: 13px; align-items: center; font-size: 12px; }
+    .account span { color: #a9bdc5; }
+    .account a { color: #eef3f5; text-decoration: none; }
+
+    .sidebar {
+      position: fixed;
+      z-index: 8;
+      left: 0;
+      top: 50px;
+      bottom: 0;
+      width: 238px;
+      overflow: hidden;
+      background: var(--sidebar);
+      color: #aab6ba;
+    }
+
+    .side-title {
+      height: 52px;
+      display: grid;
+      grid-template-columns: 27px 1fr 12px;
+      align-items: center;
+      padding: 0 20px;
+      border-left: 3px solid #20a7df;
+      background: var(--sidebar-active);
+      color: #e7ecee;
+      font-weight: 600;
+    }
+
+    .stack-icon { position: relative; width: 16px; height: 14px; }
+    .stack-icon::before, .stack-icon::after, .stack-icon i {
+      content: "";
+      position: absolute;
+      left: 1px;
+      width: 12px;
+      height: 7px;
+      border: 1px solid #aab7bb;
+      transform: rotate(29deg) skewX(-27deg);
+    }
+    .stack-icon::before { top: 0; }
+    .stack-icon i { top: 3px; }
+    .stack-icon::after { top: 6px; }
+    .side-chevron { width: 6px; height: 6px; border-right: 1px solid; border-bottom: 1px solid; transform: rotate(45deg); }
+
+    .subnav { margin: 0; padding: 0; list-style: none; background: var(--sidebar-deep); }
+    .subnav li {
+      height: 41px;
+      display: flex;
+      align-items: center;
+      padding-left: 50px;
+      color: #aab4b8;
+    }
+    .subnav li:first-child { color: #e7ecee; font-weight: 600; }
+
+    .nav-groups { margin: 0; padding: 0; list-style: none; }
+    .nav-groups li {
+      height: 45px;
+      display: grid;
+      grid-template-columns: 25px 1fr 12px;
+      align-items: center;
+      padding: 0 20px;
+      border-top: 1px solid rgba(255,255,255,.015);
+    }
+    .nav-ico {
+      width: 13px;
+      height: 15px;
+      border: 1px solid #8c9a9f;
+      border-radius: 1px;
+      position: relative;
+      opacity: .9;
+    }
+    .nav-ico::after { content: ""; position: absolute; top: -3px; left: 3px; width: 6px; height: 3px; border: 1px solid #8c9a9f; }
+    .arrow { width: 6px; height: 6px; border-top: 1px solid #8c9a9f; border-right: 1px solid #8c9a9f; transform: rotate(45deg); justify-self: end; }
+
+    .workspace {
+      position: absolute;
+      left: 238px;
+      top: 50px;
+      right: 0;
+      bottom: 0;
+      padding: 20px;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+
+    .breadcrumb {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 18px;
+      margin-bottom: 20px;
+      border: 1px solid #eee;
+      background: #fff;
+      color: #727272;
+    }
+    .home-icon { width: 12px; height: 10px; position: relative; background: #555; margin-right: 3px; }
+    .home-icon::before { content: ""; position: absolute; left: 0; top: -6px; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 7px solid #555; }
+
+    .content-grid { display: grid; grid-template-columns: 545px minmax(760px, 1fr); gap: 100px; }
+    .tree-panel { height: calc(100vh - 150px); padding: 20px; border: 1px solid #ddd; background: #fff; }
+    .tree-inner { height: 100%; padding: 18px 30px; border: 1px solid #d5d5d5; overflow: hidden; }
+    .tree { list-style: none; margin: 0; padding: 0; line-height: 27px; color: #555; }
+    .tree li::before { content: "+"; display: inline-grid; place-items: center; width: 11px; height: 11px; margin-right: 5px; border: 1px solid #777; font-size: 9px; line-height: 9px; color: #333; }
+    .folder { display: inline-block; width: 14px; height: 10px; margin-right: 3px; border: 1px solid #b4a843; background: #d3c75b; vertical-align: -1px; }
+
+    .data-panel { min-width: 760px; }
+    .filters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 24px; margin-bottom: 25px; }
+    .filter { display: grid; grid-template-columns: 90px 1fr; align-items: center; }
+    .filter label { text-align: right; margin-right: 12px; }
+    .filter select { height: 35px; border: 1px solid #d5d5d5; padding: 0 14px; background: #fff; color: #555; }
+    .toolbar { display: flex; justify-content: flex-end; gap: 24px; margin: 14px 0 42px; }
+    .toolbar button { height: 34px; padding: 0 17px; border: 0; border-radius: 2px; background: var(--green); color: white; }
+
+    .table-wrap { border: 1px solid #cfcfcf; background: #fff; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { height: 37px; padding: 0 13px; border-right: 1px solid #d3d3d3; border-bottom: 1px solid #d3d3d3; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    th { height: 35px; color: #333; font-weight: 600; }
+    td:last-child, th:last-child { border-right: 0; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .operations { text-align: center; }
+    .operations button { padding: 0 4px; border: 0; background: transparent; color: #555; }
+    .pager { display: flex; align-items: center; justify-content: flex-end; margin-top: 21px; color: #555; }
+    .pager button { width: 35px; height: 35px; border: 1px solid #d0d0d0; border-left: 0; background: #fff; color: #555; }
+    .pager button:first-of-type { margin-left: 11px; border-left: 1px solid #d0d0d0; }
+    .pager .current { background: #0876ad; color: white; border-color: #0876ad; }
+
+    .overlay {
+      position: fixed;
+      z-index: 30;
+      inset: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: clamp(30px, 10.4vh, 132px);
+      background: rgba(0, 0, 0, .49);
+    }
+    .overlay[hidden] { display: none; }
+
+    .modal {
+      position: relative;
+      width: 888px;
+      height: min(1017px, calc(100vh - 70px));
+      min-height: 690px;
+      padding: 0 20px 24px;
+      border: 1px solid #c2c2c2;
+      border-radius: 3px;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,.32);
+    }
+
+    .modal-title {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #747474;
+      font-size: 16px;
+      font-weight: 400;
+    }
+    .modal-close {
+      position: absolute;
+      right: 18px;
+      top: 19px;
+      width: 22px;
+      height: 22px;
+      border: 0;
+      background: transparent;
+      color: #bcbcbc;
+      font-size: 17px;
+      line-height: 22px;
+    }
+
+    .modal-body {
+      position: relative;
+      height: calc(100% - 64px);
+      border: 1px solid #c8c8c8;
+      padding: 20px 0 80px;
+    }
+
+    .form { width: 495px; margin-left: 35px; }
+    .form-row {
+      min-height: 55px;
+      display: grid;
+      grid-template-columns: 108px 322px;
+      gap: 15px;
+      align-items: start;
+    }
+    .form-row label {
+      padding-top: 11px;
+      text-align: right;
+      color: #5f5f5f;
+      white-space: nowrap;
+    }
+    .form-row:first-child label { color: var(--orange); font-weight: 600; }
+    .control {
+      width: 322px;
+      height: 37px;
+      padding: 0 15px;
+      border: 1px solid #d6d6d6;
+      border-radius: 3px;
+      outline: 0;
+      background: #fff;
+      color: #555;
+    }
+    select.control {
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #777 50%), linear-gradient(135deg, #777 50%, transparent 50%);
+      background-position: calc(100% - 14px) 15px, calc(100% - 10px) 15px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      padding-right: 30px;
+    }
+    .required-input { border-color: #f3a268; }
+    .control:focus { border-color: #8bbfd5; box-shadow: 0 0 0 2px rgba(39,175,233,.12); }
+
+    .modal-actions {
+      position: absolute;
+      right: 40px;
+      bottom: clamp(25px, 20%, 190px);
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .btn-cancel { border: 0; padding: 8px 0; background: transparent; color: #555; }
+    .btn-save { height: 37px; padding: 0 15px; border: 0; border-radius: 2px; background: var(--green); color: #fff; }
+    .btn-save:hover, .toolbar button:hover { background: var(--green-hover); }
+
+    .toast {
+      position: fixed;
+      z-index: 60;
+      left: 50%;
+      top: 82px;
+      transform: translateX(-50%) translateY(-12px);
+      padding: 11px 20px;
+      border-radius: 3px;
+      background: rgba(36, 48, 54, .94);
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: .18s ease;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-height: 860px) {
+      .overlay { padding-top: 28px; }
+      .modal { height: calc(100vh - 56px); min-height: 650px; }
+      .modal-body { overflow-y: auto; }
+      .modal-actions { bottom: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <button class="hamburger" aria-label="展开或收起菜单"><i></i><i></i><i></i></button>
+    <div class="account"><span>当前用户：admin</span><a href="#">修改密码</a><a href="#">退出</a></div>
+  </header>
+
+  <aside class="sidebar" aria-label="后台导航">
+    <div class="side-title"><span class="stack-icon"><i></i></span><span>组织机构</span><i class="side-chevron"></i></div>
+    <ul class="subnav">
+      <li>机构管理</li><li>用户管理</li><li>班级码管理</li><li>注册人数统计</li><li>冻结管理与日志</li>
+    </ul>
+    <ul class="nav-groups" id="navGroups"></ul>
+  </aside>
+
+  <main class="workspace">
+    <div class="breadcrumb"><span class="home-icon"></span><span>Home</span><span>/</span><span>组织机构管理</span><span>/</span><span>机构管理</span></div>
+    <div class="content-grid">
+      <section class="tree-panel">
+        <div class="tree-inner"><ul class="tree" id="provinceTree"></ul></div>
+      </section>
+      <section class="data-panel">
+        <div class="filters">
+          <div class="filter"><label>机构名称：</label><select><option>全部</option></select></div>
+          <div class="filter"><label>机构状态：</label><select><option>全部</option></select></div>
+          <div class="filter"><label>机构类型：</label><select><option>全部</option></select></div>
+          <div class="filter"><label>学校类型：</label><select><option>全部</option></select></div>
+          <div class="filter"><label>所在地区：</label><select><option>全部</option></select></div>
+        </div>
+        <div class="toolbar"><button>新建</button><button>导出</button><button>批量更新战区</button></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>机构名称</th><th>所在战区</th><th>机构状态</th><th style="width:42%">操作</th></tr></thead>
+            <tbody id="orgRows"></tbody>
+          </table>
+        </div>
+        <div class="pager"><span>共13947条</span><button>«</button><button class="current">1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button><button>9</button><button>10</button><button>»</button></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="overlay" id="overlay">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h1 class="modal-title" id="modalTitle">编辑机构信息</h1>
+      <button class="modal-close" id="closeModal" aria-label="关闭">×</button>
+      <div class="modal-body">
+        <form class="form" id="institutionForm">
+          <div class="form-row"><label for="orgName">机构名称：</label><input class="control required-input" id="orgName" value="南方机构3"></div>
+          <div class="form-row"><label for="orgStatus">机构状态：</label><select class="control" id="orgStatus"><option>正式机构</option><option>测试机构</option></select></div>
+          <div class="form-row"><label for="orgType">机构类型：</label><select class="control" id="orgType"><option>学校</option><option>培训机构</option></select></div>
+          <div class="form-row"><label for="schoolType">学校类型：</label><select class="control" id="schoolType"><option>高校</option><option>高中</option><option>初中</option><option>小学</option></select></div>
+          <div class="form-row"><label for="area">所在战区：</label><select class="control" id="area"><option>东部战区</option><option>南部战区</option><option>西部战区</option></select></div>
+          <div class="form-row"><label for="salesperson">业务员：</label><input class="control" id="salesperson" value="朱义婷(demoZhuYiTing_1)"></div>
+          <div class="form-row"><label for="province">所在省份：</label><select class="control" id="province"><option>北京市</option></select></div>
+          <div class="form-row"><label for="city">所在城市：</label><select class="control" id="city"><option>市辖区</option></select></div>
+          <div class="form-row"><label for="district">所在区县：</label><select class="control" id="district"><option>东城区</option></select></div>
+          <div class="form-row"><label for="teacherJoin">老师加入：</label><select class="control" id="teacherJoin"><option>不需审核</option><option>需要审核</option></select></div>
+          <div class="form-row"><label for="bindPhone">是否绑定手机号：</label><select class="control" id="bindPhone"><option>不强制绑定</option><option>强制绑定</option></select></div>
+          <div class="form-row"><label for="passwordMode">是否修改密码：</label><select class="control" id="passwordMode"><option>不修改</option><option>修改</option></select></div>
+          <div class="form-row"><label for="verifyLogin">是否验证登录：</label><select class="control" id="verifyLogin" name="verifyLogin"><option value="否" selected>否</option><option value="是">是</option></select></div>
+        </form>
+        <div class="modal-actions"><button class="btn-cancel" id="cancelModal">取消</button><button class="btn-save" id="saveForm">保存</button></div>
+      </div>
+    </section>
+  </div>
+  <div class="toast" id="toast">保存成功</div>
+
+  <script>
+    const groups = ["注册产品审批", "账号安全管理", "产品管理", "订单管理", "促销管理", "账务管理", "销售管理", "渠道销售管理", "App管理", "消息管理", "标准教材（新）", "词汇管理", "天学词典", "运营数据", "机房考试", "用户", "数据查询", "题库管理（新）", "批量打包查阅", "私有云管理", "内容审核管理", "教师认证管理"];
+    document.getElementById("navGroups").innerHTML = groups.map(item => `<li><i class="nav-ico"></i><span>${item}</span><i class="arrow"></i></li>`).join("");
+
+    const provinces = ["北京市", "天津市", "河北省", "山西省", "内蒙古自治区", "辽宁省", "吉林省", "黑龙江省", "上海市", "江苏省", "浙江省", "安徽省", "福建省", "江西省", "山东省", "河南省", "湖北省", "湖南省", "广东省", "广西壮族自治区", "海南省", "重庆市", "四川省", "贵州省", "云南省", "西藏自治区", "陕西省", "甘肃省", "青海省", "宁夏回族自治区", "新疆维吾尔自治区", "台湾省", "香港特别行政区", "澳门特别行政区"];
+    document.getElementById("provinceTree").innerHTML = provinces.map(item => `<li><span class="folder"></span>${item}</li>`).join("");
+
+    const orgs = ["北方机构1", "东方机构2", "南方机构3", "西部机构4", "示范学校5", "联合学校6", "教育中心7", "实验学校8", "外语学院9", "科技大学10", "市属学校11", "区属学校12", "合作机构13", "样例学校14", "测试机构15", "系统机构16"];
+    document.getElementById("orgRows").innerHTML = orgs.map((name, index) => `<tr><td>${name}</td><td>${index % 3 === 0 ? "东部战区" : index % 3 === 1 ? "南部战区" : "西部战区"}</td><td>${index > 13 ? "测试机构" : "正式机构"}</td><td class="operations"><button class="edit-trigger">修改</button><button>岗位</button><button>管理中心</button><button>菜单管理</button></td></tr>`).join("");
+
+    const overlay = document.getElementById("overlay");
+    const toast = document.getElementById("toast");
+    const openModal = () => { overlay.hidden = false; document.getElementById("orgName").focus(); };
+    const closeModal = () => { overlay.hidden = true; };
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("cancelModal").addEventListener("click", closeModal);
+    document.querySelectorAll(".edit-trigger").forEach(button => button.addEventListener("click", openModal));
+    document.addEventListener("keydown", event => { if (event.key === "Escape" && !overlay.hidden) closeModal(); });
+    document.getElementById("saveForm").addEventListener("click", () => {
+      const value = document.getElementById("verifyLogin").value;
+      closeModal();
+      toast.textContent = `保存成功，是否验证登录：${value}`;
+      toast.classList.add("show");
+      window.setTimeout(() => toast.classList.remove("show"), 1800);
+    });
+  </script>
+</body>
+</html>
