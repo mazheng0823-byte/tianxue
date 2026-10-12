@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>移动端教师回收站入口原型</title>
+  <style>
+    :root {
+      --blue: #2f7df4;
+      --text: #182844;
+      --muted: #98a6ba;
+      --bg: #f4f5fc;
+      --line: #e7edf6;
+      --soft: #eff9ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: #eef2fb;
+      color: var(--text);
+    }
+
+    .phone {
+      width: min(100vw, 430px);
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+
+    .top {
+      height: 52px;
+      display: grid;
+      grid-template-columns: 48px 1fr 48px;
+      align-items: center;
+      background: #fff;
+      color: #101928;
+      font-size: 21px;
+      font-weight: 900;
+      text-align: center;
+      border-bottom: 1px solid #eef2f8;
+    }
+
+    .back {
+      width: 16px;
+      height: 16px;
+      margin-left: 18px;
+      border-left: 3px solid #15233a;
+      border-bottom: 3px solid #15233a;
+      transform: rotate(45deg);
+    }
+
+    .back-button {
+      width: 48px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      border: 0;
+      background: transparent;
+      padding: 0;
+    }
+
+    .content {
+      padding: 18px 16px 24px;
+    }
+
+    .course-card {
+      padding: 18px 17px 12px;
+      border-radius: 13px;
+      border: 1px solid #e5f1ff;
+      background: linear-gradient(180deg, #e9f9ff 0%, #ffffff 100%);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset;
+    }
+
+    .course-row {
+      min-height: 41px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .course-code {
+      font-size: 20px;
+      letter-spacing: .5px;
+    }
+
+    .manage {
+      min-width: 68px;
+      height: 36px;
+      border: 0;
+      border-radius: 18px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .divider {
+      height: 1px;
+      margin: 12px 0 10px;
+      background: #eaf0f7;
+    }
+
+    .switch {
+      width: 42px;
+      height: 24px;
+      padding: 2px;
+      border-radius: 999px;
+      background: var(--blue);
+      flex: 0 0 auto;
+    }
+
+    .switch::after {
+      content: "";
+      display: block;
+      width: 20px;
+      height: 20px;
+      margin-left: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(17, 64, 130, .25);
+    }
+
+    .entry-card {
+      margin-top: 12px;
+      padding: 18px 10px 16px;
+      border: 0;
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      align-items: start;
+    }
+
+    .entry {
+      min-width: 0;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .entry-icon {
+      width: 46px;
+      height: 46px;
+      margin: 0 auto 8px;
+      display: grid;
+      place-items: center;
+      position: relative;
+      border-radius: 16px;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,.8), 0 9px 18px rgba(66, 127, 205, .12);
+    }
+
+    .entry-icon::before {
+      content: "";
+      width: 26px;
+      height: 24px;
+      border-radius: 6px;
+      background: rgba(255,255,255,.34);
+      box-shadow: 5px -4px 0 rgba(41,72,190,.2);
+    }
+
+    .track { background: linear-gradient(135deg, #efe5ff, #9a78ff); }
+    .analysis { background: linear-gradient(135deg, #dffdf8, #31d5bd); }
+    .resource { background: linear-gradient(135deg, #e7faff, #36a8f6); }
+    .trash { background: linear-gradient(135deg, #edf7ff, #3487f5); }
+
+    .trash::before {
+      width: 26px;
+      height: 22px;
+      border: 3px solid #fff;
+      border-top: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .trash::after {
+      content: "";
+      position: absolute;
+      top: 11px;
+      width: 28px;
+      height: 5px;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 6px -5px 0 -1px #fff;
+    }
+
+    .entry-label {
+      display: block;
+      width: 100%;
+      color: #172846;
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .student-card {
+      margin-top: 14px;
+      padding: 17px;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .password-table,
+    .student-table {
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .password-table {
+      margin-bottom: 12px;
+    }
+
+    .p-row,
+    .s-head,
+    .student {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      min-height: 50px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 16px;
+    }
+
+    .p-row:last-child,
+    .student:last-child {
+      border-bottom: 0;
+    }
+
+    .p-row.head,
+    .s-head {
+      background: #fbfcff;
+      font-weight: 900;
+    }
+
+    .reset {
+      width: 100%;
+      height: 34px;
+      margin: 0 0 16px;
+      border: 0;
+      border-radius: 18px;
+      background: #eaf0ff;
+      color: #1876dd;
+      font-size: 15px;
+    }
+
+    .s-head,
+    .student {
+      grid-template-columns: 1.25fr 1.2fr 1fr 18px;
+    }
+
+    .student {
+      min-height: 74px;
+      color: #162640;
+    }
+
+    .sub-name {
+      display: block;
+      margin-top: 4px;
+      color: #92a0b3;
+      line-height: 18px;
+      word-break: break-all;
+    }
+
+    .arrow {
+      width: 10px;
+      height: 10px;
+      border-top: 2px solid #9caabe;
+      border-right: 2px solid #9caabe;
+      transform: rotate(45deg);
+    }
+
+    .invite {
+      position: sticky;
+      bottom: 14px;
+      width: 100%;
+      height: 52px;
+      margin-top: 18px;
+      border: 0;
+      border-radius: 26px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 6px 18px rgba(47, 125, 244, .24);
+    }
+
+    .mobile-recycle {
+      display: none;
+      min-height: 100vh;
+      background: var(--bg);
+    }
+
+    .phone.recycle-mode .class-page {
+      display: none;
+    }
+
+    .phone.recycle-mode .mobile-recycle {
+      display: block;
+    }
+
+    .recycle-content {
+      padding: 14px 16px 24px;
+    }
+
+    .mobile-filter {
+      display: grid;
+      grid-template-columns: 1fr 94px;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .mobile-search,
+    .mobile-search-button,
+    .mobile-date-range,
+    .mobile-batch {
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid #e4ebf5;
+      background: #fff;
+      color: #9aa7b8;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      padding: 0 13px;
+    }
+
+    .mobile-search {
+      width: 100%;
+      outline: none;
+    }
+
+    .mobile-search-wrap {
+      display: grid;
+      grid-template-columns: 1fr 48px;
+      gap: 8px;
+    }
+
+    .mobile-search-button {
+      justify-content: center;
+      padding: 0;
+      color: #172846;
+      font-size: 20px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .mobile-date-range {
+      grid-column: 1 / -1;
+      justify-content: space-between;
+      gap: 8px;
+      color: #8e9bae;
+      white-space: nowrap;
+    }
+
+    .mobile-date-range .strong {
+      color: #172846;
+      font-weight: 900;
+    }
+
+    .mini-calendar {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #aab7c8;
+      border-radius: 3px;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .mini-calendar::before {
+      content: "";
+      position: absolute;
+      left: -2px;
+      right: -2px;
+      top: 5px;
+      height: 2px;
+      background: #aab7c8;
+    }
+
+    .mobile-batch {
+      justify-content: center;
+      border: 0;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .mobile-batch:disabled {
+      color: #98a5b7;
+      background: #dfe7f2;
+      cursor: not-allowed;
+    }
+
+    .trash-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .trash-item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      column-gap: 10px;
+      padding: 14px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 1px 0 rgba(20, 50, 90, .04);
+    }
+
+    .mobile-check {
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+      display: inline-grid;
+      place-items: center;
+      border: 1.5px solid #8fb0ff;
+      border-radius: 5px;
+      background: #fff;
+      padding: 0;
+      appearance: none;
+    }
+
+    .mobile-check.checked {
+      border-color: #6c96ff;
+      background: #79a0ff;
+    }
+
+    .mobile-check.checked::after {
+      content: "";
+      width: 11px;
+      height: 6px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg) translate(1px, -1px);
+    }
+
+    .trash-body {
+      min-width: 0;
+    }
+
+    .trash-title {
+      margin-bottom: 10px;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .trash-meta {
+      color: #73849c;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .restore {
+      float: right;
+      margin-top: -4px;
+      border: 0;
+      background: transparent;
+      color: var(--blue);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .mobile-toast {
+      position: fixed;
+      z-index: 10;
+      top: 62px;
+      left: 50%;
+      transform: translate(-50%, -8px);
+      height: 38px;
+      display: grid;
+      place-items: center;
+      padding: 0 18px;
+      border-radius: 8px;
+      background: rgba(22, 37, 56, .88);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .mobile-toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .trash-item.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="phone" id="phone">
+    <section class="class-page">
+      <header class="top">
+        <span class="back" aria-hidden="true"></span>
+        <span>测试1</span>
+        <span></span>
+      </header>
+
+      <div class="content">
+        <section class="course-card">
+          <div class="course-row">
+            <span>课程码： <b class="course-code">1291667</b></span>
+            <button class="manage">管理</button>
+          </div>
+          <div class="divider"></div>
+          <div class="course-row" style="font-size:15px;font-weight:500">
+            <span>学生加入班级是否需要审核</span>
+            <span class="switch" aria-hidden="true"></span>
+          </div>
+        </section>
+
+        <section class="entry-card" aria-label="班级工具入口">
+          <div class="entry-grid">
+            <button class="entry" type="button">
+              <span class="entry-icon track"></span>
+              <span class="entry-label">学习轨迹</span>
+            </button>
+            <button class="entry" type="button">
+              <span class="entry-icon analysis"></span>
+              <span class="entry-label">能力分析</span>
+            </button>
+            <button class="entry" type="button">
+              <span class="entry-icon resource"></span>
+              <span class="entry-label">教学班资源</span>
+            </button>
+            <button class="entry" type="button" id="openMobileRecycle">
+              <span class="entry-icon trash"></span>
+              <span class="entry-label">回收站</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="student-card">
+          <div class="password-table">
+            <div class="p-row head"><span>固定学号</span><span>初始密码</span></div>
+            <div class="p-row"><span>--</span><span>123456Aa</span></div>
+          </div>
+          <button class="reset">重置密码</button>
+
+          <div class="student-table">
+            <div class="s-head"><span>姓名/账号</span><span>手机号</span><span>学号</span><span></span></div>
+            <div class="student"><span>丁豪杰<span class="sub-name">dinghaojie</span></span><span>153****6240</span><span>04231</span><i class="arrow"></i></div>
+            <div class="student"><span>fxb<span class="sub-name">nimo-fxbs1</span></span><span>191****1112</span><span>12345601</span><i class="arrow"></i></div>
+            <div class="student"><span>k1<span class="sub-name">stu_autotest3_1</span></span><span>159****5840</span><span>20260000111122</span><i class="arrow"></i></div>
+            <div class="student"><span>浩5<span class="sub-name">hao5</span></span><span>157****6805</span><span>--</span><i class="arrow"></i></div>
+          </div>
+          <button class="invite">邀请学生或家长</button>
+        </section>
+      </div>
+    </section>
+
+    <section class="mobile-recycle">
+      <header class="top">
+        <button class="back-button" type="button" id="backClass" aria-label="返回班级页"><span class="back" aria-hidden="true"></span></button>
+        <span>回收站</span>
+        <span></span>
+      </header>
+      <div class="recycle-content">
+        <div class="mobile-filter">
+          <div class="mobile-search-wrap">
+            <input class="mobile-search" id="mobileSearchInput" type="search" placeholder="输入练习名称搜索" />
+            <button class="mobile-search-button" type="button" id="mobileSearchButton" aria-label="搜索">⌕</button>
+          </div>
+          <button class="mobile-batch" type="button" id="mobileBatchRestore">批量恢复</button>
+          <div class="mobile-date-range">
+            <span class="mini-calendar"></span>
+            <span>开始时间</span>
+            <span class="strong">至</span>
+            <span>结束时间</span>
+          </div>
+        </div>
+        <div class="trash-list">
+          <article class="trash-item" data-title="Section 1">
+            <button class="mobile-check" type="button" aria-label="选择 Section 1"></button>
+            <div class="trash-body">
+              <button class="restore">恢复</button>
+              <div class="trash-title">Section 1</div>
+              <div class="trash-meta">练习时间：2026-08-04 00:00 至 2026-09-07 23:59<br>删除时间：2026-08-20 15:00</div>
+            </div>
+          </article>
+          <article class="trash-item" data-title="我的试卷->3道题">
+            <button class="mobile-check" type="button" aria-label="选择 我的试卷 3道题"></button>
+            <div class="trash-body">
+              <button class="restore">恢复</button>
+              <div class="trash-title">我的试卷->3道题</div>
+              <div class="trash-meta">练习时间：2025-07-02 20:15 至 2025-07-09 20:15<br>删除时间：2026-08-20 14:32</div>
+            </div>
+          </article>
+          <article class="trash-item" data-title="Section B">
+            <button class="mobile-check" type="button" aria-label="选择 Section B"></button>
+            <div class="trash-body">
+              <button class="restore">恢复</button>
+              <div class="trash-title">Section B</div>
+              <div class="trash-meta">练习时间：2026-08-04 00:00 至 2026-09-07 23:59<br>删除时间：2026-08-20 14:32</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    <div class="mobile-toast" id="mobileToast" role="status" aria-live="polite">恢复成功</div>
+  </main>
+
+  <script>
+    const phone = document.getElementById("phone");
+    const mobileChecks = Array.from(document.querySelectorAll(".mobile-check"));
+    const mobileBatchRestore = document.getElementById("mobileBatchRestore");
+    const mobileToast = document.getElementById("mobileToast");
+    const mobileSearchInput = document.getElementById("mobileSearchInput");
+    const mobileSearchButton = document.getElementById("mobileSearchButton");
+    let mobileToastTimer;
+
+    function syncMobileBatch() {
+      mobileBatchRestore.disabled = !mobileChecks.some((check) => check.classList.contains("checked"));
+      mobileChecks.forEach((check) => {
+        check.setAttribute("aria-pressed", check.classList.contains("checked") ? "true" : "false");
+      });
+    }
+
+    function showMobileToast() {
+      clearTimeout(mobileToastTimer);
+      mobileToast.classList.add("show");
+      mobileToastTimer = setTimeout(() => mobileToast.classList.remove("show"), 1500);
+    }
+
+    function refreshMobileData() {
+      const keyword = mobileSearchInput.value.trim().toLowerCase();
+      document.querySelectorAll(".trash-item").forEach((item) => {
+        const title = item.dataset.title.toLowerCase();
+        item.classList.toggle("hidden", keyword !== "" && !title.includes(keyword));
+      });
+      mobileToast.textContent = "数据已刷新";
+      showMobileToast();
+    }
+
+    document.getElementById("openMobileRecycle").addEventListener("click", () => {
+      phone.classList.add("recycle-mode");
+      window.scrollTo(0, 0);
+      syncMobileBatch();
+    });
+    document.getElementById("backClass").addEventListener("click", () => {
+      phone.classList.remove("recycle-mode");
+      window.scrollTo(0, 0);
+    });
+    mobileChecks.forEach((check) => {
+      check.addEventListener("click", () => {
+        check.classList.toggle("checked");
+        syncMobileBatch();
+      });
+    });
+    document.querySelectorAll(".restore").forEach((button) => {
+      button.addEventListener("click", () => {
+        mobileToast.textContent = "恢复成功";
+        showMobileToast();
+      });
+    });
+    mobileBatchRestore.addEventListener("click", () => {
+      if (!mobileBatchRestore.disabled) {
+        mobileToast.textContent = "恢复成功";
+        showMobileToast();
+      }
+    });
+    mobileSearchButton.addEventListener("click", refreshMobileData);
+    mobileSearchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") refreshMobileData();
+    });
+    syncMobileBatch();
+  </script>
+</body>
+</html>
+

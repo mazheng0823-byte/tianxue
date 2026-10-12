@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>教师端功能原型目录</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      color: #172846;
+      background: linear-gradient(180deg, #e3f9ff 0%, #f6f8ff 100%);
+    }
+
+    .wrap {
+      width: min(960px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 52px 0;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+      letter-spacing: 0;
+    }
+
+    .desc {
+      margin: 0 0 32px;
+      color: #63748a;
+      font-size: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #e3edf8;
+      box-shadow: 0 12px 30px rgba(36, 104, 170, .1);
+      text-decoration: none;
+      color: inherit;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 38px rgba(36, 104, 170, .14);
+    }
+
+    .kind {
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: #1876dd;
+      background: #eaf4ff;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .title {
+      margin: 22px 0 8px;
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    .note {
+      color: #68798f;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .go {
+      margin-top: 24px;
+      color: #2f7df4;
+      font-weight: 900;
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        width: min(430px, calc(100% - 28px));
+        padding: 32px 0;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>教师端功能原型目录</h1>
+    <p class="desc">回收站、成员管理、任务分享和试题过滤原型都在这里，可直接打开体验完整交互。</p>
+
+    <section class="grid">
+      <a class="card" href="./0824-teacher-recycle-bin-entry.html">
+        <div>
+          <span class="kind">PC</span>
+          <div class="title">教师端首页入口</div>
+          <div class="note">左侧常用工具增加“回收站”，点击后保留顶部与左侧导航，在主区域展示回收站列表。</div>
+        </div>
+        <div class="go">打开 PC 原型</div>
+      </a>
+
+      <a class="card" href="./0824-mobile-teacher-recycle-entry.html">
+        <div>
+          <span class="kind">移动端</span>
+          <div class="title">班级页入口</div>
+          <div class="note">圈定区域增加第 4 个“回收站”入口，并提供移动端回收站列表演示。</div>
+        </div>
+        <div class="go">打开移动端原型</div>
+      </a>
+
+      <a class="card" href="./0826-pc-member-management.html">
+        <div>
+          <span class="kind">PC</span>
+          <div class="title">成员管理入口</div>
+          <div class="note">复刻成员管理页，顶部功能区增加第 4 个“回收站”入口，并将家长姓名展示为脱敏手机号。</div>
+        </div>
+        <div class="go">打开成员管理原型</div>
+      </a>
+
+      <a class="card" href="./0929-pc-task-share.html">
+        <div>
+          <span class="kind">PC · 新功能</span>
+          <div class="title">任务分享与作业清单</div>
+          <div class="note">复刻练习报告页，支持勾选多份作业，按日期分组生成海报，并复制或下载 PNG 图片分享。</div>
+        </div>
+        <div class="go">打开任务分享原型</div>
+      </a>
+
+      <a class="card" href="./0930-mobile-task-share.html">
+        <div>
+          <span class="kind">移动端 · 新功能</span>
+          <div class="title">移动端任务分享</div>
+          <div class="note">复刻移动端练习报告页，支持勾选多份作业生成清单海报、保存图片，并通过系统分享面板分享到微信。</div>
+        </div>
+        <div class="go">打开移动端任务分享</div>
+      </a>
+
+      <a class="card" href="./0930-pc-assigned-question-filter.html">
+        <div>
+          <span class="kind">PC · 新功能</span>
+          <div class="title">已布置试题标记与过滤</div>
+          <div class="note">复刻试题详情弹窗，为已布置题目增加状态标记，并支持过滤已布置与取消过滤。</div>
+        </div>
+        <div class="go">打开试题过滤原型</div>
+      </a>
+
+      <a class="card" href="./0930-mobile-assigned-question-filter.html">
+        <div>
+          <span class="kind">移动端 · 新功能</span>
+          <div class="title">移动端已布置试题过滤</div>
+          <div class="note">复刻移动端多题平铺详情页，显示已布置标记，并支持过滤已布置与取消过滤。</div>
+        </div>
+        <div class="go">打开移动端试题过滤</div>
+      </a>
+    </section>
+  </main>
+</body>
+</html>
+
