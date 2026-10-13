@@ -440,6 +440,38 @@
     .status-row:last-child { border-bottom: 0; }
 
     .status-name { display: inline-flex; align-items: center; gap: 7px; color: #56616a; }
+    .status-tooltip {
+      position: relative;
+      width: fit-content;
+      cursor: help;
+      text-decoration: underline dotted #a8b0b6;
+      text-underline-offset: 3px;
+    }
+
+    .status-tooltip::after {
+      position: absolute;
+      z-index: 5;
+      bottom: calc(100% + 7px);
+      left: 0;
+      width: max-content;
+      max-width: 230px;
+      padding: 7px 9px;
+      border-radius: 3px;
+      background: #26343b;
+      box-shadow: 0 3px 10px rgba(20, 31, 38, .18);
+      color: #fff;
+      content: attr(data-tooltip);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.5;
+      white-space: normal;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .status-tooltip:hover::after,
+    .status-tooltip:focus-visible::after { opacity: 1; visibility: visible; }
     .status-value { font-variant-numeric: tabular-nums; font-weight: 700; }
     .status-percent { color: var(--muted); text-align: right; }
 
@@ -724,7 +756,7 @@
         <div class="panel-head">
           <div>
             <h2 class="panel-title" id="statusTitle">学生账号状态</h2>
-            <div class="panel-subtitle" id="statusSubtitle">按省查看六类状态分布</div>
+            <div class="panel-subtitle" id="statusSubtitle">按省查看七类状态分布</div>
           </div>
           <div class="status-view-switch" role="group" aria-label="学生状态统计维度">
             <button class="status-view-button" type="button" data-status-view="province" aria-pressed="true">按省</button>
@@ -772,12 +804,13 @@
     ];
 
     const statusTypes = [
-      { key: "inactive", label: "未激活", share: .072, color: "#9aa4ad" },
-      { key: "active", label: "活跃", share: .684, color: "#2d9a70" },
-      { key: "dormant", label: "休眠", share: .164, color: "#e49743" },
-      { key: "disabled", label: "停用", share: .052, color: "#cf6665" },
-      { key: "abnormal", label: "异常", share: .013, color: "#7a73bd" },
-      { key: "unloaded", label: "卸载", share: .015, color: "#56636d" }
+      { key: "inactive", label: "未激活", description: "注册后未登录", share: .0684, color: "#9aa4ad" },
+      { key: "active", label: "活跃", description: "近180天内有作答", share: .6498, color: "#2d9a70" },
+      { key: "dormant", label: "休眠", description: "近180天内无作答", share: .1558, color: "#e49743" },
+      { key: "disabled", label: "停用", description: "停用账户", share: .0494, color: "#cf6665" },
+      { key: "graduated", label: "已毕业", description: "已到达毕业时限并且授权产品已经到期", share: .05, color: "#3478d4" },
+      { key: "abnormal", label: "异常", description: "已毕业但是还有提交记录", share: .01235, color: "#7a73bd" },
+      { key: "unloaded", label: "卸载", description: "已经卸载", share: .01425, color: "#56636d" }
     ];
 
     const provinces = [
@@ -913,6 +946,10 @@
       return statusTypes.map((status) => ({ ...status, value: Math.round(studentTotal * status.share) }));
     }
 
+    function renderStatusName(item) {
+      return `<span class="status-name status-tooltip" tabindex="0" title="${item.description}" data-tooltip="${item.description}" aria-label="${item.label}：${item.description}"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>`;
+    }
+
     function renderStatus() {
       const provinceFilterValue = provinceFilter.value;
       const visibleProvinces = provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue);
@@ -926,13 +963,13 @@
         subtitle.textContent = provinceFilterValue ? `${provinceFilterValue} · 当前累计值` : "全部省份 · 当前累计值";
         content.innerHTML = `
           <div class="status-total"><strong>${formatNumber(studentTotal)}</strong><span>名学生</span></div>
-          <div class="stacked-bar" role="img" aria-label="学生账号状态占比">
-            ${rows.map((item) => `<span class="stacked-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label} ${formatNumber(item.value)}人"></span>`).join("")}
+          <div class="stacked-bar" role="img" aria-label="学生账号七类状态占比">
+            ${rows.map((item) => `<span class="stacked-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label}：${item.description}，${formatNumber(item.value)}人"></span>`).join("")}
           </div>
           <div class="status-list">
             ${rows.map((item) => `
               <div class="status-row">
-                <span class="status-name"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>
+                ${renderStatusName(item)}
                 <span class="status-value">${formatNumber(item.value)}</span>
                 <span class="status-percent">${roundedTotal ? (item.value / roundedTotal * 100).toFixed(1) : "0.0"}%</span>
               </div>`).join("")}
@@ -961,7 +998,7 @@
             return `<button class="province-status-item" type="button" data-status-province="${province.name}" aria-pressed="${pressed}" aria-label="查看${province.name}学生状态">
               <span class="province-status-heading"><strong>${province.name}</strong><span>${formatNumber(total)} 名</span></span>
               <span class="province-status-bar" aria-hidden="true">
-                ${rows.map((item) => `<span class="province-status-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label} ${formatNumber(item.value)}人"></span>`).join("")}
+                ${rows.map((item) => `<span class="province-status-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label}：${item.description}，${formatNumber(item.value)}人"></span>`).join("")}
               </span>
             </button>`;
           }).join("")}
@@ -971,7 +1008,7 @@
           <div class="province-status-grid">
             ${details.map((item) => `
               <div class="province-status-cell">
-                <span class="status-name"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>
+                ${renderStatusName(item)}
                 <strong>${formatNumber(item.value)} <span class="status-percent">${detailsTotal ? (item.value / detailsTotal * 100).toFixed(1) : "0.0"}%</span></strong>
               </div>`).join("")}
           </div>
@@ -1235,4 +1272,3 @@
   </script>
 </body>
 </html>
-
