@@ -7,7 +7,7 @@
 | 页面 | 文件 | 状态 |
 | --- | --- | --- |
 | Demo 目录 | `index.html` | 统一入口，包含当前两张页面 |
-| 组织机构管理 - 用户管理 | `0820-user-management-replica.html` | 已增加账号状态检索与停用原因展示 |
+| 组织机构管理 - 用户管理 | `0820-user-management-replica.html` | 已增加账号状态检索、停用原因展示与用户数据恢复 |
 | 学校管理员中心 - 学生列表 | `0820-school-admin-student-list.html` | 已增加账号状态检索与状态展示 |
 
 直接使用浏览器打开 `index.html` 即可进入目录，无需启动服务。
