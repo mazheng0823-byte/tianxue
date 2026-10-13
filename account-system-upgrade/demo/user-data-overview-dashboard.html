@@ -123,7 +123,7 @@
 
     .filter-bar {
       display: grid;
-      grid-template-columns: minmax(250px, 1.3fr) repeat(3, minmax(145px, .75fr)) auto;
+      grid-template-columns: minmax(360px, 1.4fr) minmax(190px, .75fr) auto;
       gap: 12px;
       align-items: end;
       margin-bottom: 16px;
@@ -359,8 +359,6 @@
       color: var(--text);
     }
 
-    .chart-controls .table-tools { margin-left: auto; }
-
     .chart-wrap { height: 274px; padding: 13px 16px 12px; }
     #trendChart { display: block; width: 100%; height: 100%; }
 
@@ -411,33 +409,6 @@
 
     .table-panel { margin-top: 16px; }
 
-    .table-tools {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      padding: 3px;
-      border: 1px solid #e2e6e8;
-      border-radius: 3px;
-      background: #f6f7f8;
-    }
-
-    .level-button {
-      height: 28px;
-      padding: 0 10px;
-      border: 0;
-      border-radius: 2px;
-      background: transparent;
-      color: #667078;
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .level-button[aria-pressed="true"] {
-      background: #fff;
-      color: var(--blue);
-      box-shadow: 0 1px 3px rgba(24, 36, 46, .12);
-    }
-
     .table-scroll { overflow-x: auto; }
 
     table {
@@ -469,6 +440,40 @@
     .number-cell { text-align: right; }
     th.number-cell { text-align: right; }
 
+    .tree-label { display: flex; align-items: center; gap: 7px; }
+    .tree-label.city { padding-left: 24px; color: #4d5a62; font-weight: 500; }
+    .tree-label.school { padding-left: 49px; color: #69747b; font-weight: 400; }
+
+    .tree-toggle {
+      width: 20px;
+      height: 22px;
+      flex: 0 0 20px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #71808a;
+      cursor: pointer;
+    }
+
+    .tree-toggle:hover { color: var(--blue); }
+
+    .tree-toggle::before {
+      width: 6px;
+      height: 6px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      content: "";
+      transform: rotate(-45deg);
+      transition: transform 120ms ease;
+    }
+
+    .tree-toggle[aria-expanded="true"]::before { transform: rotate(45deg); }
+    .tree-toggle-placeholder { width: 20px; height: 22px; flex: 0 0 20px; }
+    .tree-row.city { background: #fafbfc; }
+    .tree-row.school { background: #fff; }
+
     .table-empty {
       height: 86px;
       color: var(--muted);
@@ -485,13 +490,10 @@
     }
 
     @media (max-width: 1050px) {
-      .filter-bar { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
-      .date-filter { grid-column: span 2; }
-      .query-button { grid-column: 4; }
+      .filter-bar { grid-template-columns: minmax(300px, 1fr) minmax(150px, .65fr) auto; }
       .content-grid { grid-template-columns: minmax(0, 1.4fr) minmax(310px, 1fr); }
       .panel-head { align-items: flex-start; flex-direction: column; padding: 13px 16px; }
       .legend { justify-content: flex-start; }
-      .chart-controls .table-tools { margin-left: 0; }
     }
 
     @media (max-width: 760px) {
@@ -501,7 +503,7 @@
       .main { width: calc(100% - 24px); padding-top: 20px; }
       .page-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
       h1 { font-size: 21px; }
-      .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; padding: 12px; }
+      .filter-bar { grid-template-columns: minmax(0, 1fr) auto; gap: 11px; padding: 12px; }
       .date-filter { grid-column: 1 / -1; }
       .query-button { grid-column: 2; justify-self: end; }
       .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -511,9 +513,7 @@
       .panel-head { align-items: flex-start; }
       .chart-wrap { height: 245px; padding: 10px 9px; }
       .status-panel { padding-bottom: 12px; }
-      .table-panel .panel-head { flex-direction: row; align-items: center; }
       .chart-controls { padding: 9px 12px; }
-      .chart-controls .table-tools { margin-left: 0; }
       .data-footnote { flex-direction: column; }
     }
 
@@ -569,12 +569,6 @@
         <label class="filter-field">省
           <select id="provinceFilter" aria-label="省份"></select>
         </label>
-        <label class="filter-field">市
-          <select id="cityFilter" aria-label="城市"></select>
-        </label>
-        <label class="filter-field">学校
-          <select id="schoolFilter" aria-label="学校"></select>
-        </label>
         <button class="query-button" type="submit">查询</button>
       </form>
       <p class="notice" id="filterNotice" role="alert"></p>
@@ -603,11 +597,6 @@
               <option value="assistants">助教</option>
             </select>
           </label>
-          <div class="table-tools" role="group" aria-label="趋势地域层级">
-            <button class="level-button" type="button" data-level="province" aria-pressed="true">省</button>
-            <button class="level-button" type="button" data-level="city" aria-pressed="false">市</button>
-            <button class="level-button" type="button" data-level="school" aria-pressed="false">学校</button>
-          </div>
         </div>
         <div class="chart-wrap"><canvas id="trendChart" role="img" aria-label="学生、老师、家长和助教新增用户趋势折线图"></canvas></div>
       </section>
@@ -630,18 +619,13 @@
       <div class="panel-head">
         <div>
           <h2 class="panel-title" id="regionTitle">区域用户分布</h2>
-          <div class="panel-subtitle">按省、市、学校查看四类用户规模</div>
-        </div>
-        <div class="table-tools" role="group" aria-label="区域统计层级">
-          <button class="level-button" type="button" data-level="province" aria-pressed="true">省</button>
-          <button class="level-button" type="button" data-level="city" aria-pressed="false">市</button>
-          <button class="level-button" type="button" data-level="school" aria-pressed="false">学校</button>
+          <div class="panel-subtitle">展开省份可查看城市，展开城市可查看学校</div>
         </div>
       </div>
       <div class="table-scroll">
         <table>
           <thead><tr>
-            <th id="regionColumn">省份</th>
+            <th>省 / 市 / 学校</th>
             <th class="number-cell">学生</th>
             <th class="number-cell">老师</th>
             <th class="number-cell">家长</th>
@@ -715,13 +699,12 @@
     const activeRates = [.34, .62, .23, .52];
     const filterForm = document.getElementById("filterForm");
     const provinceFilter = document.getElementById("provinceFilter");
-    const cityFilter = document.getElementById("cityFilter");
-    const schoolFilter = document.getElementById("schoolFilter");
     const dateFrom = document.getElementById("dateFrom");
     const dateTo = document.getElementById("dateTo");
-    let currentLevel = "province";
     let currentMetric = "new";
     let visibleRange = { start: new Date(), end: new Date() };
+    const expandedProvinces = new Set();
+    const expandedCities = new Set();
 
     function formatNumber(value) {
       return Math.round(value).toLocaleString("zh-CN");
@@ -742,27 +725,11 @@
       return next;
     }
 
-    function listCities(provinceName) {
-      return provinces.filter((province) => !provinceName || province.name === provinceName).flatMap((province) => province.cities);
-    }
-
-    function listSchools(provinceName, cityName) {
-      return listCities(provinceName).filter((city) => !cityName || city.name === cityName).flatMap((city) => city.schools);
-    }
-
     function fillSelect(select, items, placeholder) {
       const previous = select.value;
       select.replaceChildren(new Option(placeholder, ""));
       items.forEach((item) => select.add(new Option(item, item)));
       if (items.includes(previous)) select.value = previous;
-    }
-
-    function updateRegionOptions(resetChildren = false) {
-      const province = provinceFilter.value;
-      const city = cityFilter.value;
-      fillSelect(cityFilter, listCities(province).map((item) => item.name), "全部城市");
-      if (resetChildren && city && !listCities(province).some((item) => item.name === city)) cityFilter.value = "";
-      fillSelect(schoolFilter, listSchools(province, cityFilter.value).map((item) => item.name), "全部学校");
     }
 
     function allSchools() {
@@ -775,23 +742,13 @@
 
     function selectedSchools() {
       const province = provinceFilter.value;
-      const city = cityFilter.value;
-      const school = schoolFilter.value;
-      return allSchools().filter((item) =>
-        (!province || item.province === province) &&
-        (!city || item.city === city) &&
-        (!school || item.name === school)
-      );
+      return allSchools().filter((item) => !province || item.province === province);
     }
 
     function currentStudentScope() {
       const selected = sumCounts(selectedSchools())[0];
       const total = sumCounts(allSchools())[0];
       return total ? selected / total : 0;
-    }
-
-    function scopeName() {
-      return schoolFilter.value || cityFilter.value || provinceFilter.value || "全部区域";
     }
 
     function periodDays() {
@@ -850,7 +807,7 @@
       const typeSelect = document.getElementById("chartTypeFilter");
       const typeIndex = typeSelect.value === "all" ? -1 : userTypes.findIndex((type) => type.key === typeSelect.value);
       const metricLabel = currentMetric === "new" ? "新增用户" : "活跃用户";
-      const regionLabel = { province: "省", city: "市", school: "学校" }[currentLevel];
+      const regionLabel = "省";
       const typeLabel = typeIndex < 0 ? "全部用户" : userTypes[typeIndex].label;
       const allCounts = sumCounts(allSchools());
       const globalSelected = typeIndex < 0
@@ -859,7 +816,7 @@
       const globalNew = typeIndex < 0
         ? chartBase.reduce((sum, value) => sum + value, 0)
         : chartBase[typeIndex];
-      const rows = aggregateRows(currentLevel)
+      const rows = aggregateRows()
         .sort((a, b) => b.counts.reduce((sum, value) => sum + value, 0) - a.counts.reduce((sum, value) => sum + value, 0))
         .slice(0, 6);
       const series = rows.map((row, regionIndex) => {
@@ -881,9 +838,8 @@
       });
       const max = Math.max(1, ...series.flat()) * 1.18;
       document.getElementById("trendTitle").textContent = `${metricLabel}趋势`;
-      const topSchoolsNote = currentLevel === "school" && aggregateRows("school").length > rows.length ? "规模前 6 所学校 · " : "";
       const measureNote = currentMetric === "new" ? "按日新增" : "按日活跃";
-      document.getElementById("trendSubtitle").textContent = `${topSchoolsNote}${typeLabel} · 按${regionLabel}拆分 · ${measureNote} · ${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
+      document.getElementById("trendSubtitle").textContent = `${typeLabel} · 按${regionLabel}拆分 · ${measureNote} · ${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
       canvas.setAttribute("aria-label", `${typeLabel}${metricLabel}按${regionLabel}与日期统计的折线图`);
       document.getElementById("trendLegend").innerHTML = rows.map((row, index) => `
         <span class="legend-item"><i class="legend-dot" style="--legend-color:${regionColors[index % regionColors.length]}"></i>${row.name}</span>`).join("");
@@ -948,38 +904,55 @@
       });
     }
 
-    function aggregateRows(level) {
-      const schools = selectedSchools();
-      if (level === "school") {
-        return schools.map((item) => ({ name: item.name, counts: item.counts }));
-      }
-      const key = level === "city" ? "city" : "province";
-      const groups = new Map();
-      schools.forEach((school) => {
-        const name = school[key];
-        if (!groups.has(name)) groups.set(name, []);
-        groups.get(name).push(school);
-      });
-      return [...groups].map(([name, items]) => ({ name, counts: sumCounts(items) }));
+    function aggregateRows() {
+      const provinceFilterValue = provinceFilter.value;
+      return provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue).map((province) => ({
+        name: province.name,
+        counts: sumCounts(province.cities.flatMap((city) => city.schools))
+      }));
     }
 
     function renderRegionTable() {
-      const levelNames = { province: "省份", city: "城市", school: "学校" };
-      document.getElementById("regionColumn").textContent = levelNames[currentLevel];
-      const rows = aggregateRows(currentLevel);
       const body = document.getElementById("regionRows");
-      if (!rows.length) {
+      const provinceFilterValue = provinceFilter.value;
+      const visibleProvinces = provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue);
+      if (!visibleProvinces.length) {
         body.innerHTML = '<tr><td class="table-empty" colspan="6">当前筛选范围没有数据</td></tr>';
         return;
       }
-      body.innerHTML = rows.map((row) => {
-        const total = row.counts.reduce((sum, value) => sum + value, 0);
-        return `<tr>
-          <td class="region-name">${row.name}</td>
-          ${row.counts.map((value) => `<td class="number-cell">${formatNumber(value)}</td>`).join("")}
-          <td class="number-cell"><strong>${formatNumber(total)}</strong></td>
-        </tr>`;
-      }).join("");
+      const renderCounts = (counts) => {
+        const total = counts.reduce((sum, value) => sum + value, 0);
+        return `${counts.map((value) => `<td class="number-cell">${formatNumber(value)}</td>`).join("")}<td class="number-cell"><strong>${formatNumber(total)}</strong></td>`;
+      };
+      const rows = [];
+      visibleProvinces.forEach((province) => {
+        const provinceOpen = expandedProvinces.has(province.name);
+        const provinceCounts = sumCounts(province.cities.flatMap((city) => city.schools));
+        rows.push(`<tr class="tree-row province">
+          <td><div class="tree-label"><button class="tree-toggle" type="button" data-expand-province="${province.name}" aria-expanded="${provinceOpen}" aria-label="${provinceOpen ? "收起" : "展开"}${province.name}下级城市"></button><span class="region-name">${province.name}</span></div></td>
+          ${renderCounts(provinceCounts)}
+        </tr>`);
+        if (!provinceOpen) return;
+
+        province.cities.forEach((city) => {
+          const cityKey = `${province.name}::${city.name}`;
+          const cityOpen = expandedCities.has(cityKey);
+          const cityCounts = sumCounts(city.schools);
+          rows.push(`<tr class="tree-row city">
+            <td><div class="tree-label city"><button class="tree-toggle" type="button" data-expand-city="${cityKey}" aria-expanded="${cityOpen}" aria-label="${cityOpen ? "收起" : "展开"}${city.name}下级学校"></button><span>${city.name}</span></div></td>
+            ${renderCounts(cityCounts)}
+          </tr>`);
+          if (!cityOpen) return;
+
+          city.schools.forEach((school) => {
+            rows.push(`<tr class="tree-row school">
+              <td><div class="tree-label school"><span class="tree-toggle-placeholder" aria-hidden="true"></span><span>${school.name}</span></div></td>
+              ${renderCounts(school.counts)}
+            </tr>`);
+          });
+        });
+      });
+      body.innerHTML = rows.join("");
     }
 
     function renderDashboard() {
@@ -990,16 +963,25 @@
       document.getElementById("rangeLabel").textContent = `统计周期：${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
     }
 
-    provinceFilter.addEventListener("change", () => updateRegionOptions(true));
-    cityFilter.addEventListener("change", () => updateRegionOptions());
-
-    document.querySelectorAll("[data-level]").forEach((button) => {
-      button.addEventListener("click", () => {
-        currentLevel = button.dataset.level;
-        document.querySelectorAll("[data-level]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
-        drawTrend();
+    document.getElementById("regionRows").addEventListener("click", (event) => {
+      const provinceButton = event.target.closest("[data-expand-province]");
+      if (provinceButton) {
+        const name = provinceButton.dataset.expandProvince;
+        if (expandedProvinces.has(name)) {
+          expandedProvinces.delete(name);
+          provinces.find((province) => province.name === name)?.cities.forEach((city) => expandedCities.delete(`${name}::${city.name}`));
+        } else {
+          expandedProvinces.add(name);
+        }
         renderRegionTable();
-      });
+        return;
+      }
+      const cityButton = event.target.closest("[data-expand-city]");
+      if (!cityButton) return;
+      const key = cityButton.dataset.expandCity;
+      if (expandedCities.has(key)) expandedCities.delete(key);
+      else expandedCities.add(key);
+      renderRegionTable();
     });
 
     document.querySelectorAll("[data-metric]").forEach((button) => {
@@ -1033,7 +1015,6 @@
     dateTo.value = dateValue(today);
     document.getElementById("updatedAt").textContent = `${formatDate(today)} 09:00`;
     fillSelect(provinceFilter, provinces.map((item) => item.name), "全部省份");
-    updateRegionOptions();
     visibleRange = { start: new Date(`${dateFrom.value}T00:00:00`), end: new Date(`${dateTo.value}T00:00:00`) };
     renderDashboard();
     window.addEventListener("resize", drawTrend);
