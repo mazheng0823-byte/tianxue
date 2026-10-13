@@ -210,11 +210,23 @@
     }
 
     .metric {
+      width: 100%;
       min-height: 139px;
       padding: 16px 18px;
       border: 1px solid var(--border);
       border-radius: 4px;
       background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .metric:hover { border-color: #b4c0c6; }
+    .metric[aria-pressed="true"] {
+      border-color: var(--metric-color);
+      box-shadow: inset 0 0 0 1px var(--metric-color);
     }
 
     .metric-top {
@@ -250,6 +262,54 @@
     }
 
     .metric-share { color: var(--metric-color); }
+
+    .role-province-panel[hidden] { display: none; }
+
+    .role-province-panel {
+      margin-top: 14px;
+      padding: 13px 0 2px;
+      border-top: 1px solid var(--border);
+    }
+
+    .role-province-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .role-province-head h3 { margin: 0; font-size: 13px; }
+    .role-province-head span { color: var(--muted); font-size: 11px; }
+
+    .role-province-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px 16px;
+    }
+
+    .role-province-item { min-width: 0; }
+
+    .role-province-item-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .role-province-item-head strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .role-province-value { color: #59646c; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .role-province-track {
+      height: 7px;
+      overflow: hidden;
+      border-radius: 2px;
+      background: #edf0f2;
+    }
+
+    .role-province-track span { display: block; height: 100%; background: var(--metric-color); }
 
     .content-grid {
       display: grid;
@@ -559,6 +619,8 @@
       text-align: left;
     }
 
+    .region-table { min-width: 1180px; }
+
     th, td {
       height: 44px;
       padding: 0 18px;
@@ -655,6 +717,7 @@
       .chart-wrap { height: 245px; padding: 10px 9px; }
       .status-panel { padding-bottom: 12px; }
       .chart-controls { padding: 9px 12px; }
+      .role-province-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .status-content { padding-right: 12px; padding-left: 12px; }
       .province-status-grid { gap: 5px; }
       .province-status-cell { padding: 6px; }
@@ -668,6 +731,7 @@
       .metric-foot { font-size: 11px; }
       .date-range { gap: 4px; }
       .date-range input { padding: 0 5px; font-size: 11px; }
+      .role-province-list { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -695,6 +759,13 @@
         <span class="section-note">四类用户当前累计总量，不受下方筛选影响</span>
       </div>
       <div class="metrics" id="metrics"></div>
+      <div class="role-province-panel" id="roleProvincePanel" hidden aria-live="polite">
+        <div class="role-province-head">
+          <h3 id="roleProvinceTitle"></h3>
+          <span>全平台当前累计 · 全部省份</span>
+        </div>
+        <div class="role-province-list" id="roleProvinceList"></div>
+      </div>
     </section>
 
     <section aria-labelledby="analysisTitle">
@@ -771,19 +842,28 @@
       <div class="panel-head">
         <div>
           <h2 class="panel-title" id="regionTitle">区域用户分布</h2>
-          <div class="panel-subtitle">展开省份可查看城市，展开城市可查看学校</div>
+          <div class="panel-subtitle">按所选日期统计：新增为周期累计，活跃为日均人数</div>
         </div>
       </div>
       <div class="table-scroll">
-        <table>
-          <thead><tr>
-            <th>省 / 市 / 学校</th>
-            <th class="number-cell">学生</th>
-            <th class="number-cell">老师</th>
-            <th class="number-cell">家长</th>
-            <th class="number-cell">助教</th>
-            <th class="number-cell">用户总量</th>
-          </tr></thead>
+        <table class="region-table">
+          <thead>
+            <tr>
+              <th scope="col" rowspan="2">省 / 市 / 学校</th>
+              <th scope="colgroup" colspan="2" class="number-cell">学生</th>
+              <th scope="colgroup" colspan="2" class="number-cell">老师</th>
+              <th scope="colgroup" colspan="2" class="number-cell">家长</th>
+              <th scope="colgroup" colspan="2" class="number-cell">助教</th>
+              <th scope="colgroup" colspan="2" class="number-cell">总计</th>
+            </tr>
+            <tr>
+              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
+            </tr>
+          </thead>
           <tbody id="regionRows"></tbody>
         </table>
       </div>
@@ -856,6 +936,7 @@
     const dateTo = document.getElementById("dateTo");
     let currentMetric = "new";
     let currentGranularity = "day";
+    let selectedRoleType = "";
     let currentStatusView = "province";
     let selectedStatusProvince = "";
     let visibleRange = { start: new Date(), end: new Date() };
@@ -934,12 +1015,37 @@
       target.innerHTML = userTypes.map((type) => {
         const share = platformTotal ? (type.total / platformTotal * 100).toFixed(1) : "0.0";
         return `
-          <article class="metric" style="--metric-color:${type.color}">
+          <button class="metric" type="button" data-user-type="${type.key}" aria-pressed="${selectedRoleType === type.key}" aria-label="查看${type.label}用户省份分布" style="--metric-color:${type.color}">
             <div class="metric-top"><i class="metric-mark"></i>${type.label}用户</div>
             <div class="metric-value">${formatNumber(type.total)}</div>
             <div class="metric-foot"><span>全平台当前总量</span><span class="metric-share">占平台用户 ${share}%</span></div>
-          </article>`;
+          </button>`;
       }).join("");
+    }
+
+    function renderRoleProvinceDistribution() {
+      const panel = document.getElementById("roleProvincePanel");
+      const type = userTypes.find((item) => item.key === selectedRoleType);
+      if (!type) {
+        panel.hidden = true;
+        return;
+      }
+
+      const typeIndex = userTypes.indexOf(type);
+      const rows = provinces.map((province) => ({
+        name: province.name,
+        value: sumCounts(province.cities.flatMap((city) => city.schools))[typeIndex]
+      }));
+      document.getElementById("roleProvinceTitle").textContent = `${type.label}用户省份分布`;
+      document.getElementById("roleProvinceList").innerHTML = rows.map(({ name, value }) => {
+        const share = type.total ? value / type.total * 100 : 0;
+        return `<div class="role-province-item">
+          <div class="role-province-item-head"><strong>${name}</strong><span class="role-province-value">${formatNumber(value)} · ${share.toFixed(1)}%</span></div>
+          <div class="role-province-track" role="img" aria-label="${name}${type.label}用户 ${formatNumber(value)} 人，占 ${share.toFixed(1)}%"><span style="width:${share}%"></span></div>
+        </div>`;
+      }).join("");
+      panel.style.setProperty("--metric-color", type.color);
+      panel.hidden = false;
     }
 
     function statusCounts(studentTotal) {
@@ -1145,12 +1251,29 @@
       const provinceFilterValue = provinceFilter.value;
       const visibleProvinces = provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue);
       if (!visibleProvinces.length) {
-        body.innerHTML = '<tr><td class="table-empty" colspan="6">当前筛选范围没有数据</td></tr>';
+        body.innerHTML = '<tr><td class="table-empty" colspan="11">当前筛选范围没有数据</td></tr>';
         return;
       }
+      const days = periodDays();
+      let factorTotal = 0;
+      for (let dayIndex = 0; dayIndex < days; dayIndex += 1) {
+        const date = addDays(visibleRange.start, dayIndex);
+        const wave = .91 + Math.sin(dayIndex * .72) * .09 + ((dayIndex % 4) * .018);
+        factorTotal += wave * (date.getDay() === 0 || date.getDay() === 6 ? .84 : 1);
+      }
+      const newFactor = factorTotal / 30;
+      const activeFactor = factorTotal / days;
       const renderCounts = (counts) => {
-        const total = counts.reduce((sum, value) => sum + value, 0);
-        return `${counts.map((value) => `<td class="number-cell">${formatNumber(value)}</td>`).join("")}<td class="number-cell"><strong>${formatNumber(total)}</strong></td>`;
+        const roleValues = userTypes.map((type, index) => {
+          const share = type.total ? counts[index] / type.total : 0;
+          return {
+            added: type.additions * newFactor * share,
+            active: type.total * activeRates[index] * activeFactor * share
+          };
+        });
+        const totalAdded = roleValues.reduce((sum, value) => sum + value.added, 0);
+        const totalActive = roleValues.reduce((sum, value) => sum + value.active, 0);
+        return `${roleValues.map((value) => `<td class="number-cell">${formatNumber(value.added)}</td><td class="number-cell">${formatNumber(value.active)}</td>`).join("")}<td class="number-cell"><strong>${formatNumber(totalAdded)}</strong></td><td class="number-cell"><strong>${formatNumber(totalActive)}</strong></td>`;
       };
       const rows = [];
       visibleProvinces.forEach((province) => {
@@ -1185,11 +1308,20 @@
 
     function renderDashboard() {
       renderMetrics();
+      renderRoleProvinceDistribution();
       renderStatus();
       drawTrend();
       renderRegionTable();
       document.getElementById("rangeLabel").textContent = `统计周期：${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
     }
+
+    document.getElementById("metrics").addEventListener("click", (event) => {
+      const card = event.target.closest("[data-user-type]");
+      if (!card) return;
+      selectedRoleType = selectedRoleType === card.dataset.userType ? "" : card.dataset.userType;
+      document.querySelectorAll("[data-user-type]").forEach((item) => item.setAttribute("aria-pressed", String(item.dataset.userType === selectedRoleType)));
+      renderRoleProvinceDistribution();
+    });
 
     document.querySelectorAll("[data-status-view]").forEach((button) => {
       button.addEventListener("click", () => {
