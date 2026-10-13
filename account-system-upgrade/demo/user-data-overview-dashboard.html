@@ -364,6 +364,34 @@
 
     .status-panel { padding-bottom: 16px; }
 
+    .status-view-switch {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid #e2e6e8;
+      border-radius: 3px;
+      background: #f6f7f8;
+    }
+
+    .status-view-button {
+      height: 27px;
+      padding: 0 9px;
+      border: 0;
+      border-radius: 2px;
+      background: transparent;
+      color: #667078;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .status-view-button[aria-pressed="true"] {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 1px 3px rgba(24, 36, 46, .12);
+    }
+
+    .status-content { padding: 0 18px 12px; }
+
     .status-total {
       display: flex;
       align-items: baseline;
@@ -389,7 +417,7 @@
 
     .stacked-segment { min-width: 3px; background: var(--segment-color); }
 
-    .status-list { display: grid; gap: 0; padding: 0 18px; }
+    .status-list { display: grid; gap: 0; }
 
     .status-row {
       min-height: 35px;
@@ -406,6 +434,79 @@
     .status-name { display: inline-flex; align-items: center; gap: 7px; color: #56616a; }
     .status-value { font-variant-numeric: tabular-nums; font-weight: 700; }
     .status-percent { color: var(--muted); text-align: right; }
+
+    .province-status-list { display: grid; }
+
+    .province-status-item {
+      width: 100%;
+      display: grid;
+      gap: 7px;
+      padding: 9px 0;
+      border: 0;
+      border-bottom: 1px solid #f0f2f3;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .province-status-item:last-child { border-bottom: 0; }
+    .province-status-item:hover .province-status-heading strong,
+    .province-status-item[aria-pressed="true"] .province-status-heading strong { color: var(--blue); }
+
+    .province-status-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #59646c;
+      font-size: 12px;
+    }
+
+    .province-status-heading strong { color: #34414a; font-weight: 600; }
+    .province-status-heading span { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    .province-status-bar {
+      height: 8px;
+      display: flex;
+      gap: 2px;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .province-status-segment { min-width: 2px; background: var(--segment-color); }
+
+    .province-status-detail {
+      margin-top: 9px;
+      padding-top: 10px;
+      border-top: 1px solid #e9edef;
+    }
+
+    .province-status-detail-title {
+      margin-bottom: 8px;
+      color: #4d5961;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .province-status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .province-status-cell {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+      padding: 7px 8px;
+      border: 1px solid #edf0f2;
+      border-radius: 3px;
+    }
+
+    .province-status-cell .status-name { gap: 5px; font-size: 10px; white-space: nowrap; }
+    .province-status-cell .legend-dot { width: 6px; height: 6px; }
+    .province-status-cell strong { font-size: 11px; font-variant-numeric: tabular-nums; }
 
     .table-panel { margin-top: 16px; }
 
@@ -514,6 +615,9 @@
       .chart-wrap { height: 245px; padding: 10px 9px; }
       .status-panel { padding-bottom: 12px; }
       .chart-controls { padding: 9px 12px; }
+      .status-content { padding-right: 12px; padding-left: 12px; }
+      .province-status-grid { gap: 5px; }
+      .province-status-cell { padding: 6px; }
       .data-footnote { flex-direction: column; }
     }
 
@@ -605,13 +709,14 @@
         <div class="panel-head">
           <div>
             <h2 class="panel-title" id="statusTitle">学生账号状态</h2>
-          <div class="panel-subtitle">按地域筛选 · 当前累计值</div>
+            <div class="panel-subtitle" id="statusSubtitle">按省查看六类状态分布</div>
           </div>
-          <span class="section-note">6 类状态</span>
+          <div class="status-view-switch" role="group" aria-label="学生状态统计维度">
+            <button class="status-view-button" type="button" data-status-view="province" aria-pressed="true">按省</button>
+            <button class="status-view-button" type="button" data-status-view="total" aria-pressed="false">汇总</button>
+          </div>
         </div>
-        <div class="status-total"><strong id="studentTotal">-</strong><span>名学生</span></div>
-        <div class="stacked-bar" id="statusBar" role="img" aria-label="学生账号状态占比"></div>
-        <div class="status-list" id="statusList"></div>
+        <div class="status-content" id="statusContent"></div>
       </section>
     </div>
 
@@ -702,6 +807,8 @@
     const dateFrom = document.getElementById("dateFrom");
     const dateTo = document.getElementById("dateTo");
     let currentMetric = "new";
+    let currentStatusView = "province";
+    let selectedStatusProvince = "";
     let visibleRange = { start: new Date(), end: new Date() };
     const expandedProvinces = new Set();
     const expandedCities = new Set();
@@ -745,12 +852,6 @@
       return allSchools().filter((item) => !province || item.province === province);
     }
 
-    function currentStudentScope() {
-      const selected = sumCounts(selectedSchools())[0];
-      const total = sumCounts(allSchools())[0];
-      return total ? selected / total : 0;
-    }
-
     function periodDays() {
       return Math.max(1, Math.round((visibleRange.end - visibleRange.start) / 86400000) + 1);
     }
@@ -769,23 +870,73 @@
       }).join("");
     }
 
-    function renderStatus(scope) {
-      const studentTotal = Math.round(userTypes[0].total * scope);
-      document.getElementById("studentTotal").textContent = formatNumber(studentTotal);
-      const rows = statusTypes.map((status) => ({
-        ...status,
-        value: Math.round(studentTotal * status.share)
+    function statusCounts(studentTotal) {
+      return statusTypes.map((status) => ({ ...status, value: Math.round(studentTotal * status.share) }));
+    }
+
+    function renderStatus() {
+      const provinceFilterValue = provinceFilter.value;
+      const visibleProvinces = provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue);
+      const content = document.getElementById("statusContent");
+      const subtitle = document.getElementById("statusSubtitle");
+
+      if (currentStatusView === "total") {
+        const studentTotal = sumCounts(selectedSchools())[0];
+        const rows = statusCounts(studentTotal);
+        const roundedTotal = rows.reduce((sum, item) => sum + item.value, 0);
+        subtitle.textContent = provinceFilterValue ? `${provinceFilterValue} · 当前累计值` : "全部省份 · 当前累计值";
+        content.innerHTML = `
+          <div class="status-total"><strong>${formatNumber(studentTotal)}</strong><span>名学生</span></div>
+          <div class="stacked-bar" role="img" aria-label="学生账号状态占比">
+            ${rows.map((item) => `<span class="stacked-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label} ${formatNumber(item.value)}人"></span>`).join("")}
+          </div>
+          <div class="status-list">
+            ${rows.map((item) => `
+              <div class="status-row">
+                <span class="status-name"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>
+                <span class="status-value">${formatNumber(item.value)}</span>
+                <span class="status-percent">${roundedTotal ? (item.value / roundedTotal * 100).toFixed(1) : "0.0"}%</span>
+              </div>`).join("")}
+          </div>`;
+        return;
+      }
+
+      if (!visibleProvinces.some((province) => province.name === selectedStatusProvince)) {
+        selectedStatusProvince = visibleProvinces[0]?.name || "";
+      }
+      const provinceData = visibleProvinces.map((province) => ({
+        province,
+        total: sumCounts(province.cities.flatMap((city) => city.schools))[0]
       }));
-      const total = rows.reduce((sum, item) => sum + item.value, 0);
-      document.getElementById("statusBar").innerHTML = rows.map((item) =>
-        `<span class="stacked-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label} ${formatNumber(item.value)}"></span>`
-      ).join("");
-      document.getElementById("statusList").innerHTML = rows.map((item) => `
-        <div class="status-row">
-          <span class="status-name"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>
-          <span class="status-value">${formatNumber(item.value)}</span>
-          <span class="status-percent">${total ? (item.value / total * 100).toFixed(1) : "0.0"}%</span>
-        </div>`).join("");
+      const scopedTotal = provinceData.reduce((sum, item) => sum + item.total, 0);
+      const selected = provinceData.find((item) => item.province.name === selectedStatusProvince);
+      const details = selected ? statusCounts(selected.total) : [];
+      const detailsTotal = details.reduce((sum, item) => sum + item.value, 0);
+      subtitle.textContent = provinceFilterValue ? `${provinceFilterValue} · 省级状态构成` : "各省当前累计值 · 点击省份查看状态人数";
+      content.innerHTML = `
+        <div class="status-total"><strong>${formatNumber(scopedTotal)}</strong><span>名学生 · ${provinceFilterValue || "全部省份"}</span></div>
+        <div class="province-status-list">
+          ${provinceData.map(({ province, total }) => {
+            const pressed = province.name === selectedStatusProvince;
+            const rows = statusCounts(total);
+            return `<button class="province-status-item" type="button" data-status-province="${province.name}" aria-pressed="${pressed}" aria-label="查看${province.name}学生状态">
+              <span class="province-status-heading"><strong>${province.name}</strong><span>${formatNumber(total)} 名</span></span>
+              <span class="province-status-bar" aria-hidden="true">
+                ${rows.map((item) => `<span class="province-status-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label} ${formatNumber(item.value)}人"></span>`).join("")}
+              </span>
+            </button>`;
+          }).join("")}
+        </div>
+        ${selected ? `<div class="province-status-detail">
+          <div class="province-status-detail-title">${selected.province.name} · 状态人数</div>
+          <div class="province-status-grid">
+            ${details.map((item) => `
+              <div class="province-status-cell">
+                <span class="status-name"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>
+                <strong>${formatNumber(item.value)} <span class="status-percent">${detailsTotal ? (item.value / detailsTotal * 100).toFixed(1) : "0.0"}%</span></strong>
+              </div>`).join("")}
+          </div>
+        </div>` : ""}`;
     }
 
     function drawTrend() {
@@ -957,11 +1108,26 @@
 
     function renderDashboard() {
       renderMetrics();
-      renderStatus(currentStudentScope());
+      renderStatus();
       drawTrend();
       renderRegionTable();
       document.getElementById("rangeLabel").textContent = `统计周期：${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
     }
+
+    document.querySelectorAll("[data-status-view]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentStatusView = button.dataset.statusView;
+        document.querySelectorAll("[data-status-view]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        renderStatus();
+      });
+    });
+
+    document.getElementById("statusContent").addEventListener("click", (event) => {
+      const provinceButton = event.target.closest("[data-status-province]");
+      if (!provinceButton) return;
+      selectedStatusProvince = provinceButton.dataset.statusProvince;
+      renderStatus();
+    });
 
     document.getElementById("regionRows").addEventListener("click", (event) => {
       const provinceButton = event.target.closest("[data-expand-province]");
