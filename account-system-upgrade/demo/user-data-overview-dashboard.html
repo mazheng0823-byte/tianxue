@@ -642,6 +642,9 @@
     .region-name { color: #27323a; font-weight: 600; }
     .number-cell { text-align: right; }
     th.number-cell { text-align: right; }
+    .region-table thead .role-group-heading,
+    .region-table thead tr:nth-child(2) th { text-align: center; }
+    .region-table .role-group-divider { border-left: 1px solid #d6dde2; }
 
     .tree-label { display: flex; align-items: center; gap: 7px; }
     .tree-label.city { padding-left: 24px; color: #4d5a62; font-weight: 500; }
@@ -850,18 +853,18 @@
           <thead>
             <tr>
               <th scope="col" rowspan="2">省 / 市 / 学校</th>
-              <th scope="colgroup" colspan="2" class="number-cell">学生</th>
-              <th scope="colgroup" colspan="2" class="number-cell">老师</th>
-              <th scope="colgroup" colspan="2" class="number-cell">家长</th>
-              <th scope="colgroup" colspan="2" class="number-cell">助教</th>
-              <th scope="colgroup" colspan="2" class="number-cell">总计</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading">学生</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading role-group-divider">老师</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading role-group-divider">家长</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading role-group-divider">助教</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading role-group-divider">总计</th>
             </tr>
             <tr>
               <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
-              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
-              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
-              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
-              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell role-group-divider">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell role-group-divider">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell role-group-divider">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell role-group-divider">新增</th><th scope="col" class="number-cell">日均活跃</th>
             </tr>
           </thead>
           <tbody id="regionRows"></tbody>
@@ -1273,7 +1276,7 @@
         });
         const totalAdded = roleValues.reduce((sum, value) => sum + value.added, 0);
         const totalActive = roleValues.reduce((sum, value) => sum + value.active, 0);
-        return `${roleValues.map((value) => `<td class="number-cell">${formatNumber(value.added)}</td><td class="number-cell">${formatNumber(value.active)}</td>`).join("")}<td class="number-cell"><strong>${formatNumber(totalAdded)}</strong></td><td class="number-cell"><strong>${formatNumber(totalActive)}</strong></td>`;
+        return `${roleValues.map((value, index) => `<td class="number-cell${index ? " role-group-divider" : ""}">${formatNumber(value.added)}</td><td class="number-cell">${formatNumber(value.active)}</td>`).join("")}<td class="number-cell role-group-divider"><strong>${formatNumber(totalAdded)}</strong></td><td class="number-cell"><strong>${formatNumber(totalActive)}</strong></td>`;
       };
       const rows = [];
       visibleProvinces.forEach((province) => {
@@ -1404,3 +1407,4 @@
   </script>
 </body>
 </html>
+
