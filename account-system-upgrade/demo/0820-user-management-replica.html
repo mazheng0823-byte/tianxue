@@ -714,7 +714,7 @@
 
     .restore-table {
       width: 100%;
-      min-width: 690px;
+      min-width: 640px;
       border: 0;
       box-shadow: none;
       font-size: 12px;
@@ -745,15 +745,6 @@
       margin: 0;
       vertical-align: middle;
       accent-color: var(--success);
-    }
-
-    .restore-state {
-      color: #b56d24;
-      white-space: nowrap;
-    }
-
-    .restore-state.ready {
-      color: #438b4a;
     }
 
     .restore-empty {
@@ -1160,14 +1151,13 @@
 
       const body = document.getElementById("restoreRows");
       if (!terms.length) {
-        body.innerHTML = '<tr><td colspan="8" class="restore-empty">输入用户名后查看匹配账号</td></tr>';
+        body.innerHTML = '<tr><td colspan="6" class="restore-empty">输入用户名后查看匹配账号</td></tr>';
       } else if (!restoreMatches.length) {
-        body.innerHTML = '<tr><td colspan="8" class="restore-empty">没有找到匹配账号</td></tr>';
+        body.innerHTML = '<tr><td colspan="6" class="restore-empty">没有找到匹配账号</td></tr>';
       } else {
         body.innerHTML = restoreMatches.map((user) => {
           const available = Boolean(user.dataUnloaded);
           const checked = selectedRestoreIds.has(user.id) && available;
-          const dataStatus = available ? "待恢复" : user.dataRestored ? "已恢复" : "数据正常";
           return `
             <tr>
               <td><input type="checkbox" data-restore-id="${escapeHtml(user.id)}" aria-label="选择 ${escapeHtml(user.account)}" ${available ? "" : "disabled"} ${checked ? "checked" : ""}></td>
@@ -1176,8 +1166,6 @@
               <td>${escapeHtml(user.role)}</td>
               <td>${escapeHtml(user.org)}</td>
               <td>${escapeHtml(user.mobile || "--")}</td>
-              <td>${escapeHtml(user.status)}</td>
-              <td><span class="restore-state${available ? " ready" : ""}">${dataStatus}</span></td>
             </tr>`;
         }).join("");
       }
@@ -1221,9 +1209,9 @@
           <table class="restore-table">
             <thead><tr>
               <th><input type="checkbox" id="restoreSelectAll" aria-label="全选可恢复账号"></th>
-              <th>用户账号</th><th>姓名</th><th>用户类型</th><th>所属机构</th><th>手机</th><th>状态</th><th>数据状态</th>
+              <th>用户账号</th><th>姓名</th><th>用户类型</th><th>所属机构</th><th>手机</th>
             </tr></thead>
-            <tbody id="restoreRows"><tr><td colspan="8" class="restore-empty">输入用户名后查看匹配账号</td></tr></tbody>
+            <tbody id="restoreRows"><tr><td colspan="6" class="restore-empty">输入用户名后查看匹配账号</td></tr></tbody>
           </table>
         </div>
         <div class="restore-unmatched" id="restoreUnmatched" aria-live="polite"></div>`;
