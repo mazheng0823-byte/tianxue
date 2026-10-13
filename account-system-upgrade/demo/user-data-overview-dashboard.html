@@ -708,8 +708,9 @@
     .region-name { color: #27323a; font-weight: 600; }
     .number-cell { text-align: right; }
     th.number-cell { text-align: right; }
-    .region-table thead .role-group-heading,
-    .region-table thead tr:nth-child(2) th { text-align: center; }
+    .region-table thead .role-group-heading { border-left: 1px solid #edf0f2; text-align: center; }
+    .region-table thead tr:nth-child(2) th { border-left: 1px solid #edf0f2; text-align: right; }
+    .region-table tbody td:not(:first-child) { border-left: 1px solid #edf0f2; }
     .region-table .role-group-divider { border-left: 1px solid #d6dde2; }
 
     .tree-label { display: flex; align-items: center; gap: 7px; }
