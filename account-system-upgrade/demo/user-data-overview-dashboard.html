@@ -224,11 +224,6 @@
     }
 
     .metric:hover { border-color: #b4c0c6; }
-    .metric[aria-pressed="true"] {
-      border-color: var(--metric-color);
-      box-shadow: inset 0 0 0 1px var(--metric-color);
-    }
-
     .metric-top {
       display: flex;
       align-items: center;
@@ -263,53 +258,124 @@
 
     .metric-share { color: var(--metric-color); }
 
-    .role-province-panel[hidden] { display: none; }
-
-    .role-province-panel {
-      margin-top: 14px;
-      padding: 13px 0 2px;
-      border-top: 1px solid var(--border);
+    .role-province-dialog {
+      width: min(900px, calc(100vw - 32px));
+      max-height: calc(100dvh - 32px);
+      margin: auto;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 18px 55px rgba(22, 34, 42, .24);
     }
 
-    .role-province-head {
+    .role-province-dialog::backdrop { background: rgba(24, 34, 40, .48); }
+    .role-province-dialog[open] { display: flex; flex-direction: column; }
+
+    .role-province-dialog-head {
       display: flex;
-      align-items: baseline;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 16px;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .role-province-head h3 { margin: 0; font-size: 13px; }
-    .role-province-head span { color: var(--muted); font-size: 11px; }
+    .role-province-dialog-head h2 { margin: 0; font-size: 17px; line-height: 1.4; }
+    .role-province-dialog-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 
-    .role-province-list {
+    .dialog-close {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px 16px;
+      place-items: center;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      background: transparent;
+      color: #647078;
+      cursor: pointer;
+      font-size: 21px;
+      line-height: 1;
     }
 
-    .role-province-item { min-width: 0; }
+    .dialog-close:hover { border-color: var(--border); background: #f6f7f8; }
 
-    .role-province-item-head {
+    .role-province-dialog-body {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px 20px 18px;
+    }
+
+    .role-province-summary {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
+      gap: 12px;
+    }
+
+    .role-province-summary strong { font-size: 22px; font-variant-numeric: tabular-nums; }
+    .role-province-summary span { color: var(--muted); font-size: 12px; }
+    .province-chart { min-height: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 3px; }
+
+    .province-chart-header,
+    .province-chart-row {
+      display: grid;
+      grid-template-columns: 42px 142px minmax(120px, 1fr) 150px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 14px;
+    }
+
+    .province-chart-header {
+      height: 36px;
+      background: #f6f7f8;
+      color: #68737a;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .province-chart-header span:last-child { text-align: right; }
+
+    .province-chart-scroll {
+      max-height: calc(100dvh - 250px);
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .province-chart-row {
+      min-height: 36px;
+      border-top: 1px solid #edf0f2;
       font-size: 12px;
     }
 
-    .role-province-item-head strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .role-province-value { color: #59646c; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .province-chart-rank { color: #909aa1; font-variant-numeric: tabular-nums; }
+    .province-chart-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    .role-province-track {
-      height: 7px;
+    .province-chart-track {
+      height: 9px;
       overflow: hidden;
       border-radius: 2px;
       background: #edf0f2;
     }
 
-    .role-province-track span { display: block; height: 100%; background: var(--metric-color); }
+    .province-chart-track span { display: block; height: 100%; border-radius: inherit; background: var(--metric-color); }
+
+    .province-chart-value {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      color: #4b565e;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .province-chart-value span { min-width: 44px; color: var(--muted); text-align: right; }
 
     .content-grid {
       display: grid;
@@ -720,7 +786,6 @@
       .chart-wrap { height: 245px; padding: 10px 9px; }
       .status-panel { padding-bottom: 12px; }
       .chart-controls { padding: 9px 12px; }
-      .role-province-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .status-content { padding-right: 12px; padding-left: 12px; }
       .province-status-grid { gap: 5px; }
       .province-status-cell { padding: 6px; }
@@ -734,7 +799,14 @@
       .metric-foot { font-size: 11px; }
       .date-range { gap: 4px; }
       .date-range input { padding: 0 5px; font-size: 11px; }
-      .role-province-list { grid-template-columns: 1fr; }
+      .role-province-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
+      .role-province-dialog-head { padding: 14px 14px 12px; }
+      .role-province-dialog-body { padding: 12px 12px 14px; }
+      .province-chart-header,
+      .province-chart-row { grid-template-columns: 24px 64px minmax(34px, 1fr) 98px; gap: 5px; padding: 0 6px; }
+      .province-chart-value { gap: 5px; font-size: 11px; }
+      .province-chart-value span { min-width: 36px; }
+      .province-chart-scroll { max-height: calc(100dvh - 220px); }
     }
   </style>
 </head>
@@ -762,13 +834,6 @@
         <span class="section-note">四类用户当前累计总量，不受下方筛选影响</span>
       </div>
       <div class="metrics" id="metrics"></div>
-      <div class="role-province-panel" id="roleProvincePanel" hidden aria-live="polite">
-        <div class="role-province-head">
-          <h3 id="roleProvinceTitle"></h3>
-          <span>全平台当前累计 · 全部省份</span>
-        </div>
-        <div class="role-province-list" id="roleProvinceList"></div>
-      </div>
     </section>
 
     <section aria-labelledby="analysisTitle">
@@ -878,6 +943,23 @@
     </div>
   </main>
 
+  <dialog class="role-province-dialog" id="roleProvinceDialog" aria-labelledby="roleProvinceTitle" aria-describedby="roleProvinceDescription">
+    <div class="role-province-dialog-head">
+      <div>
+        <h2 id="roleProvinceTitle">用户省级地区分布</h2>
+        <p id="roleProvinceDescription">全平台当前累计 · 按人数从高到低排列</p>
+      </div>
+      <button class="dialog-close" type="button" id="closeRoleProvinceDialog" aria-label="关闭弹窗" title="关闭"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="role-province-dialog-body">
+      <div class="role-province-summary"><strong id="roleProvinceTotal"></strong><span id="roleProvinceSummaryNote"></span></div>
+      <div class="province-chart">
+        <div class="province-chart-header" aria-hidden="true"><span>排名</span><span>省级地区</span><span>用户分布</span><span>人数 / 占比</span></div>
+        <div class="province-chart-scroll" id="roleProvinceList" role="list" aria-label="省级地区用户分布"></div>
+      </div>
+    </div>
+  </dialog>
+
   <script>
     const userTypes = [
       { key: "students", label: "学生", color: "#3478d4", total: 783000, additions: 28240 },
@@ -928,6 +1010,16 @@
           { name: "示例学校C2-2", counts: [35800, 960, 5400, 210] }
         ] }
       ] }
+    ];
+
+    const provinceDistributionSeeds = [
+      ["北京市", .015], ["天津市", .012], ["河北省", .055], ["山西省", .028], ["内蒙古自治区", .018],
+      ["辽宁省", .035], ["吉林省", .018], ["黑龙江省", .023], ["上海市", .033], ["江苏省", .09],
+      ["浙江省", .082], ["安徽省", .057], ["福建省", .041], ["江西省", .036], ["山东省", .082],
+      ["河南省", .078], ["湖北省", .066], ["湖南省", .062], ["广东省", .092], ["广西壮族自治区", .034],
+      ["海南省", .013], ["重庆市", .032], ["四川省", .08], ["贵州省", .034], ["云南省", .046],
+      ["西藏自治区", .005], ["陕西省", .053], ["甘肃省", .02], ["青海省", .006], ["宁夏回族自治区", .01],
+      ["新疆维吾尔自治区", .018], ["香港特别行政区", .008], ["澳门特别行政区", .003], ["台湾省", .006]
     ];
 
     const regionColors = ["#3478d4", "#2d9a70", "#e49743", "#269a9b", "#cf6665", "#7a73bd"];
@@ -1018,7 +1110,7 @@
       target.innerHTML = userTypes.map((type) => {
         const share = platformTotal ? (type.total / platformTotal * 100).toFixed(1) : "0.0";
         return `
-          <button class="metric" type="button" data-user-type="${type.key}" aria-pressed="${selectedRoleType === type.key}" aria-label="查看${type.label}用户省份分布" style="--metric-color:${type.color}">
+          <button class="metric" type="button" data-user-type="${type.key}" aria-haspopup="dialog" aria-controls="roleProvinceDialog" aria-label="查看${type.label}用户省级地区分布" style="--metric-color:${type.color}">
             <div class="metric-top"><i class="metric-mark"></i>${type.label}用户</div>
             <div class="metric-value">${formatNumber(type.total)}</div>
             <div class="metric-foot"><span>全平台当前总量</span><span class="metric-share">占平台用户 ${share}%</span></div>
@@ -1026,29 +1118,42 @@
       }).join("");
     }
 
-    function renderRoleProvinceDistribution() {
-      const panel = document.getElementById("roleProvincePanel");
-      const type = userTypes.find((item) => item.key === selectedRoleType);
-      if (!type) {
-        panel.hidden = true;
-        return;
-      }
-
-      const typeIndex = userTypes.indexOf(type);
-      const rows = provinces.map((province) => ({
-        name: province.name,
-        value: sumCounts(province.cities.flatMap((city) => city.schools))[typeIndex]
+    function renderRoleProvinceDistribution(type) {
+      const typeIndex = userTypes.findIndex((item) => item.key === type.key);
+      const weightedRows = provinceDistributionSeeds.map(([name, weight], index) => ({
+        name,
+        weight: weight * (1 + Math.sin((index + 2) * (typeIndex + 1) * .71) * .13)
       }));
-      document.getElementById("roleProvinceTitle").textContent = `${type.label}用户省份分布`;
-      document.getElementById("roleProvinceList").innerHTML = rows.map(({ name, value }) => {
-        const share = type.total ? value / type.total * 100 : 0;
-        return `<div class="role-province-item">
-          <div class="role-province-item-head"><strong>${name}</strong><span class="role-province-value">${formatNumber(value)} · ${share.toFixed(1)}%</span></div>
-          <div class="role-province-track" role="img" aria-label="${name}${type.label}用户 ${formatNumber(value)} 人，占 ${share.toFixed(1)}%"><span style="width:${share}%"></span></div>
+      const weightTotal = weightedRows.reduce((sum, row) => sum + row.weight, 0);
+      const rows = weightedRows.map((row) => ({
+        name: row.name,
+        share: row.weight / weightTotal,
+        exactValue: type.total * row.weight / weightTotal,
+        value: Math.floor(type.total * row.weight / weightTotal)
+      }));
+      let remaining = type.total - rows.reduce((sum, row) => sum + row.value, 0);
+      [...rows].sort((a, b) => (b.exactValue - b.value) - (a.exactValue - a.value))
+        .slice(0, remaining)
+        .forEach((row) => { row.value += 1; });
+      rows.sort((a, b) => b.value - a.value);
+      const maxShare = Math.max(...rows.map((row) => row.share));
+      const dialog = document.getElementById("roleProvinceDialog");
+      document.getElementById("roleProvinceTitle").textContent = `${type.label}用户省级地区分布`;
+      document.getElementById("roleProvinceDescription").textContent = "全平台当前累计 · 按人数从高到低排列";
+      document.getElementById("roleProvinceTotal").textContent = formatNumber(type.total);
+      document.getElementById("roleProvinceSummaryNote").textContent = `名${type.label}用户 · ${rows.length} 个省级地区 · 模拟分布`;
+      document.getElementById("roleProvinceList").innerHTML = rows.map((row, index) => {
+        const share = row.value / type.total * 100;
+        const barWidth = maxShare ? row.share / maxShare * 100 : 0;
+        return `<div class="province-chart-row" role="listitem">
+          <span class="province-chart-rank">${String(index + 1).padStart(2, "0")}</span>
+          <strong class="province-chart-name">${row.name}</strong>
+          <span class="province-chart-track" role="img" aria-label="${row.name}占该角色总人数 ${share.toFixed(1)}%"><span style="width:${barWidth}%"></span></span>
+          <span class="province-chart-value"><strong>${formatNumber(row.value)}</strong><span>${share.toFixed(1)}%</span></span>
         </div>`;
       }).join("");
-      panel.style.setProperty("--metric-color", type.color);
-      panel.hidden = false;
+      dialog.style.setProperty("--metric-color", type.color);
+      dialog.showModal();
     }
 
     function statusCounts(studentTotal) {
@@ -1311,7 +1416,6 @@
 
     function renderDashboard() {
       renderMetrics();
-      renderRoleProvinceDistribution();
       renderStatus();
       drawTrend();
       renderRegionTable();
@@ -1321,9 +1425,17 @@
     document.getElementById("metrics").addEventListener("click", (event) => {
       const card = event.target.closest("[data-user-type]");
       if (!card) return;
-      selectedRoleType = selectedRoleType === card.dataset.userType ? "" : card.dataset.userType;
-      document.querySelectorAll("[data-user-type]").forEach((item) => item.setAttribute("aria-pressed", String(item.dataset.userType === selectedRoleType)));
-      renderRoleProvinceDistribution();
+      selectedRoleType = card.dataset.userType;
+      const type = userTypes.find((item) => item.key === selectedRoleType);
+      if (type) renderRoleProvinceDistribution(type);
+    });
+
+    document.getElementById("closeRoleProvinceDialog").addEventListener("click", () => {
+      document.getElementById("roleProvinceDialog").close();
+    });
+
+    document.getElementById("roleProvinceDialog").addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) event.currentTarget.close();
     });
 
     document.querySelectorAll("[data-status-view]").forEach((button) => {
