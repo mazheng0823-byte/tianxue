@@ -349,7 +349,13 @@
       font-size: 12px;
     }
 
-    .chart-type-label { color: #667078; font-size: 12px; }
+    .chart-granularity {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .chart-type-label { color: #667078; font-size: 12px; white-space: nowrap; }
 
     .chart-type select {
       height: 34px;
@@ -694,10 +700,12 @@
             <button class="chart-switch-button" type="button" data-metric="new" aria-pressed="true">新增用户</button>
             <button class="chart-switch-button" type="button" data-metric="active" aria-pressed="false">活跃用户</button>
           </div>
-          <span class="chart-type-label">时间粒度</span>
-          <div class="chart-switch" role="group" aria-label="趋势时间粒度">
-            <button class="chart-switch-button" type="button" data-granularity="day" aria-pressed="true">日视图</button>
-            <button class="chart-switch-button" type="button" data-granularity="month" aria-pressed="false">月视图</button>
+          <div class="chart-granularity">
+            <span class="chart-type-label">时间粒度</span>
+            <div class="chart-switch" role="group" aria-label="趋势时间粒度">
+              <button class="chart-switch-button" type="button" data-granularity="day" aria-pressed="true">日视图</button>
+              <button class="chart-switch-button" type="button" data-granularity="month" aria-pressed="false">月视图</button>
+            </div>
           </div>
           <label class="chart-type">用户类型
             <select id="chartTypeFilter" aria-label="趋势图用户类型">
@@ -1227,3 +1235,4 @@
   </script>
 </body>
 </html>
+
