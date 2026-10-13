@@ -271,6 +271,8 @@
       box-shadow: 0 18px 55px rgba(22, 34, 42, .24);
     }
 
+    .behavior-dialog { width: min(760px, calc(100vw - 32px)); }
+
     .role-province-dialog::backdrop { background: rgba(24, 34, 40, .48); }
     .role-province-dialog[open] { display: flex; flex-direction: column; }
 
@@ -311,6 +313,61 @@
       gap: 12px;
       padding: 14px 20px 18px;
     }
+
+    .behavior-dialog-body { gap: 14px; }
+
+    .behavior-summary {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 7px 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .behavior-summary strong { font-size: 25px; font-variant-numeric: tabular-nums; }
+    .behavior-summary span { color: var(--muted); font-size: 12px; }
+
+    .behavior-note {
+      margin: 0;
+      padding: 9px 12px;
+      border-left: 3px solid #e49743;
+      background: #fff8ef;
+      color: #675846;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .behavior-list { display: grid; }
+
+    .behavior-row {
+      min-height: 54px;
+      display: grid;
+      grid-template-columns: minmax(145px, 190px) minmax(90px, 1fr) minmax(105px, auto);
+      align-items: center;
+      gap: 14px;
+      padding: 8px 4px;
+      border-bottom: 1px solid #edf0f2;
+    }
+
+    .behavior-row:last-child { border-bottom: 0; }
+    .behavior-name { color: #39464e; font-size: 13px; font-weight: 600; }
+    .behavior-track { height: 9px; overflow: hidden; border-radius: 2px; background: #edf0f2; }
+    .behavior-track span { display: block; width: var(--behavior-share); height: 100%; border-radius: inherit; background: var(--behavior-color); }
+
+    .behavior-value {
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
+      gap: 8px;
+      color: #3f4a51;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .behavior-value strong { font-size: 13px; }
+    .behavior-value span { color: var(--muted); }
 
     .role-province-summary {
       display: flex;
@@ -565,6 +622,20 @@
 
     .status-row:last-child { border-bottom: 0; }
 
+    .status-row-button {
+      width: 100%;
+      padding: 0;
+      border: 0;
+      border-bottom: 1px solid #f0f2f3;
+      background: #fff;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .status-row-button:hover { background: #f8fafb; }
+
     .status-name { display: inline-flex; align-items: center; gap: 7px; color: #56616a; }
     .status-tooltip {
       position: relative;
@@ -669,6 +740,21 @@
       border: 1px solid #edf0f2;
       border-radius: 3px;
     }
+
+    .province-status-cell-button {
+      width: 100%;
+      background: #fff;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .province-status-cell-button:hover { border-color: #b9d1ef; background: #f8fbff; }
+
+    .active-status-name { display: flex; align-items: center; gap: 7px; min-width: 0; color: #56616a; }
+    .active-status-name .legend-dot { flex: 0 0 auto; }
+    .status-drill-hint { margin-left: auto; color: var(--blue); font-size: 10px; font-weight: 500; white-space: nowrap; }
 
     .province-status-cell .status-name { gap: 5px; font-size: 10px; white-space: nowrap; }
     .province-status-cell .legend-dot { width: 6px; height: 6px; }
@@ -790,6 +876,8 @@
       .status-content { padding-right: 12px; padding-left: 12px; }
       .province-status-grid { gap: 5px; }
       .province-status-cell { padding: 6px; }
+      .behavior-row { grid-template-columns: minmax(105px, 1fr) minmax(54px, 1fr) auto; gap: 8px; }
+      .behavior-dialog-body { padding: 12px; }
       .data-footnote { flex-direction: column; }
     }
 
@@ -801,8 +889,12 @@
       .date-range { gap: 4px; }
       .date-range input { padding: 0 5px; font-size: 11px; }
       .role-province-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
+      .behavior-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
       .role-province-dialog-head { padding: 14px 14px 12px; }
       .role-province-dialog-body { padding: 12px 12px 14px; }
+      .behavior-row { grid-template-columns: minmax(96px, 1fr) minmax(36px, .8fr) auto; gap: 6px; }
+      .behavior-name, .behavior-value { font-size: 11px; }
+      .behavior-value { gap: 5px; }
       .province-chart-header,
       .province-chart-row { grid-template-columns: 24px 64px minmax(34px, 1fr) 98px; gap: 5px; padding: 0 6px; }
       .province-chart-value { gap: 5px; font-size: 11px; }
@@ -961,6 +1053,21 @@
     </div>
   </dialog>
 
+  <dialog class="role-province-dialog behavior-dialog" id="activeBehaviorDialog" aria-labelledby="activeBehaviorTitle" aria-describedby="activeBehaviorDescription">
+    <div class="role-province-dialog-head">
+      <div>
+        <h2 id="activeBehaviorTitle">活跃用户行为细分</h2>
+        <p id="activeBehaviorDescription">按当前状态统计范围查看活跃学生的行为覆盖</p>
+      </div>
+      <button class="dialog-close" type="button" id="closeActiveBehaviorDialog" aria-label="关闭弹窗" title="关闭"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="role-province-dialog-body behavior-dialog-body">
+      <div class="behavior-summary"><strong id="activeBehaviorTotal"></strong><span id="activeBehaviorScope"></span></div>
+      <p class="behavior-note">前三类行为按用户去重后分别统计，同一活跃学生可能同时计入多类，人数相加可能超过活跃总人数。仅登录未操作指登录过、但未发生前三类行为。</p>
+      <div class="behavior-list" id="activeBehaviorList" role="list" aria-label="活跃学生行为覆盖人数"></div>
+    </div>
+  </dialog>
+
   <script>
     const userTypes = [
       { key: "students", label: "学生", color: "#3478d4", total: 783000, additions: 28240 },
@@ -971,12 +1078,19 @@
 
     const statusTypes = [
       { key: "inactive", label: "未激活", description: "注册后未登录", share: .0684, color: "#9aa4ad" },
-      { key: "active", label: "活跃", description: "近180天内有作答", share: .6498, color: "#2d9a70" },
-      { key: "dormant", label: "休眠", description: "近180天内无作答", share: .1558, color: "#e49743" },
+      { key: "active", label: "活跃", description: "登录或提交作业后进入活跃；连续180天未提交作业转为休眠", share: .6498, color: "#2d9a70" },
+      { key: "dormant", label: "休眠", description: "连续超过180天未提交作业", share: .1558, color: "#e49743" },
       { key: "disabled", label: "停用", description: "停用账户", share: .0494, color: "#cf6665" },
       { key: "graduated", label: "已毕业", description: "已到达毕业时限并且授权产品已经到期", share: .05, color: "#3478d4" },
       { key: "abnormal", label: "异常", description: "已毕业但是还有提交记录", share: .01235, color: "#7a73bd" },
       { key: "unloaded", label: "卸载", description: "已经卸载", share: .01425, color: "#56636d" }
+    ];
+
+    const activeBehaviorTypes = [
+      { label: "提交过任务单", description: "至少提交过一份任务单的活跃学生", share: .43, color: "#3478d4" },
+      { label: "自主作答过", description: "至少完成过一次自主作答的活跃学生", share: .58, color: "#2d9a70" },
+      { label: "参加过模考", description: "至少参加过一次模拟考试的活跃学生", share: .34, color: "#e49743" },
+      { label: "仅登录未操作", description: "有登录记录，但未提交任务单、自主作答或参加模考", share: .11, color: "#75818a" }
     ];
 
     const provinces = [
@@ -1161,6 +1275,38 @@
       return statusTypes.map((status) => ({ ...status, value: Math.round(studentTotal * status.share) }));
     }
 
+    function openActiveBehaviorDialog() {
+      let studentTotal;
+      let scope;
+      if (currentStatusView === "total") {
+        studentTotal = sumCounts(selectedSchools())[0];
+        scope = provinceFilter.value || "全部省份";
+      } else {
+        const province = provinces.find((item) => item.name === selectedStatusProvince);
+        if (!province) return;
+        studentTotal = sumCounts(province.cities.flatMap((city) => city.schools))[0];
+        scope = province.name;
+      }
+
+      const activeCount = statusCounts(studentTotal).find((item) => item.key === "active")?.value || 0;
+      document.getElementById("activeBehaviorTotal").textContent = formatNumber(activeCount);
+      document.getElementById("activeBehaviorScope").textContent = `名活跃学生 · ${scope} · 演示数据`;
+      document.getElementById("activeBehaviorList").innerHTML = activeBehaviorTypes.map((item) => {
+        const value = Math.round(activeCount * item.share);
+        const percentage = (item.share * 100).toFixed(1);
+        return `<div class="behavior-row" role="listitem" title="${item.description}">
+          <span class="behavior-name">${item.label}</span>
+          <span class="behavior-track" role="img" aria-label="占活跃用户 ${percentage}%"><span style="--behavior-share:${percentage}%;--behavior-color:${item.color}"></span></span>
+          <span class="behavior-value"><strong>${formatNumber(value)} 人</strong><span>${percentage}%</span></span>
+        </div>`;
+      }).join("");
+      document.getElementById("activeBehaviorDialog").showModal();
+    }
+
+    function renderActiveStatusName(item) {
+      return `<span class="active-status-name" title="${item.description}" aria-label="${item.label}：${item.description}"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}<span class="status-drill-hint">查看行为 ›</span></span>`;
+    }
+
     function renderStatusName(item) {
       return `<span class="status-name status-tooltip" tabindex="0" title="${item.description}" data-tooltip="${item.description}" aria-label="${item.label}：${item.description}"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>`;
     }
@@ -1183,11 +1329,15 @@
           </div>
           <div class="status-list">
             ${rows.map((item) => `
-              <div class="status-row">
+              ${item.key === "active" ? `<button class="status-row status-row-button" type="button" data-active-detail aria-label="查看活跃用户行为细分">
+                ${renderActiveStatusName(item)}
+                <span class="status-value">${formatNumber(item.value)}</span>
+                <span class="status-percent">${roundedTotal ? (item.value / roundedTotal * 100).toFixed(1) : "0.0"}%</span>
+              </button>` : `<div class="status-row">
                 ${renderStatusName(item)}
                 <span class="status-value">${formatNumber(item.value)}</span>
                 <span class="status-percent">${roundedTotal ? (item.value / roundedTotal * 100).toFixed(1) : "0.0"}%</span>
-              </div>`).join("")}
+              </div>`}`).join("")}
           </div>`;
         return;
       }
@@ -1222,10 +1372,13 @@
           <div class="province-status-detail-title">${selected.province.name} · 状态人数</div>
           <div class="province-status-grid">
             ${details.map((item) => `
-              <div class="province-status-cell">
+              ${item.key === "active" ? `<button class="province-status-cell province-status-cell-button" type="button" data-active-detail aria-label="查看${selected.province.name}活跃用户行为细分">
+                ${renderActiveStatusName(item)}
+                <strong>${formatNumber(item.value)} <span class="status-percent">${detailsTotal ? (item.value / detailsTotal * 100).toFixed(1) : "0.0"}%</span></strong>
+              </button>` : `<div class="province-status-cell">
                 ${renderStatusName(item)}
                 <strong>${formatNumber(item.value)} <span class="status-percent">${detailsTotal ? (item.value / detailsTotal * 100).toFixed(1) : "0.0"}%</span></strong>
-              </div>`).join("")}
+              </div>`}`).join("")}
           </div>
         </div>` : ""}`;
     }
@@ -1435,6 +1588,14 @@
       document.getElementById("roleProvinceDialog").close();
     });
 
+    document.getElementById("closeActiveBehaviorDialog").addEventListener("click", () => {
+      document.getElementById("activeBehaviorDialog").close();
+    });
+
+    document.getElementById("activeBehaviorDialog").addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) event.currentTarget.close();
+    });
+
     document.getElementById("roleProvinceDialog").addEventListener("click", (event) => {
       if (event.target === event.currentTarget) event.currentTarget.close();
     });
@@ -1448,6 +1609,10 @@
     });
 
     document.getElementById("statusContent").addEventListener("click", (event) => {
+      if (event.target.closest("[data-active-detail]")) {
+        openActiveBehaviorDialog();
+        return;
+      }
       const provinceButton = event.target.closest("[data-status-province]");
       if (!provinceButton) return;
       selectedStatusProvince = provinceButton.dataset.statusProvince;
@@ -1520,4 +1685,3 @@
   </script>
 </body>
 </html>
-
