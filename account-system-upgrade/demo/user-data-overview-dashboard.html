@@ -349,6 +349,8 @@
       font-size: 12px;
     }
 
+    .chart-type-label { color: #667078; font-size: 12px; }
+
     .chart-type select {
       height: 34px;
       min-width: 110px;
@@ -692,6 +694,11 @@
             <button class="chart-switch-button" type="button" data-metric="new" aria-pressed="true">新增用户</button>
             <button class="chart-switch-button" type="button" data-metric="active" aria-pressed="false">活跃用户</button>
           </div>
+          <span class="chart-type-label">时间粒度</span>
+          <div class="chart-switch" role="group" aria-label="趋势时间粒度">
+            <button class="chart-switch-button" type="button" data-granularity="day" aria-pressed="true">日视图</button>
+            <button class="chart-switch-button" type="button" data-granularity="month" aria-pressed="false">月视图</button>
+          </div>
           <label class="chart-type">用户类型
             <select id="chartTypeFilter" aria-label="趋势图用户类型">
               <option value="all">全部用户</option>
@@ -807,6 +814,7 @@
     const dateFrom = document.getElementById("dateFrom");
     const dateTo = document.getElementById("dateTo");
     let currentMetric = "new";
+    let currentGranularity = "day";
     let currentStatusView = "province";
     let selectedStatusProvince = "";
     let visibleRange = { start: new Date(), end: new Date() };
@@ -854,6 +862,29 @@
 
     function periodDays() {
       return Math.max(1, Math.round((visibleRange.end - visibleRange.start) / 86400000) + 1);
+    }
+
+    function trendBuckets() {
+      const buckets = [];
+      for (let dayIndex = 0; dayIndex < periodDays(); dayIndex += 1) {
+        const date = addDays(visibleRange.start, dayIndex);
+        const key = currentGranularity === "day"
+          ? formatDate(date)
+          : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        let bucket = buckets[buckets.length - 1];
+        if (!bucket || bucket.key !== key) {
+          bucket = {
+            key,
+            label: currentGranularity === "day"
+              ? `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+              : key,
+            dates: []
+          };
+          buckets.push(bucket);
+        }
+        bucket.dates.push({ date, dayIndex });
+      }
+      return buckets;
     }
 
     function renderMetrics() {
@@ -953,8 +984,9 @@
       const pad = { top: 15, right: 12, bottom: 30, left: 42 };
       const plotWidth = width - pad.left - pad.right;
       const plotHeight = height - pad.top - pad.bottom;
-      const days = periodDays();
-      const pointCount = Math.min(14, Math.max(2, days));
+      const buckets = trendBuckets();
+      const pointCount = buckets.length;
+      const xPosition = (index) => pad.left + plotWidth * (pointCount === 1 ? .5 : index / (pointCount - 1));
       const typeSelect = document.getElementById("chartTypeFilter");
       const typeIndex = typeSelect.value === "all" ? -1 : userTypes.findIndex((type) => type.key === typeSelect.value);
       const metricLabel = currentMetric === "new" ? "新增用户" : "活跃用户";
@@ -981,17 +1013,24 @@
           ? row.counts.reduce((sum, value, index) => sum + value * activeRates[index], 0)
           : regionalTotal * activeRates[typeIndex];
         const baseline = currentMetric === "new" ? regionalNew : regionalActive;
-        return Array.from({ length: pointCount }, (_, index) => {
-          const wave = .91 + Math.sin(index * .72 + regionIndex * .8) * .09 + ((index % 4) * .018);
-          const weekday = index % 7 === 5 || index % 7 === 6 ? .84 : 1;
-          return Math.max(0, baseline * wave * weekday);
+        return buckets.map((bucket) => {
+          const dailyValues = bucket.dates.map(({ date, dayIndex }) => {
+            const wave = .91 + Math.sin(dayIndex * .72 + regionIndex * .8) * .09 + ((dayIndex % 4) * .018);
+            const weekday = date.getDay() === 0 || date.getDay() === 6 ? .84 : 1;
+            return Math.max(0, baseline * wave * weekday);
+          });
+          if (currentGranularity === "day") return dailyValues[0];
+          if (currentMetric === "new") return dailyValues.reduce((sum, value) => sum + value, 0);
+          return dailyValues.reduce((sum, value) => sum + value, 0) / dailyValues.length;
         });
       });
       const max = Math.max(1, ...series.flat()) * 1.18;
       document.getElementById("trendTitle").textContent = `${metricLabel}趋势`;
-      const measureNote = currentMetric === "new" ? "按日新增" : "按日活跃";
+      const measureNote = currentGranularity === "day"
+        ? (currentMetric === "new" ? "按日新增" : "按日活跃")
+        : (currentMetric === "new" ? "按月新增合计" : "月日均活跃");
       document.getElementById("trendSubtitle").textContent = `${typeLabel} · 按${regionLabel}拆分 · ${measureNote} · ${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
-      canvas.setAttribute("aria-label", `${typeLabel}${metricLabel}按${regionLabel}与日期统计的折线图`);
+      canvas.setAttribute("aria-label", `${typeLabel}${metricLabel}${currentGranularity === "day" ? "按日" : "按月"}、按${regionLabel}统计的折线图`);
       document.getElementById("trendLegend").innerHTML = rows.map((row, index) => `
         <span class="legend-item"><i class="legend-dot" style="--legend-color:${regionColors[index % regionColors.length]}"></i>${row.name}</span>`).join("");
       ctx.clearRect(0, 0, width, height);
@@ -1012,25 +1051,18 @@
         ctx.fillText(value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k` : String(value), pad.left - 8, y);
       }
 
-      const labels = [];
-      for (let index = 0; index < pointCount; index += 1) {
-        const fraction = pointCount === 1 ? 0 : index / (pointCount - 1);
-        const date = addDays(visibleRange.start, Math.round((days - 1) * fraction));
-        labels.push(`${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`);
-      }
       const labelStep = Math.max(1, Math.ceil(pointCount / 7));
-      labels.forEach((label, index) => {
-        if (index % labelStep !== 0 && index !== labels.length - 1) return;
-        const x = pad.left + plotWidth * index / (pointCount - 1);
+      buckets.forEach((bucket, index) => {
+        if (index % labelStep !== 0 && index !== buckets.length - 1) return;
         ctx.fillStyle = "#889198";
-        ctx.textAlign = index === 0 ? "left" : index === labels.length - 1 ? "right" : "center";
-        ctx.fillText(label, x, height - 12);
+        ctx.textAlign = index === 0 ? "left" : index === buckets.length - 1 ? "right" : "center";
+        ctx.fillText(bucket.label, xPosition(index), height - 12);
       });
 
       series.forEach((values, seriesIndex) => {
         ctx.beginPath();
         values.forEach((value, index) => {
-          const x = pad.left + plotWidth * index / (pointCount - 1);
+          const x = xPosition(index);
           const y = pad.top + plotHeight * (1 - value / max);
           if (index === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
@@ -1042,7 +1074,7 @@
         ctx.stroke();
         values.forEach((value, index) => {
           if (index % labelStep !== 0 && index !== values.length - 1) return;
-          const x = pad.left + plotWidth * index / (pointCount - 1);
+          const x = xPosition(index);
           const y = pad.top + plotHeight * (1 - value / max);
           ctx.beginPath();
           ctx.arc(x, y, 2.4, 0, Math.PI * 2);
@@ -1154,6 +1186,14 @@
       button.addEventListener("click", () => {
         currentMetric = button.dataset.metric;
         document.querySelectorAll("[data-metric]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        drawTrend();
+      });
+    });
+
+    document.querySelectorAll("[data-granularity]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentGranularity = button.dataset.granularity;
+        document.querySelectorAll("[data-granularity]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
         drawTrend();
       });
     });
