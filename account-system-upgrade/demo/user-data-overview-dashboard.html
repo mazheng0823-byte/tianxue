@@ -249,7 +249,7 @@
       font-size: 12px;
     }
 
-    .metric-add { color: var(--metric-color); }
+    .metric-share { color: var(--metric-color); }
 
     .content-grid {
       display: grid;
@@ -304,6 +304,62 @@
       border-radius: 50%;
       background: var(--legend-color);
     }
+
+    .chart-controls {
+      min-height: 52px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px 12px;
+      padding: 9px 16px;
+      border-bottom: 1px solid #edf0f2;
+    }
+
+    .chart-switch {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid #e2e6e8;
+      border-radius: 3px;
+      background: #f6f7f8;
+    }
+
+    .chart-switch-button {
+      height: 28px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 2px;
+      background: transparent;
+      color: #667078;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .chart-switch-button[aria-pressed="true"] {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 1px 3px rgba(24, 36, 46, .12);
+    }
+
+    .chart-type {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #667078;
+      font-size: 12px;
+    }
+
+    .chart-type select {
+      height: 34px;
+      min-width: 110px;
+      padding: 0 9px;
+      border: 1px solid #d8dde1;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .chart-controls .table-tools { margin-left: auto; }
 
     .chart-wrap { height: 274px; padding: 13px 16px 12px; }
     #trendChart { display: block; width: 100%; height: 100%; }
@@ -435,6 +491,7 @@
       .content-grid { grid-template-columns: minmax(0, 1.4fr) minmax(310px, 1fr); }
       .panel-head { align-items: flex-start; flex-direction: column; padding: 13px 16px; }
       .legend { justify-content: flex-start; }
+      .chart-controls .table-tools { margin-left: 0; }
     }
 
     @media (max-width: 760px) {
@@ -455,6 +512,8 @@
       .chart-wrap { height: 245px; padding: 10px 9px; }
       .status-panel { padding-bottom: 12px; }
       .table-panel .panel-head { flex-direction: row; align-items: center; }
+      .chart-controls { padding: 9px 12px; }
+      .chart-controls .table-tools { margin-left: 0; }
       .data-footnote { flex-direction: column; }
     }
 
@@ -483,36 +542,42 @@
         </nav>
         <h1>平台用户数据看板</h1>
       </div>
-      <div class="heading-meta" id="scopeLabel">全部区域 · 当前用户规模</div>
+      <div class="heading-meta">全平台概览 · 当前累计总量</div>
     </div>
-
-    <form class="filter-bar" id="filterForm">
-      <label class="filter-field date-filter">日期范围
-        <span class="date-range">
-          <input id="dateFrom" type="date" aria-label="开始日期">
-          <span aria-hidden="true">至</span>
-          <input id="dateTo" type="date" aria-label="结束日期">
-        </span>
-      </label>
-      <label class="filter-field">省
-        <select id="provinceFilter" aria-label="省份"></select>
-      </label>
-      <label class="filter-field">市
-        <select id="cityFilter" aria-label="城市"></select>
-      </label>
-      <label class="filter-field">学校
-        <select id="schoolFilter" aria-label="学校"></select>
-      </label>
-      <button class="query-button" type="submit">查询</button>
-    </form>
-    <p class="notice" id="filterNotice" role="alert"></p>
 
     <section aria-labelledby="overviewTitle">
       <div class="section-heading">
         <h2 id="overviewTitle">用户规模概览</h2>
-        <span class="section-note">用户总量为当前累计值；新增用户按所选日期范围统计</span>
+        <span class="section-note">四类用户当前累计总量，不受下方筛选影响</span>
       </div>
       <div class="metrics" id="metrics"></div>
+    </section>
+
+    <section aria-labelledby="analysisTitle">
+      <div class="section-heading">
+        <h2 id="analysisTitle">新增与活跃分析</h2>
+        <span class="section-note">下方日期和地域筛选仅作用于趋势与区域分析</span>
+      </div>
+      <form class="filter-bar" id="filterForm">
+        <label class="filter-field date-filter">日期范围
+          <span class="date-range">
+            <input id="dateFrom" type="date" aria-label="开始日期">
+            <span aria-hidden="true">至</span>
+            <input id="dateTo" type="date" aria-label="结束日期">
+          </span>
+        </label>
+        <label class="filter-field">省
+          <select id="provinceFilter" aria-label="省份"></select>
+        </label>
+        <label class="filter-field">市
+          <select id="cityFilter" aria-label="城市"></select>
+        </label>
+        <label class="filter-field">学校
+          <select id="schoolFilter" aria-label="学校"></select>
+        </label>
+        <button class="query-button" type="submit">查询</button>
+      </form>
+      <p class="notice" id="filterNotice" role="alert"></p>
     </section>
 
     <div class="content-grid">
@@ -520,13 +585,28 @@
         <div class="panel-head">
           <div>
             <h2 class="panel-title" id="trendTitle">新增用户趋势</h2>
-            <div class="panel-subtitle" id="trendSubtitle">按日统计 · 所选日期范围</div>
+            <div class="panel-subtitle" id="trendSubtitle">按地域和时间统计</div>
           </div>
-          <div class="legend" aria-label="用户类型图例">
-            <span class="legend-item"><i class="legend-dot" style="--legend-color:#3478d4"></i>学生</span>
-            <span class="legend-item"><i class="legend-dot" style="--legend-color:#2d9a70"></i>老师</span>
-            <span class="legend-item"><i class="legend-dot" style="--legend-color:#e49743"></i>家长</span>
-            <span class="legend-item"><i class="legend-dot" style="--legend-color:#269a9b"></i>助教</span>
+          <div class="legend" id="trendLegend" aria-label="地域图例"></div>
+        </div>
+        <div class="chart-controls">
+          <div class="chart-switch" role="group" aria-label="趋势指标">
+            <button class="chart-switch-button" type="button" data-metric="new" aria-pressed="true">新增用户</button>
+            <button class="chart-switch-button" type="button" data-metric="active" aria-pressed="false">活跃用户</button>
+          </div>
+          <label class="chart-type">用户类型
+            <select id="chartTypeFilter" aria-label="趋势图用户类型">
+              <option value="all">全部用户</option>
+              <option value="students">学生</option>
+              <option value="teachers">老师</option>
+              <option value="parents">家长</option>
+              <option value="assistants">助教</option>
+            </select>
+          </label>
+          <div class="table-tools" role="group" aria-label="趋势地域层级">
+            <button class="level-button" type="button" data-level="province" aria-pressed="true">省</button>
+            <button class="level-button" type="button" data-level="city" aria-pressed="false">市</button>
+            <button class="level-button" type="button" data-level="school" aria-pressed="false">学校</button>
           </div>
         </div>
         <div class="chart-wrap"><canvas id="trendChart" role="img" aria-label="学生、老师、家长和助教新增用户趋势折线图"></canvas></div>
@@ -536,7 +616,7 @@
         <div class="panel-head">
           <div>
             <h2 class="panel-title" id="statusTitle">学生账号状态</h2>
-            <div class="panel-subtitle">按当前区域筛选 · 当前累计值</div>
+          <div class="panel-subtitle">按地域筛选 · 当前累计值</div>
           </div>
           <span class="section-note">6 类状态</span>
         </div>
@@ -581,10 +661,10 @@
 
   <script>
     const userTypes = [
-      { key: "students", label: "学生", color: "#3478d4", total: 783000, additions: 28240, growth: "+8.4%" },
-      { key: "teachers", label: "老师", color: "#2d9a70", total: 20700, additions: 624, growth: "+3.2%" },
-      { key: "parents", label: "家长", color: "#e49743", total: 120800, additions: 8320, growth: "+6.1%" },
-      { key: "assistants", label: "助教", color: "#269a9b", total: 4570, additions: 420, growth: "+2.7%" }
+      { key: "students", label: "学生", color: "#3478d4", total: 783000, additions: 28240 },
+      { key: "teachers", label: "老师", color: "#2d9a70", total: 20700, additions: 624 },
+      { key: "parents", label: "家长", color: "#e49743", total: 120800, additions: 8320 },
+      { key: "assistants", label: "助教", color: "#269a9b", total: 4570, additions: 420 }
     ];
 
     const statusTypes = [
@@ -630,8 +710,9 @@
       ] }
     ];
 
-    const chartColors = userTypes.map((item) => item.color);
+    const regionColors = ["#3478d4", "#2d9a70", "#e49743", "#269a9b", "#cf6665", "#7a73bd"];
     const chartBase = userTypes.map((item) => item.additions / 30);
+    const activeRates = [.34, .62, .23, .52];
     const filterForm = document.getElementById("filterForm");
     const provinceFilter = document.getElementById("provinceFilter");
     const cityFilter = document.getElementById("cityFilter");
@@ -639,6 +720,7 @@
     const dateFrom = document.getElementById("dateFrom");
     const dateTo = document.getElementById("dateTo");
     let currentLevel = "province";
+    let currentMetric = "new";
     let visibleRange = { start: new Date(), end: new Date() };
 
     function formatNumber(value) {
@@ -702,9 +784,9 @@
       );
     }
 
-    function currentScope() {
-      const selected = sumCounts(selectedSchools()).reduce((sum, value) => sum + value, 0);
-      const total = sumCounts(allSchools()).reduce((sum, value) => sum + value, 0);
+    function currentStudentScope() {
+      const selected = sumCounts(selectedSchools())[0];
+      const total = sumCounts(allSchools())[0];
       return total ? selected / total : 0;
     }
 
@@ -716,19 +798,18 @@
       return Math.max(1, Math.round((visibleRange.end - visibleRange.start) / 86400000) + 1);
     }
 
-    function renderMetrics(scope) {
+    function renderMetrics() {
       const target = document.getElementById("metrics");
+      const platformTotal = userTypes.reduce((sum, type) => sum + type.total, 0);
       target.innerHTML = userTypes.map((type) => {
-        const total = type.total * scope;
-        const periodAddition = type.additions * (periodDays() / 30) * scope;
+        const share = platformTotal ? (type.total / platformTotal * 100).toFixed(1) : "0.0";
         return `
           <article class="metric" style="--metric-color:${type.color}">
             <div class="metric-top"><i class="metric-mark"></i>${type.label}用户</div>
-            <div class="metric-value">${formatNumber(total)}</div>
-            <div class="metric-foot"><span>当前总量</span><span class="metric-add">本期新增 ${formatNumber(periodAddition)}</span><span>${type.growth}</span></div>
+            <div class="metric-value">${formatNumber(type.total)}</div>
+            <div class="metric-foot"><span>全平台当前总量</span><span class="metric-share">占平台用户 ${share}%</span></div>
           </article>`;
       }).join("");
-      document.getElementById("scopeLabel").textContent = `${scopeName()} · 当前用户规模`;
     }
 
     function renderStatus(scope) {
@@ -750,7 +831,7 @@
         </div>`).join("");
     }
 
-    function drawTrend(scope) {
+    function drawTrend() {
       const canvas = document.getElementById("trendChart");
       const rect = canvas.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
@@ -765,13 +846,47 @@
       const plotWidth = width - pad.left - pad.right;
       const plotHeight = height - pad.top - pad.bottom;
       const days = periodDays();
-      const pointCount = Math.min(14, Math.max(7, days));
-      const series = userTypes.map((type, seriesIndex) => Array.from({ length: pointCount }, (_, index) => {
-        const wave = 0.78 + Math.sin(index * 0.82 + seriesIndex * 0.7) * 0.12 + ((index % 4) * 0.035);
-        const weekday = index % 7 === 5 || index % 7 === 6 ? 0.84 : 1;
-        return Math.max(1, chartBase[seriesIndex] * scope * wave * weekday);
-      }));
-      const max = Math.max(...series.flat()) * 1.18;
+      const pointCount = Math.min(14, Math.max(2, days));
+      const typeSelect = document.getElementById("chartTypeFilter");
+      const typeIndex = typeSelect.value === "all" ? -1 : userTypes.findIndex((type) => type.key === typeSelect.value);
+      const metricLabel = currentMetric === "new" ? "新增用户" : "活跃用户";
+      const regionLabel = { province: "省", city: "市", school: "学校" }[currentLevel];
+      const typeLabel = typeIndex < 0 ? "全部用户" : userTypes[typeIndex].label;
+      const allCounts = sumCounts(allSchools());
+      const globalSelected = typeIndex < 0
+        ? allCounts.reduce((sum, value) => sum + value, 0)
+        : allCounts[typeIndex];
+      const globalNew = typeIndex < 0
+        ? chartBase.reduce((sum, value) => sum + value, 0)
+        : chartBase[typeIndex];
+      const rows = aggregateRows(currentLevel)
+        .sort((a, b) => b.counts.reduce((sum, value) => sum + value, 0) - a.counts.reduce((sum, value) => sum + value, 0))
+        .slice(0, 6);
+      const series = rows.map((row, regionIndex) => {
+        const regionalTotal = typeIndex < 0
+          ? row.counts.reduce((sum, value) => sum + value, 0)
+          : row.counts[typeIndex];
+        const regionalNew = globalSelected
+          ? globalNew * regionalTotal / globalSelected
+          : 0;
+        const regionalActive = typeIndex < 0
+          ? row.counts.reduce((sum, value, index) => sum + value * activeRates[index], 0)
+          : regionalTotal * activeRates[typeIndex];
+        const baseline = currentMetric === "new" ? regionalNew : regionalActive;
+        return Array.from({ length: pointCount }, (_, index) => {
+          const wave = .91 + Math.sin(index * .72 + regionIndex * .8) * .09 + ((index % 4) * .018);
+          const weekday = index % 7 === 5 || index % 7 === 6 ? .84 : 1;
+          return Math.max(0, baseline * wave * weekday);
+        });
+      });
+      const max = Math.max(1, ...series.flat()) * 1.18;
+      document.getElementById("trendTitle").textContent = `${metricLabel}趋势`;
+      const topSchoolsNote = currentLevel === "school" && aggregateRows("school").length > rows.length ? "规模前 6 所学校 · " : "";
+      const measureNote = currentMetric === "new" ? "按日新增" : "按日活跃";
+      document.getElementById("trendSubtitle").textContent = `${topSchoolsNote}${typeLabel} · 按${regionLabel}拆分 · ${measureNote} · ${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
+      canvas.setAttribute("aria-label", `${typeLabel}${metricLabel}按${regionLabel}与日期统计的折线图`);
+      document.getElementById("trendLegend").innerHTML = rows.map((row, index) => `
+        <span class="legend-item"><i class="legend-dot" style="--legend-color:${regionColors[index % regionColors.length]}"></i>${row.name}</span>`).join("");
       ctx.clearRect(0, 0, width, height);
       ctx.font = "11px Arial, Microsoft YaHei, sans-serif";
       ctx.textBaseline = "middle";
@@ -813,7 +928,7 @@
           if (index === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         });
-        ctx.strokeStyle = chartColors[seriesIndex];
+        ctx.strokeStyle = regionColors[seriesIndex % regionColors.length];
         ctx.lineWidth = 2;
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
@@ -826,7 +941,7 @@
           ctx.arc(x, y, 2.4, 0, Math.PI * 2);
           ctx.fillStyle = "#fff";
           ctx.fill();
-          ctx.strokeStyle = chartColors[seriesIndex];
+          ctx.strokeStyle = regionColors[seriesIndex % regionColors.length];
           ctx.lineWidth = 1.5;
           ctx.stroke();
         });
@@ -834,21 +949,18 @@
     }
 
     function aggregateRows(level) {
-      const province = provinceFilter.value;
-      const city = cityFilter.value;
-      const school = schoolFilter.value;
+      const schools = selectedSchools();
       if (level === "school") {
-        return selectedSchools().map((item) => ({ name: item.name, counts: item.counts }));
+        return schools.map((item) => ({ name: item.name, counts: item.counts }));
       }
-      if (level === "city") {
-        return provinces.filter((item) => !province || item.name === province).flatMap((item) => item.cities)
-          .filter((item) => !city || item.name === city)
-          .map((item) => ({ name: item.name, counts: sumCounts(item.schools) }));
-      }
-      return provinces.filter((item) => !province || item.name === province).map((item) => ({
-        name: item.name,
-        counts: sumCounts(item.cities.flatMap((cityItem) => cityItem.schools))
-      }));
+      const key = level === "city" ? "city" : "province";
+      const groups = new Map();
+      schools.forEach((school) => {
+        const name = school[key];
+        if (!groups.has(name)) groups.set(name, []);
+        groups.get(name).push(school);
+      });
+      return [...groups].map(([name, items]) => ({ name, counts: sumCounts(items) }));
     }
 
     function renderRegionTable() {
@@ -871,13 +983,11 @@
     }
 
     function renderDashboard() {
-      const scope = currentScope();
-      renderMetrics(scope);
-      renderStatus(scope);
-      drawTrend(scope);
+      renderMetrics();
+      renderStatus(currentStudentScope());
+      drawTrend();
       renderRegionTable();
       document.getElementById("rangeLabel").textContent = `统计周期：${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
-      document.getElementById("trendSubtitle").textContent = `按日统计 · ${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
     }
 
     provinceFilter.addEventListener("change", () => updateRegionOptions(true));
@@ -887,9 +997,20 @@
       button.addEventListener("click", () => {
         currentLevel = button.dataset.level;
         document.querySelectorAll("[data-level]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        drawTrend();
         renderRegionTable();
       });
     });
+
+    document.querySelectorAll("[data-metric]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentMetric = button.dataset.metric;
+        document.querySelectorAll("[data-metric]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        drawTrend();
+      });
+    });
+
+    document.getElementById("chartTypeFilter").addEventListener("change", drawTrend);
 
     filterForm.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -915,7 +1036,7 @@
     updateRegionOptions();
     visibleRange = { start: new Date(`${dateFrom.value}T00:00:00`), end: new Date(`${dateTo.value}T00:00:00`) };
     renderDashboard();
-    window.addEventListener("resize", () => drawTrend(currentScope()));
+    window.addEventListener("resize", drawTrend);
   </script>
 </body>
 </html>
