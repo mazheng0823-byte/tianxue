@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>平台用户数据看板</title>
+  <style>
+    :root {
+      --page: #f2f4f6;
+      --surface: #fff;
+      --border: #e1e5e8;
+      --text: #20272d;
+      --muted: #78828a;
+      --blue: #3478d4;
+      --green: #2d9a70;
+      --orange: #e49743;
+      --teal: #269a9b;
+      --red: #cf6665;
+      --purple: #7a73bd;
+    }
+
+    * { box-sizing: border-box; letter-spacing: 0; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--page);
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 14px;
+    }
+
+    button, input, select { font: inherit; }
+
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 3px solid rgba(52, 120, 212, .24);
+      outline-offset: 2px;
+    }
+
+    .topbar {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #34444c;
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 27px;
+      height: 27px;
+      display: grid;
+      place-items: center;
+      border-radius: 4px;
+      background: #344952;
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .top-link {
+      color: #59636a;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .top-link:hover { color: var(--blue); }
+
+    .topbar-meta {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .main {
+      width: min(1480px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .breadcrumb a { color: #52616a; text-decoration: none; }
+    .breadcrumb a:hover { color: var(--blue); }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.3;
+    }
+
+    .heading-meta {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: minmax(250px, 1.3fr) repeat(3, minmax(145px, .75fr)) auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    .filter-field {
+      min-width: 0;
+      display: grid;
+      gap: 7px;
+      color: #5e6870;
+      font-size: 12px;
+    }
+
+    .date-range {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+      align-items: center;
+      gap: 7px;
+    }
+
+    .date-range span { color: #91999f; text-align: center; }
+
+    .filter-field input,
+    .filter-field select {
+      width: 100%;
+      height: 36px;
+      min-width: 0;
+      padding: 0 10px;
+      border: 1px solid #d8dde1;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .filter-field input:hover,
+    .filter-field select:hover { border-color: #aeb9c0; }
+
+    .query-button {
+      height: 36px;
+      min-width: 76px;
+      padding: 0 18px;
+      border: 1px solid var(--blue);
+      border-radius: 3px;
+      background: var(--blue);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .query-button:hover { background: #2868bc; }
+
+    .notice {
+      display: none;
+      margin: -6px 0 14px;
+      color: #b14f4c;
+      font-size: 12px;
+    }
+
+    .notice.show { display: block; }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 22px 0 12px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .section-note { color: var(--muted); font-size: 12px; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      min-height: 139px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #5c666e;
+      font-size: 13px;
+    }
+
+    .metric-mark {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--metric-color);
+    }
+
+    .metric-value {
+      margin-top: 13px;
+      font-size: 28px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .metric-foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 12px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric-add { color: var(--metric-color); }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.75fr) minmax(340px, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    .panel-head {
+      min-height: 57px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 18px;
+      border-bottom: 1px solid #edf0f2;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .panel-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px 14px;
+      color: #59636a;
+      font-size: 11px;
+    }
+
+    .legend-item { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+
+    .legend-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--legend-color);
+    }
+
+    .chart-wrap { height: 274px; padding: 13px 16px 12px; }
+    #trendChart { display: block; width: 100%; height: 100%; }
+
+    .status-panel { padding-bottom: 16px; }
+
+    .status-total {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      padding: 16px 18px 12px;
+    }
+
+    .status-total strong {
+      font-size: 25px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-total span { color: var(--muted); font-size: 12px; }
+
+    .stacked-bar {
+      height: 12px;
+      display: flex;
+      gap: 2px;
+      margin: 0 18px 15px;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .stacked-segment { min-width: 3px; background: var(--segment-color); }
+
+    .status-list { display: grid; gap: 0; padding: 0 18px; }
+
+    .status-row {
+      min-height: 35px;
+      display: grid;
+      grid-template-columns: minmax(86px, 1fr) auto 48px;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #f0f2f3;
+      font-size: 12px;
+    }
+
+    .status-row:last-child { border-bottom: 0; }
+
+    .status-name { display: inline-flex; align-items: center; gap: 7px; color: #56616a; }
+    .status-value { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .status-percent { color: var(--muted); text-align: right; }
+
+    .table-panel { margin-top: 16px; }
+
+    .table-tools {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px;
+      border: 1px solid #e2e6e8;
+      border-radius: 3px;
+      background: #f6f7f8;
+    }
+
+    .level-button {
+      height: 28px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 2px;
+      background: transparent;
+      color: #667078;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .level-button[aria-pressed="true"] {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 1px 3px rgba(24, 36, 46, .12);
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      height: 44px;
+      padding: 0 18px;
+      border-bottom: 1px solid #edf0f2;
+      white-space: nowrap;
+    }
+
+    th {
+      height: 40px;
+      background: #f6f7f8;
+      color: #677179;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    td { color: #38434a; font-size: 12px; font-variant-numeric: tabular-nums; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fafbfc; }
+    .region-name { color: #27323a; font-weight: 600; }
+    .number-cell { text-align: right; }
+    th.number-cell { text-align: right; }
+
+    .table-empty {
+      height: 86px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .data-footnote {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media (max-width: 1050px) {
+      .filter-bar { grid-template-columns: repeat(4, minmax(130px, 1fr)); }
+      .date-filter { grid-column: span 2; }
+      .query-button { grid-column: 4; }
+      .content-grid { grid-template-columns: minmax(0, 1.4fr) minmax(310px, 1fr); }
+      .panel-head { align-items: flex-start; flex-direction: column; padding: 13px 16px; }
+      .legend { justify-content: flex-start; }
+    }
+
+    @media (max-width: 760px) {
+      .topbar { height: 52px; gap: 14px; padding: 0 14px; }
+      .top-link { display: none; }
+      .topbar-meta { font-size: 11px; }
+      .main { width: calc(100% - 24px); padding-top: 20px; }
+      .page-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+      h1 { font-size: 21px; }
+      .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; padding: 12px; }
+      .date-filter { grid-column: 1 / -1; }
+      .query-button { grid-column: 2; justify-self: end; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .metric { min-height: 125px; padding: 13px; }
+      .metric-value { font-size: 23px; }
+      .content-grid { grid-template-columns: 1fr; }
+      .panel-head { align-items: flex-start; }
+      .chart-wrap { height: 245px; padding: 10px 9px; }
+      .status-panel { padding-bottom: 12px; }
+      .table-panel .panel-head { flex-direction: row; align-items: center; }
+      .data-footnote { flex-direction: column; }
+    }
+
+    @media (max-width: 380px) {
+      .brand { font-size: 13px; }
+      .metric { padding: 11px; }
+      .metric-value { font-size: 21px; }
+      .metric-foot { font-size: 11px; }
+      .date-range { gap: 4px; }
+      .date-range input { padding: 0 5px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">TX</span><span>天学 · 平台运营</span></div>
+    <a class="top-link" href="index.html">Demo 目录</a>
+    <div class="topbar-meta">匿名演示数据 · 最近更新 <span id="updatedAt"></span></div>
+  </header>
+
+  <main class="main">
+    <div class="page-heading">
+      <div>
+        <nav class="breadcrumb" aria-label="面包屑">
+          <a href="index.html">Demo 目录</a><span aria-hidden="true">/</span><span>平台用户数据</span>
+        </nav>
+        <h1>平台用户数据看板</h1>
+      </div>
+      <div class="heading-meta" id="scopeLabel">全部区域 · 当前用户规模</div>
+    </div>
+
+    <form class="filter-bar" id="filterForm">
+      <label class="filter-field date-filter">日期范围
+        <span class="date-range">
+          <input id="dateFrom" type="date" aria-label="开始日期">
+          <span aria-hidden="true">至</span>
+          <input id="dateTo" type="date" aria-label="结束日期">
+        </span>
+      </label>
+      <label class="filter-field">省
+        <select id="provinceFilter" aria-label="省份"></select>
+      </label>
+      <label class="filter-field">市
+        <select id="cityFilter" aria-label="城市"></select>
+      </label>
+      <label class="filter-field">学校
+        <select id="schoolFilter" aria-label="学校"></select>
+      </label>
+      <button class="query-button" type="submit">查询</button>
+    </form>
+    <p class="notice" id="filterNotice" role="alert"></p>
+
+    <section aria-labelledby="overviewTitle">
+      <div class="section-heading">
+        <h2 id="overviewTitle">用户规模概览</h2>
+        <span class="section-note">用户总量为当前累计值；新增用户按所选日期范围统计</span>
+      </div>
+      <div class="metrics" id="metrics"></div>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel" aria-labelledby="trendTitle">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title" id="trendTitle">新增用户趋势</h2>
+            <div class="panel-subtitle" id="trendSubtitle">按日统计 · 所选日期范围</div>
+          </div>
+          <div class="legend" aria-label="用户类型图例">
+            <span class="legend-item"><i class="legend-dot" style="--legend-color:#3478d4"></i>学生</span>
+            <span class="legend-item"><i class="legend-dot" style="--legend-color:#2d9a70"></i>老师</span>
+            <span class="legend-item"><i class="legend-dot" style="--legend-color:#e49743"></i>家长</span>
+            <span class="legend-item"><i class="legend-dot" style="--legend-color:#269a9b"></i>助教</span>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="trendChart" role="img" aria-label="学生、老师、家长和助教新增用户趋势折线图"></canvas></div>
+      </section>
+
+      <section class="panel status-panel" aria-labelledby="statusTitle">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title" id="statusTitle">学生账号状态</h2>
+            <div class="panel-subtitle">按当前区域筛选 · 当前累计值</div>
+          </div>
+          <span class="section-note">6 类状态</span>
+        </div>
+        <div class="status-total"><strong id="studentTotal">-</strong><span>名学生</span></div>
+        <div class="stacked-bar" id="statusBar" role="img" aria-label="学生账号状态占比"></div>
+        <div class="status-list" id="statusList"></div>
+      </section>
+    </div>
+
+    <section class="panel table-panel" aria-labelledby="regionTitle">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title" id="regionTitle">区域用户分布</h2>
+          <div class="panel-subtitle">按省、市、学校查看四类用户规模</div>
+        </div>
+        <div class="table-tools" role="group" aria-label="区域统计层级">
+          <button class="level-button" type="button" data-level="province" aria-pressed="true">省</button>
+          <button class="level-button" type="button" data-level="city" aria-pressed="false">市</button>
+          <button class="level-button" type="button" data-level="school" aria-pressed="false">学校</button>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th id="regionColumn">省份</th>
+            <th class="number-cell">学生</th>
+            <th class="number-cell">老师</th>
+            <th class="number-cell">家长</th>
+            <th class="number-cell">助教</th>
+            <th class="number-cell">用户总量</th>
+          </tr></thead>
+          <tbody id="regionRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="data-footnote">
+      <span>演示数据仅用于页面预览，不代表平台真实统计。</span>
+      <span id="rangeLabel"></span>
+    </div>
+  </main>
+
+  <script>
+    const userTypes = [
+      { key: "students", label: "学生", color: "#3478d4", total: 783000, additions: 28240, growth: "+8.4%" },
+      { key: "teachers", label: "老师", color: "#2d9a70", total: 20700, additions: 624, growth: "+3.2%" },
+      { key: "parents", label: "家长", color: "#e49743", total: 120800, additions: 8320, growth: "+6.1%" },
+      { key: "assistants", label: "助教", color: "#269a9b", total: 4570, additions: 420, growth: "+2.7%" }
+    ];
+
+    const statusTypes = [
+      { key: "inactive", label: "未激活", share: .072, color: "#9aa4ad" },
+      { key: "active", label: "活跃", share: .684, color: "#2d9a70" },
+      { key: "dormant", label: "休眠", share: .164, color: "#e49743" },
+      { key: "disabled", label: "停用", share: .052, color: "#cf6665" },
+      { key: "abnormal", label: "异常", share: .013, color: "#7a73bd" },
+      { key: "unloaded", label: "卸载", share: .015, color: "#56636d" }
+    ];
+
+    const provinces = [
+      { name: "示例省A", cities: [
+        { name: "示例市A1", schools: [
+          { name: "示例学校A1-1", counts: [81000, 2180, 12500, 480] },
+          { name: "示例学校A1-2", counts: [62500, 1640, 9800, 360] },
+          { name: "示例学校A1-3", counts: [43800, 1120, 7100, 250] }
+        ] },
+        { name: "示例市A2", schools: [
+          { name: "示例学校A2-1", counts: [76800, 2010, 11700, 440] },
+          { name: "示例学校A2-2", counts: [55400, 1490, 8600, 330] }
+        ] }
+      ] },
+      { name: "示例省B", cities: [
+        { name: "示例市B1", schools: [
+          { name: "示例学校B1-1", counts: [90200, 2350, 13900, 520] },
+          { name: "示例学校B1-2", counts: [68100, 1790, 10500, 390] }
+        ] },
+        { name: "示例市B2", schools: [
+          { name: "示例学校B2-1", counts: [51200, 1370, 7900, 310] },
+          { name: "示例学校B2-2", counts: [39700, 1080, 6100, 240] }
+        ] }
+      ] },
+      { name: "示例省C", cities: [
+        { name: "示例市C1", schools: [
+          { name: "示例学校C1-1", counts: [73300, 1920, 11200, 420] },
+          { name: "示例学校C1-2", counts: [58400, 1530, 8900, 340] }
+        ] },
+        { name: "示例市C2", schools: [
+          { name: "示例学校C2-1", counts: [46800, 1260, 7200, 280] },
+          { name: "示例学校C2-2", counts: [35800, 960, 5400, 210] }
+        ] }
+      ] }
+    ];
+
+    const chartColors = userTypes.map((item) => item.color);
+    const chartBase = userTypes.map((item) => item.additions / 30);
+    const filterForm = document.getElementById("filterForm");
+    const provinceFilter = document.getElementById("provinceFilter");
+    const cityFilter = document.getElementById("cityFilter");
+    const schoolFilter = document.getElementById("schoolFilter");
+    const dateFrom = document.getElementById("dateFrom");
+    const dateTo = document.getElementById("dateTo");
+    let currentLevel = "province";
+    let visibleRange = { start: new Date(), end: new Date() };
+
+    function formatNumber(value) {
+      return Math.round(value).toLocaleString("zh-CN");
+    }
+
+    function dateValue(date) {
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 10);
+    }
+
+    function formatDate(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function addDays(date, amount) {
+      const next = new Date(date);
+      next.setDate(next.getDate() + amount);
+      return next;
+    }
+
+    function listCities(provinceName) {
+      return provinces.filter((province) => !provinceName || province.name === provinceName).flatMap((province) => province.cities);
+    }
+
+    function listSchools(provinceName, cityName) {
+      return listCities(provinceName).filter((city) => !cityName || city.name === cityName).flatMap((city) => city.schools);
+    }
+
+    function fillSelect(select, items, placeholder) {
+      const previous = select.value;
+      select.replaceChildren(new Option(placeholder, ""));
+      items.forEach((item) => select.add(new Option(item, item)));
+      if (items.includes(previous)) select.value = previous;
+    }
+
+    function updateRegionOptions(resetChildren = false) {
+      const province = provinceFilter.value;
+      const city = cityFilter.value;
+      fillSelect(cityFilter, listCities(province).map((item) => item.name), "全部城市");
+      if (resetChildren && city && !listCities(province).some((item) => item.name === city)) cityFilter.value = "";
+      fillSelect(schoolFilter, listSchools(province, cityFilter.value).map((item) => item.name), "全部学校");
+    }
+
+    function allSchools() {
+      return provinces.flatMap((province) => province.cities.flatMap((city) => city.schools.map((school) => ({ ...school, province: province.name, city: city.name }))));
+    }
+
+    function sumCounts(schools) {
+      return schools.reduce((sum, school) => sum.map((value, index) => value + school.counts[index]), [0, 0, 0, 0]);
+    }
+
+    function selectedSchools() {
+      const province = provinceFilter.value;
+      const city = cityFilter.value;
+      const school = schoolFilter.value;
+      return allSchools().filter((item) =>
+        (!province || item.province === province) &&
+        (!city || item.city === city) &&
+        (!school || item.name === school)
+      );
+    }
+
+    function currentScope() {
+      const selected = sumCounts(selectedSchools()).reduce((sum, value) => sum + value, 0);
+      const total = sumCounts(allSchools()).reduce((sum, value) => sum + value, 0);
+      return total ? selected / total : 0;
+    }
+
+    function scopeName() {
+      return schoolFilter.value || cityFilter.value || provinceFilter.value || "全部区域";
+    }
+
+    function periodDays() {
+      return Math.max(1, Math.round((visibleRange.end - visibleRange.start) / 86400000) + 1);
+    }
+
+    function renderMetrics(scope) {
+      const target = document.getElementById("metrics");
+      target.innerHTML = userTypes.map((type) => {
+        const total = type.total * scope;
+        const periodAddition = type.additions * (periodDays() / 30) * scope;
+        return `
+          <article class="metric" style="--metric-color:${type.color}">
+            <div class="metric-top"><i class="metric-mark"></i>${type.label}用户</div>
+            <div class="metric-value">${formatNumber(total)}</div>
+            <div class="metric-foot"><span>当前总量</span><span class="metric-add">本期新增 ${formatNumber(periodAddition)}</span><span>${type.growth}</span></div>
+          </article>`;
+      }).join("");
+      document.getElementById("scopeLabel").textContent = `${scopeName()} · 当前用户规模`;
+    }
+
+    function renderStatus(scope) {
+      const studentTotal = Math.round(userTypes[0].total * scope);
+      document.getElementById("studentTotal").textContent = formatNumber(studentTotal);
+      const rows = statusTypes.map((status) => ({
+        ...status,
+        value: Math.round(studentTotal * status.share)
+      }));
+      const total = rows.reduce((sum, item) => sum + item.value, 0);
+      document.getElementById("statusBar").innerHTML = rows.map((item) =>
+        `<span class="stacked-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label} ${formatNumber(item.value)}"></span>`
+      ).join("");
+      document.getElementById("statusList").innerHTML = rows.map((item) => `
+        <div class="status-row">
+          <span class="status-name"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>
+          <span class="status-value">${formatNumber(item.value)}</span>
+          <span class="status-percent">${total ? (item.value / total * 100).toFixed(1) : "0.0"}%</span>
+        </div>`).join("");
+    }
+
+    function drawTrend(scope) {
+      const canvas = document.getElementById("trendChart");
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      const ctx = canvas.getContext("2d");
+      ctx.scale(ratio, ratio);
+      const width = rect.width;
+      const height = rect.height;
+      const pad = { top: 15, right: 12, bottom: 30, left: 42 };
+      const plotWidth = width - pad.left - pad.right;
+      const plotHeight = height - pad.top - pad.bottom;
+      const days = periodDays();
+      const pointCount = Math.min(14, Math.max(7, days));
+      const series = userTypes.map((type, seriesIndex) => Array.from({ length: pointCount }, (_, index) => {
+        const wave = 0.78 + Math.sin(index * 0.82 + seriesIndex * 0.7) * 0.12 + ((index % 4) * 0.035);
+        const weekday = index % 7 === 5 || index % 7 === 6 ? 0.84 : 1;
+        return Math.max(1, chartBase[seriesIndex] * scope * wave * weekday);
+      }));
+      const max = Math.max(...series.flat()) * 1.18;
+      ctx.clearRect(0, 0, width, height);
+      ctx.font = "11px Arial, Microsoft YaHei, sans-serif";
+      ctx.textBaseline = "middle";
+      ctx.strokeStyle = "#e9edef";
+      ctx.fillStyle = "#889198";
+      ctx.lineWidth = 1;
+
+      for (let tick = 0; tick <= 4; tick += 1) {
+        const y = pad.top + plotHeight * tick / 4;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+        const value = Math.round(max * (4 - tick) / 4);
+        ctx.textAlign = "right";
+        ctx.fillText(value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k` : String(value), pad.left - 8, y);
+      }
+
+      const labels = [];
+      for (let index = 0; index < pointCount; index += 1) {
+        const fraction = pointCount === 1 ? 0 : index / (pointCount - 1);
+        const date = addDays(visibleRange.start, Math.round((days - 1) * fraction));
+        labels.push(`${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`);
+      }
+      const labelStep = Math.max(1, Math.ceil(pointCount / 7));
+      labels.forEach((label, index) => {
+        if (index % labelStep !== 0 && index !== labels.length - 1) return;
+        const x = pad.left + plotWidth * index / (pointCount - 1);
+        ctx.fillStyle = "#889198";
+        ctx.textAlign = index === 0 ? "left" : index === labels.length - 1 ? "right" : "center";
+        ctx.fillText(label, x, height - 12);
+      });
+
+      series.forEach((values, seriesIndex) => {
+        ctx.beginPath();
+        values.forEach((value, index) => {
+          const x = pad.left + plotWidth * index / (pointCount - 1);
+          const y = pad.top + plotHeight * (1 - value / max);
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = chartColors[seriesIndex];
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.stroke();
+        values.forEach((value, index) => {
+          if (index % labelStep !== 0 && index !== values.length - 1) return;
+          const x = pad.left + plotWidth * index / (pointCount - 1);
+          const y = pad.top + plotHeight * (1 - value / max);
+          ctx.beginPath();
+          ctx.arc(x, y, 2.4, 0, Math.PI * 2);
+          ctx.fillStyle = "#fff";
+          ctx.fill();
+          ctx.strokeStyle = chartColors[seriesIndex];
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+      });
+    }
+
+    function aggregateRows(level) {
+      const province = provinceFilter.value;
+      const city = cityFilter.value;
+      const school = schoolFilter.value;
+      if (level === "school") {
+        return selectedSchools().map((item) => ({ name: item.name, counts: item.counts }));
+      }
+      if (level === "city") {
+        return provinces.filter((item) => !province || item.name === province).flatMap((item) => item.cities)
+          .filter((item) => !city || item.name === city)
+          .map((item) => ({ name: item.name, counts: sumCounts(item.schools) }));
+      }
+      return provinces.filter((item) => !province || item.name === province).map((item) => ({
+        name: item.name,
+        counts: sumCounts(item.cities.flatMap((cityItem) => cityItem.schools))
+      }));
+    }
+
+    function renderRegionTable() {
+      const levelNames = { province: "省份", city: "城市", school: "学校" };
+      document.getElementById("regionColumn").textContent = levelNames[currentLevel];
+      const rows = aggregateRows(currentLevel);
+      const body = document.getElementById("regionRows");
+      if (!rows.length) {
+        body.innerHTML = '<tr><td class="table-empty" colspan="6">当前筛选范围没有数据</td></tr>';
+        return;
+      }
+      body.innerHTML = rows.map((row) => {
+        const total = row.counts.reduce((sum, value) => sum + value, 0);
+        return `<tr>
+          <td class="region-name">${row.name}</td>
+          ${row.counts.map((value) => `<td class="number-cell">${formatNumber(value)}</td>`).join("")}
+          <td class="number-cell"><strong>${formatNumber(total)}</strong></td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderDashboard() {
+      const scope = currentScope();
+      renderMetrics(scope);
+      renderStatus(scope);
+      drawTrend(scope);
+      renderRegionTable();
+      document.getElementById("rangeLabel").textContent = `统计周期：${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
+      document.getElementById("trendSubtitle").textContent = `按日统计 · ${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
+    }
+
+    provinceFilter.addEventListener("change", () => updateRegionOptions(true));
+    cityFilter.addEventListener("change", () => updateRegionOptions());
+
+    document.querySelectorAll("[data-level]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentLevel = button.dataset.level;
+        document.querySelectorAll("[data-level]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        renderRegionTable();
+      });
+    });
+
+    filterForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const start = new Date(`${dateFrom.value}T00:00:00`);
+      const end = new Date(`${dateTo.value}T00:00:00`);
+      const notice = document.getElementById("filterNotice");
+      if (!dateFrom.value || !dateTo.value || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) {
+        notice.textContent = "请选择有效的开始和结束日期，开始日期不能晚于结束日期。";
+        notice.classList.add("show");
+        return;
+      }
+      notice.classList.remove("show");
+      visibleRange = { start, end };
+      renderDashboard();
+    });
+
+    const today = new Date();
+    const defaultStart = addDays(today, -29);
+    dateFrom.value = dateValue(defaultStart);
+    dateTo.value = dateValue(today);
+    document.getElementById("updatedAt").textContent = `${formatDate(today)} 09:00`;
+    fillSelect(provinceFilter, provinces.map((item) => item.name), "全部省份");
+    updateRegionOptions();
+    visibleRange = { start: new Date(`${dateFrom.value}T00:00:00`), end: new Date(`${dateTo.value}T00:00:00`) };
+    renderDashboard();
+    window.addEventListener("resize", () => drawTrend(currentScope()));
+  </script>
+</body>
+</html>
