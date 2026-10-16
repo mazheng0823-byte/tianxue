@@ -757,7 +757,6 @@
     }
 
     .status-marker-section { margin-top: 10px; padding-top: 9px; border-top: 1px solid #e9edef; }
-    .status-marker-title { margin-bottom: 7px; color: #68737a; font-size: 10px; font-weight: 700; }
     .status-marker-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
     .status-marker-card { min-width: 0; display: grid; gap: 4px; padding: 7px 8px; border: 1px solid #edf0f2; border-radius: 3px; }
     .status-marker-card .status-name { font-size: 10px; }
@@ -1020,7 +1019,7 @@
         <div class="panel-head">
           <div>
             <h2 class="panel-title" id="statusTitle">学生账号状态</h2>
-            <div class="panel-subtitle" id="statusSubtitle">按省查看账号状况分布</div>
+            <div class="panel-subtitle" id="statusSubtitle">按省查看生命周期状态分布</div>
           </div>
           <div class="status-view-switch" role="group" aria-label="学生状态统计维度">
             <button class="status-view-button" type="button" data-status-view="province" aria-pressed="true">按省</button>
@@ -1028,8 +1027,8 @@
           </div>
         </div>
         <div class="status-attribute-switch" role="group" aria-label="学生账号状态属性">
-          <button class="status-attribute-button" type="button" data-status-attribute="condition" aria-pressed="true">账号状况</button>
-          <button class="status-attribute-button" type="button" data-status-attribute="access" aria-pressed="false">登录权限</button>
+          <button class="status-attribute-button" type="button" data-status-attribute="condition" aria-pressed="true">生命周期状态</button>
+          <button class="status-attribute-button" type="button" data-status-attribute="access" aria-pressed="false">账号状态</button>
         </div>
         <div class="status-content" id="statusContent"></div>
       </section>
@@ -1338,15 +1337,14 @@
     }
 
     function renderStatusMarkers(studentTotal) {
-      return `<div class="status-marker-section">
-        <div class="status-marker-title">辅助标记 · 与账号状况可重叠</div>
+      return `<section class="status-marker-section" aria-label="辅助状态标记">
         <div class="status-marker-grid">
           ${markerCounts(studentTotal).map((item) => `<div class="status-marker-card" title="${item.description}">
             ${renderStatusName(item)}
             <strong>${formatNumber(item.value)} <span class="status-percent">${studentTotal ? (item.value / studentTotal * 100).toFixed(1) : "0.0"}%</span></strong>
           </div>`).join("")}
         </div>
-      </div>`;
+      </section>`;
     }
 
     function openActiveBehaviorDialog() {
@@ -1400,7 +1398,7 @@
       const visibleProvinces = provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue);
       const content = document.getElementById("statusContent");
       const subtitle = document.getElementById("statusSubtitle");
-      const attributeLabel = currentStatusAttribute === "condition" ? "账号状况" : "登录权限";
+      const attributeLabel = currentStatusAttribute === "condition" ? "生命周期状态" : "账号状态";
 
       if (currentStatusView === "total") {
         const studentTotal = sumCounts(selectedSchools())[0];
