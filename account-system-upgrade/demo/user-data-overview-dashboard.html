@@ -564,6 +564,30 @@
       background: #f6f7f8;
     }
 
+    .status-attribute-switch {
+      display: flex;
+      gap: 2px;
+      padding: 9px 18px 0;
+    }
+
+    .status-attribute-button {
+      min-height: 29px;
+      padding: 0 10px;
+      border: 1px solid #e2e6e8;
+      border-radius: 3px;
+      background: #fff;
+      color: #667078;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .status-attribute-button[aria-pressed="true"] {
+      border-color: #9dbde6;
+      background: #f4f8fd;
+      color: var(--blue);
+      font-weight: 600;
+    }
+
     .status-view-button {
       height: 27px;
       padding: 0 9px;
@@ -732,6 +756,13 @@
       gap: 6px;
     }
 
+    .status-marker-section { margin-top: 10px; padding-top: 9px; border-top: 1px solid #e9edef; }
+    .status-marker-title { margin-bottom: 7px; color: #68737a; font-size: 10px; font-weight: 700; }
+    .status-marker-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .status-marker-card { min-width: 0; display: grid; gap: 4px; padding: 7px 8px; border: 1px solid #edf0f2; border-radius: 3px; }
+    .status-marker-card .status-name { font-size: 10px; }
+    .status-marker-card strong { font-size: 11px; font-variant-numeric: tabular-nums; }
+
     .province-status-cell {
       min-width: 0;
       display: grid;
@@ -874,6 +905,7 @@
       .status-panel { padding-bottom: 12px; }
       .chart-controls { padding: 9px 12px; }
       .status-content { padding-right: 12px; padding-left: 12px; }
+      .status-attribute-switch { padding-right: 12px; padding-left: 12px; }
       .province-status-grid { gap: 5px; }
       .province-status-cell { padding: 6px; }
       .behavior-row { grid-template-columns: minmax(105px, 1fr) minmax(54px, 1fr) auto; gap: 8px; }
@@ -988,12 +1020,16 @@
         <div class="panel-head">
           <div>
             <h2 class="panel-title" id="statusTitle">学生账号状态</h2>
-            <div class="panel-subtitle" id="statusSubtitle">按省查看七类状态分布</div>
+            <div class="panel-subtitle" id="statusSubtitle">按省查看账号状况分布</div>
           </div>
           <div class="status-view-switch" role="group" aria-label="学生状态统计维度">
             <button class="status-view-button" type="button" data-status-view="province" aria-pressed="true">按省</button>
             <button class="status-view-button" type="button" data-status-view="total" aria-pressed="false">汇总</button>
           </div>
+        </div>
+        <div class="status-attribute-switch" role="group" aria-label="学生账号状态属性">
+          <button class="status-attribute-button" type="button" data-status-attribute="condition" aria-pressed="true">账号状况</button>
+          <button class="status-attribute-button" type="button" data-status-attribute="access" aria-pressed="false">登录权限</button>
         </div>
         <div class="status-content" id="statusContent"></div>
       </section>
@@ -1076,14 +1112,22 @@
       { key: "assistants", label: "助教", color: "#269a9b", total: 4570, additions: 420 }
     ];
 
-    const statusTypes = [
-      { key: "inactive", label: "未激活", description: "注册后未登录", share: .0684, color: "#9aa4ad" },
-      { key: "active", label: "活跃", description: "登录或提交作业后进入活跃；连续180天未提交作业转为休眠", share: .6498, color: "#2d9a70" },
-      { key: "dormant", label: "休眠", description: "连续超过180天未提交作业", share: .1558, color: "#e49743" },
-      { key: "disabled", label: "停用", description: "停用账户", share: .0494, color: "#cf6665" },
-      { key: "graduated", label: "已毕业", description: "已到达毕业时限并且授权产品已经到期", share: .05, color: "#3478d4" },
-      { key: "abnormal", label: "异常", description: "已毕业但是还有提交记录", share: .01235, color: "#7a73bd" },
-      { key: "unloaded", label: "卸载", description: "已经卸载", share: .01425, color: "#56636d" }
+    const statusSets = {
+      condition: [
+        { key: "inactive", label: "未激活", description: "注册后尚未登录", share: .074026, color: "#9aa4ad" },
+        { key: "active", label: "活跃", description: "登录过或提交过作业后进入活跃", share: .703247, color: "#2d9a70" },
+        { key: "dormant", label: "失活", description: "连续超过180天未提交作业", share: .168615, color: "#e49743" },
+        { key: "graduated", label: "毕业", description: "已到达毕业时间且所有授权产品均已到期", share: .054112, color: "#3478d4" }
+      ],
+      access: [
+        { key: "enabled", label: "启用", description: "允许该账号登录平台", share: .9506, color: "#2d9a70" },
+        { key: "disabled", label: "停用", description: "限制该账号登录平台", share: .0494, color: "#cf6665" }
+      ]
+    };
+
+    const statusMarkers = [
+      { key: "abnormal", label: "毕业异常", description: "已毕业但仍有提交记录；可能与毕业状态重叠", share: .01235, color: "#7a73bd" },
+      { key: "unloaded", label: "数据卸载", description: "账号数据已卸载；作为独立数据标记统计", share: .01425, color: "#56636d" }
     ];
 
     const activeBehaviorTypes = [
@@ -1152,6 +1196,7 @@
     let currentGranularity = "day";
     let selectedRoleType = "";
     let currentStatusView = "province";
+    let currentStatusAttribute = "condition";
     let selectedStatusProvince = "";
     let visibleRange = { start: new Date(), end: new Date() };
     const expandedProvinces = new Set();
@@ -1275,8 +1320,33 @@
       dialog.showModal();
     }
 
-    function statusCounts(studentTotal) {
-      return statusTypes.map((status) => ({ ...status, value: Math.round(studentTotal * status.share) }));
+    function statusCounts(studentTotal, attribute = currentStatusAttribute) {
+      const rows = statusSets[attribute].map((status, index) => {
+        const exactValue = studentTotal * status.share;
+        return { ...status, index, exactValue, value: Math.floor(exactValue) };
+      });
+      let remaining = studentTotal - rows.reduce((sum, item) => sum + item.value, 0);
+      [...rows]
+        .sort((a, b) => (b.exactValue - b.value) - (a.exactValue - a.value) || a.index - b.index)
+        .slice(0, remaining)
+        .forEach((item) => { item.value += 1; });
+      return rows;
+    }
+
+    function markerCounts(studentTotal) {
+      return statusMarkers.map((marker) => ({ ...marker, value: Math.round(studentTotal * marker.share) }));
+    }
+
+    function renderStatusMarkers(studentTotal) {
+      return `<div class="status-marker-section">
+        <div class="status-marker-title">辅助标记 · 与账号状况可重叠</div>
+        <div class="status-marker-grid">
+          ${markerCounts(studentTotal).map((item) => `<div class="status-marker-card" title="${item.description}">
+            ${renderStatusName(item)}
+            <strong>${formatNumber(item.value)} <span class="status-percent">${studentTotal ? (item.value / studentTotal * 100).toFixed(1) : "0.0"}%</span></strong>
+          </div>`).join("")}
+        </div>
+      </div>`;
     }
 
     function openActiveBehaviorDialog() {
@@ -1292,7 +1362,7 @@
         scope = province.name;
       }
 
-      const activeCount = statusCounts(studentTotal).find((item) => item.key === "active")?.value || 0;
+      const activeCount = statusCounts(studentTotal, "condition").find((item) => item.key === "active")?.value || 0;
       document.getElementById("activeBehaviorTotal").textContent = formatNumber(activeCount);
       document.getElementById("activeBehaviorScope").textContent = `名活跃学生 · ${scope} · 演示数据`;
       const rows = activeBehaviorTypes.map((item, index) => ({
@@ -1330,20 +1400,21 @@
       const visibleProvinces = provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue);
       const content = document.getElementById("statusContent");
       const subtitle = document.getElementById("statusSubtitle");
+      const attributeLabel = currentStatusAttribute === "condition" ? "账号状况" : "登录权限";
 
       if (currentStatusView === "total") {
         const studentTotal = sumCounts(selectedSchools())[0];
         const rows = statusCounts(studentTotal);
         const roundedTotal = rows.reduce((sum, item) => sum + item.value, 0);
-        subtitle.textContent = provinceFilterValue ? `${provinceFilterValue} · 当前累计值` : "全部省份 · 当前累计值";
+        subtitle.textContent = `${attributeLabel} · ${provinceFilterValue || "全部省份"} · 当前累计值`;
         content.innerHTML = `
           <div class="status-total"><strong>${formatNumber(studentTotal)}</strong><span>名学生</span></div>
-          <div class="stacked-bar" role="img" aria-label="学生账号七类状态占比">
+          <div class="stacked-bar" role="img" aria-label="学生${attributeLabel}分布">
             ${rows.map((item) => `<span class="stacked-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label}：${item.description}，${formatNumber(item.value)}人"></span>`).join("")}
           </div>
           <div class="status-list">
             ${rows.map((item) => `
-              ${item.key === "active" ? `<button class="status-row status-row-button" type="button" data-active-detail aria-label="查看活跃用户行为细分">
+              ${currentStatusAttribute === "condition" && item.key === "active" ? `<button class="status-row status-row-button" type="button" data-active-detail aria-label="查看活跃用户行为细分">
                 ${renderActiveStatusName(item)}
                 <span class="status-value">${formatNumber(item.value)}</span>
                 <span class="status-percent">${roundedTotal ? (item.value / roundedTotal * 100).toFixed(1) : "0.0"}%</span>
@@ -1352,7 +1423,8 @@
                 <span class="status-value">${formatNumber(item.value)}</span>
                 <span class="status-percent">${roundedTotal ? (item.value / roundedTotal * 100).toFixed(1) : "0.0"}%</span>
               </div>`}`).join("")}
-          </div>`;
+          </div>
+          ${currentStatusAttribute === "condition" ? renderStatusMarkers(studentTotal) : ""}`;
         return;
       }
 
@@ -1367,14 +1439,16 @@
       const selected = provinceData.find((item) => item.province.name === selectedStatusProvince);
       const details = selected ? statusCounts(selected.total) : [];
       const detailsTotal = details.reduce((sum, item) => sum + item.value, 0);
-      subtitle.textContent = provinceFilterValue ? `${provinceFilterValue} · 省级状态构成` : "各省当前累计值 · 点击省份查看状态人数";
+      subtitle.textContent = provinceFilterValue
+        ? `${attributeLabel} · ${provinceFilterValue}省级构成`
+        : `各省${attributeLabel}分布 · 点击省份查看人数`;
       content.innerHTML = `
         <div class="status-total"><strong>${formatNumber(scopedTotal)}</strong><span>名学生 · ${provinceFilterValue || "全部省份"}</span></div>
         <div class="province-status-list">
           ${provinceData.map(({ province, total }) => {
             const pressed = province.name === selectedStatusProvince;
             const rows = statusCounts(total);
-            return `<button class="province-status-item" type="button" data-status-province="${province.name}" aria-pressed="${pressed}" aria-label="查看${province.name}学生状态">
+            return `<button class="province-status-item" type="button" data-status-province="${province.name}" aria-pressed="${pressed}" aria-label="查看${province.name}学生${attributeLabel}">
               <span class="province-status-heading"><strong>${province.name}</strong><span>${formatNumber(total)} 名</span></span>
               <span class="province-status-bar" aria-hidden="true">
                 ${rows.map((item) => `<span class="province-status-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label}：${item.description}，${formatNumber(item.value)}人"></span>`).join("")}
@@ -1383,10 +1457,10 @@
           }).join("")}
         </div>
         ${selected ? `<div class="province-status-detail">
-          <div class="province-status-detail-title">${selected.province.name} · 状态人数</div>
+          <div class="province-status-detail-title">${selected.province.name} · ${attributeLabel}人数</div>
           <div class="province-status-grid">
             ${details.map((item) => `
-              ${item.key === "active" ? `<button class="province-status-cell province-status-cell-button" type="button" data-active-detail aria-label="查看${selected.province.name}活跃用户行为细分">
+              ${currentStatusAttribute === "condition" && item.key === "active" ? `<button class="province-status-cell province-status-cell-button" type="button" data-active-detail aria-label="查看${selected.province.name}活跃用户行为细分">
                 ${renderActiveStatusName(item)}
                 <strong>${formatNumber(item.value)} <span class="status-percent">${detailsTotal ? (item.value / detailsTotal * 100).toFixed(1) : "0.0"}%</span></strong>
               </button>` : `<div class="province-status-cell">
@@ -1394,6 +1468,7 @@
                 <strong>${formatNumber(item.value)} <span class="status-percent">${detailsTotal ? (item.value / detailsTotal * 100).toFixed(1) : "0.0"}%</span></strong>
               </div>`}`).join("")}
           </div>
+          ${currentStatusAttribute === "condition" ? renderStatusMarkers(selected.total) : ""}
         </div>` : ""}`;
     }
 
@@ -1618,6 +1693,14 @@
       button.addEventListener("click", () => {
         currentStatusView = button.dataset.statusView;
         document.querySelectorAll("[data-status-view]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        renderStatus();
+      });
+    });
+
+    document.querySelectorAll("[data-status-attribute]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentStatusAttribute = button.dataset.statusAttribute;
+        document.querySelectorAll("[data-status-attribute]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
         renderStatus();
       });
     });
