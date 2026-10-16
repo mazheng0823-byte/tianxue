@@ -314,7 +314,7 @@
       padding: 14px 20px 18px;
     }
 
-    .behavior-dialog-body { gap: 14px; }
+    .behavior-dialog-body { gap: 14px; overflow-y: auto; }
 
     .behavior-summary {
       display: flex;
@@ -1057,14 +1057,14 @@
     <div class="role-province-dialog-head">
       <div>
         <h2 id="activeBehaviorTitle">活跃用户行为细分</h2>
-        <p id="activeBehaviorDescription">按当前状态统计范围查看活跃学生的行为覆盖</p>
+        <p id="activeBehaviorDescription">按当前状态统计范围查看活跃学生的行为组合人数</p>
       </div>
       <button class="dialog-close" type="button" id="closeActiveBehaviorDialog" aria-label="关闭弹窗" title="关闭"><span aria-hidden="true">×</span></button>
     </div>
     <div class="role-province-dialog-body behavior-dialog-body">
       <div class="behavior-summary"><strong id="activeBehaviorTotal"></strong><span id="activeBehaviorScope"></span></div>
-      <p class="behavior-note">前三类行为按用户去重后分别统计，同一活跃学生可能同时计入多类，人数相加可能超过活跃总人数。仅登录未操作指登录过、但未发生前三类行为。</p>
-      <div class="behavior-list" id="activeBehaviorList" role="list" aria-label="活跃学生行为覆盖人数"></div>
+      <p class="behavior-note">按“提交任务单、自主作答、参加模考”三项行为分别判断有 / 无，形成 2³ = 8 种互斥组合。每名学生只计入一组，八组人数合计等于活跃总人数；“仅登录”表示三项行为均未发生。</p>
+      <div class="behavior-list" id="activeBehaviorList" role="list" aria-label="活跃学生行为组合人数"></div>
     </div>
   </dialog>
 
@@ -1087,10 +1087,14 @@
     ];
 
     const activeBehaviorTypes = [
-      { label: "提交过任务单", description: "至少提交过一份任务单的活跃学生", share: .43, color: "#3478d4" },
-      { label: "自主作答过", description: "至少完成过一次自主作答的活跃学生", share: .58, color: "#2d9a70" },
-      { label: "参加过模考", description: "至少参加过一次模拟考试的活跃学生", share: .34, color: "#e49743" },
-      { label: "仅登录未操作", description: "有登录记录，但未提交任务单、自主作答或参加模考", share: .11, color: "#75818a" }
+      { label: "仅登录", description: "未提交任务单、未自主作答、未参加模考", share: .11, color: "#75818a" },
+      { label: "仅提交任务单", description: "提交过任务单，但未自主作答、未参加模考", share: .15, color: "#3478d4" },
+      { label: "仅自主作答", description: "自主作答过，但未提交任务单、未参加模考", share: .28, color: "#2d9a70" },
+      { label: "仅参加模考", description: "参加过模考，但未提交任务单、未自主作答", share: .08, color: "#e49743" },
+      { label: "任务单 + 自主作答", description: "提交过任务单、自主作答过，但未参加模考", share: .12, color: "#269a9b" },
+      { label: "任务单 + 模考", description: "提交过任务单、参加过模考，但未自主作答", share: .08, color: "#7a73bd" },
+      { label: "自主作答 + 模考", description: "自主作答过、参加过模考，但未提交任务单", share: .10, color: "#cf6665" },
+      { label: "任务单 + 自主作答 + 模考", description: "三项行为都发生过", share: .08, color: "#35444c" }
     ];
 
     const provinces = [
@@ -1291,9 +1295,19 @@
       const activeCount = statusCounts(studentTotal).find((item) => item.key === "active")?.value || 0;
       document.getElementById("activeBehaviorTotal").textContent = formatNumber(activeCount);
       document.getElementById("activeBehaviorScope").textContent = `名活跃学生 · ${scope} · 演示数据`;
-      document.getElementById("activeBehaviorList").innerHTML = activeBehaviorTypes.map((item) => {
-        const value = Math.round(activeCount * item.share);
-        const percentage = (item.share * 100).toFixed(1);
+      const rows = activeBehaviorTypes.map((item, index) => ({
+        ...item,
+        index,
+        exactValue: activeCount * item.share,
+        value: Math.floor(activeCount * item.share)
+      }));
+      let remaining = activeCount - rows.reduce((sum, item) => sum + item.value, 0);
+      [...rows]
+        .sort((a, b) => (b.exactValue - b.value) - (a.exactValue - a.value) || a.index - b.index)
+        .slice(0, remaining)
+        .forEach((item) => { item.value += 1; });
+      document.getElementById("activeBehaviorList").innerHTML = rows.map((item) => {
+        const percentage = activeCount ? (item.value / activeCount * 100).toFixed(1) : "0.0";
         return `<div class="behavior-row" role="listitem" title="${item.description}">
           <span class="behavior-name">${item.label}</span>
           <span class="behavior-track" role="img" aria-label="占活跃用户 ${percentage}%"><span style="--behavior-share:${percentage}%;--behavior-color:${item.color}"></span></span>
