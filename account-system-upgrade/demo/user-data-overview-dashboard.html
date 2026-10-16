@@ -1,0 +1,1782 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>平台用户数据看板</title>
+  <style>
+    :root {
+      --page: #f2f4f6;
+      --surface: #fff;
+      --border: #e1e5e8;
+      --text: #20272d;
+      --muted: #78828a;
+      --blue: #3478d4;
+      --green: #2d9a70;
+      --orange: #e49743;
+      --teal: #269a9b;
+      --red: #cf6665;
+      --purple: #7a73bd;
+    }
+
+    * { box-sizing: border-box; letter-spacing: 0; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--page);
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 14px;
+    }
+
+    button, input, select { font: inherit; }
+
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 3px solid rgba(52, 120, 212, .24);
+      outline-offset: 2px;
+    }
+
+    .topbar {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #34444c;
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 27px;
+      height: 27px;
+      display: grid;
+      place-items: center;
+      border-radius: 4px;
+      background: #344952;
+      color: #fff;
+      font-size: 11px;
+    }
+
+    .top-link {
+      color: #59636a;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .top-link:hover { color: var(--blue); }
+
+    .topbar-meta {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .main {
+      width: min(1480px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .page-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .breadcrumb a { color: #52616a; text-decoration: none; }
+    .breadcrumb a:hover { color: var(--blue); }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.3;
+    }
+
+    .heading-meta {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: minmax(360px, 1.4fr) minmax(190px, .75fr) auto;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    .filter-field {
+      min-width: 0;
+      display: grid;
+      gap: 7px;
+      color: #5e6870;
+      font-size: 12px;
+    }
+
+    .date-range {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+      align-items: center;
+      gap: 7px;
+    }
+
+    .date-range span { color: #91999f; text-align: center; }
+
+    .filter-field input,
+    .filter-field select {
+      width: 100%;
+      height: 36px;
+      min-width: 0;
+      padding: 0 10px;
+      border: 1px solid #d8dde1;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .filter-field input:hover,
+    .filter-field select:hover { border-color: #aeb9c0; }
+
+    .query-button {
+      height: 36px;
+      min-width: 76px;
+      padding: 0 18px;
+      border: 1px solid var(--blue);
+      border-radius: 3px;
+      background: var(--blue);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .query-button:hover { background: #2868bc; }
+
+    .notice {
+      display: none;
+      margin: -6px 0 14px;
+      color: #b14f4c;
+      font-size: 12px;
+    }
+
+    .notice.show { display: block; }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 22px 0 12px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .section-note { color: var(--muted); font-size: 12px; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      width: 100%;
+      min-height: 139px;
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+
+    .metric:hover { border-color: #b4c0c6; }
+    .metric-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #5c666e;
+      font-size: 13px;
+    }
+
+    .metric-mark {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--metric-color);
+    }
+
+    .metric-value {
+      margin-top: 13px;
+      font-size: 28px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .metric-foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 12px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric-share { color: var(--metric-color); }
+
+    .role-province-dialog {
+      width: min(900px, calc(100vw - 32px));
+      max-height: calc(100dvh - 32px);
+      margin: auto;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 18px 55px rgba(22, 34, 42, .24);
+    }
+
+    .behavior-dialog { width: min(760px, calc(100vw - 32px)); }
+
+    .role-province-dialog::backdrop { background: rgba(24, 34, 40, .48); }
+    .role-province-dialog[open] { display: flex; flex-direction: column; }
+
+    .role-province-dialog-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .role-province-dialog-head h2 { margin: 0; font-size: 17px; line-height: 1.4; }
+    .role-province-dialog-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+
+    .dialog-close {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      background: transparent;
+      color: #647078;
+      cursor: pointer;
+      font-size: 21px;
+      line-height: 1;
+    }
+
+    .dialog-close:hover { border-color: var(--border); background: #f6f7f8; }
+
+    .role-province-dialog-body {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 14px 20px 18px;
+    }
+
+    .behavior-dialog-body { gap: 14px; overflow-y: auto; }
+
+    .behavior-summary {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 7px 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .behavior-summary strong { font-size: 25px; font-variant-numeric: tabular-nums; }
+    .behavior-summary span { color: var(--muted); font-size: 12px; }
+
+    .behavior-note {
+      margin: 0;
+      padding: 9px 12px;
+      border-left: 3px solid #e49743;
+      background: #fff8ef;
+      color: #675846;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .behavior-list { display: grid; }
+
+    .behavior-row {
+      min-height: 54px;
+      display: grid;
+      grid-template-columns: minmax(145px, 190px) minmax(90px, 1fr) minmax(105px, auto);
+      align-items: center;
+      gap: 14px;
+      padding: 8px 4px;
+      border-bottom: 1px solid #edf0f2;
+    }
+
+    .behavior-row:last-child { border-bottom: 0; }
+    .behavior-name { color: #39464e; font-size: 13px; font-weight: 600; }
+    .behavior-track { height: 9px; overflow: hidden; border-radius: 2px; background: #edf0f2; }
+    .behavior-track span { display: block; width: var(--behavior-share); height: 100%; border-radius: inherit; background: var(--behavior-color); }
+
+    .behavior-value {
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
+      gap: 8px;
+      color: #3f4a51;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .behavior-value strong { font-size: 13px; }
+    .behavior-value span { color: var(--muted); }
+
+    .role-province-summary {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .role-province-summary strong { font-size: 22px; font-variant-numeric: tabular-nums; }
+    .role-province-summary span { color: var(--muted); font-size: 12px; }
+    .province-chart { min-height: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 3px; }
+
+    .province-chart-header,
+    .province-chart-row {
+      display: grid;
+      grid-template-columns: 42px 142px minmax(120px, 1fr) 150px;
+      align-items: center;
+      gap: 12px;
+      padding: 0 14px;
+    }
+
+    .province-chart-header {
+      height: 36px;
+      background: #f6f7f8;
+      color: #68737a;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .province-chart-header span:last-child { text-align: right; }
+
+    .province-chart-scroll {
+      max-height: calc(100dvh - 250px);
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .province-chart-row {
+      min-height: 36px;
+      border-top: 1px solid #edf0f2;
+      font-size: 12px;
+    }
+
+    .province-chart-rank { color: #909aa1; font-variant-numeric: tabular-nums; }
+    .province-chart-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .province-chart-track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 2px;
+      background: #edf0f2;
+    }
+
+    .province-chart-track span { display: block; height: 100%; border-radius: inherit; background: var(--metric-color); }
+
+    .province-chart-value {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      color: #4b565e;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .province-chart-value span { min-width: 44px; color: var(--muted); text-align: right; }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.75fr) minmax(340px, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .panel {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    .panel-head {
+      min-height: 57px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 18px;
+      border-bottom: 1px solid #edf0f2;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .panel-subtitle {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px 14px;
+      color: #59636a;
+      font-size: 11px;
+    }
+
+    .legend-item { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+
+    .legend-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--legend-color);
+    }
+
+    .chart-controls {
+      min-height: 52px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px 12px;
+      padding: 9px 16px;
+      border-bottom: 1px solid #edf0f2;
+    }
+
+    .chart-switch {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid #e2e6e8;
+      border-radius: 3px;
+      background: #f6f7f8;
+    }
+
+    .chart-switch-button {
+      height: 28px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 2px;
+      background: transparent;
+      color: #667078;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .chart-switch-button[aria-pressed="true"] {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 1px 3px rgba(24, 36, 46, .12);
+    }
+
+    .chart-type {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #667078;
+      font-size: 12px;
+    }
+
+    .chart-granularity {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .chart-type-label { color: #667078; font-size: 12px; white-space: nowrap; }
+
+    .chart-type select {
+      height: 34px;
+      min-width: 110px;
+      padding: 0 9px;
+      border: 1px solid #d8dde1;
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .chart-wrap { height: 274px; padding: 13px 16px 12px; }
+    #trendChart { display: block; width: 100%; height: 100%; }
+
+    .status-panel { padding-bottom: 16px; }
+
+    .status-view-switch {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid #e2e6e8;
+      border-radius: 3px;
+      background: #f6f7f8;
+    }
+
+    .status-attribute-switch {
+      display: flex;
+      gap: 2px;
+      padding: 9px 18px 0;
+    }
+
+    .status-attribute-button {
+      min-height: 29px;
+      padding: 0 10px;
+      border: 1px solid #e2e6e8;
+      border-radius: 3px;
+      background: #fff;
+      color: #667078;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .status-attribute-button[aria-pressed="true"] {
+      border-color: #9dbde6;
+      background: #f4f8fd;
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .status-view-button {
+      height: 27px;
+      padding: 0 9px;
+      border: 0;
+      border-radius: 2px;
+      background: transparent;
+      color: #667078;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .status-view-button[aria-pressed="true"] {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 1px 3px rgba(24, 36, 46, .12);
+    }
+
+    .status-content { padding: 0 18px 12px; }
+
+    .status-total {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      padding: 16px 18px 12px;
+    }
+
+    .status-total strong {
+      font-size: 25px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-total span { color: var(--muted); font-size: 12px; }
+
+    .stacked-bar {
+      height: 12px;
+      display: flex;
+      gap: 2px;
+      margin: 0 18px 15px;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .stacked-segment { min-width: 3px; background: var(--segment-color); }
+
+    .status-list { display: grid; gap: 0; }
+
+    .status-row {
+      min-height: 35px;
+      display: grid;
+      grid-template-columns: minmax(86px, 1fr) auto 48px;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #f0f2f3;
+      font-size: 12px;
+    }
+
+    .status-row:last-child { border-bottom: 0; }
+
+    .status-row-button {
+      width: 100%;
+      padding: 0;
+      border: 0;
+      border-bottom: 1px solid #f0f2f3;
+      background: #fff;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .status-row-button:hover { background: #f8fafb; }
+
+    .status-name { display: inline-flex; align-items: center; gap: 7px; color: #56616a; }
+    .status-tooltip {
+      position: relative;
+      width: fit-content;
+      cursor: help;
+      text-decoration: underline dotted #a8b0b6;
+      text-underline-offset: 3px;
+    }
+
+    .status-tooltip::after {
+      position: absolute;
+      z-index: 5;
+      bottom: calc(100% + 7px);
+      left: 0;
+      width: max-content;
+      max-width: 230px;
+      padding: 7px 9px;
+      border-radius: 3px;
+      background: #26343b;
+      box-shadow: 0 3px 10px rgba(20, 31, 38, .18);
+      color: #fff;
+      content: attr(data-tooltip);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.5;
+      white-space: normal;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .status-tooltip:hover::after,
+    .status-tooltip:focus-visible::after { opacity: 1; visibility: visible; }
+    .status-value { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .status-percent { color: var(--muted); text-align: right; }
+
+    .province-status-list { display: grid; }
+
+    .province-status-item {
+      width: 100%;
+      display: grid;
+      gap: 7px;
+      padding: 9px 0;
+      border: 0;
+      border-bottom: 1px solid #f0f2f3;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .province-status-item:last-child { border-bottom: 0; }
+    .province-status-item:hover .province-status-heading strong,
+    .province-status-item[aria-pressed="true"] .province-status-heading strong { color: var(--blue); }
+
+    .province-status-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      color: #59646c;
+      font-size: 12px;
+    }
+
+    .province-status-heading strong { color: #34414a; font-weight: 600; }
+    .province-status-heading span { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    .province-status-bar {
+      height: 8px;
+      display: flex;
+      gap: 2px;
+      overflow: hidden;
+      border-radius: 2px;
+    }
+
+    .province-status-segment { min-width: 2px; background: var(--segment-color); }
+
+    .province-status-detail {
+      margin-top: 9px;
+      padding-top: 10px;
+      border-top: 1px solid #e9edef;
+    }
+
+    .province-status-detail-title {
+      margin-bottom: 8px;
+      color: #4d5961;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .province-status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .status-marker-section { margin-top: 10px; padding-top: 9px; border-top: 1px solid #e9edef; }
+    .status-marker-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .status-marker-card { min-width: 0; display: grid; gap: 4px; padding: 7px 8px; border: 1px solid #edf0f2; border-radius: 3px; }
+    .status-marker-card .status-name { font-size: 10px; }
+    .status-marker-card strong { font-size: 11px; font-variant-numeric: tabular-nums; }
+
+    .province-status-cell {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+      padding: 7px 8px;
+      border: 1px solid #edf0f2;
+      border-radius: 3px;
+    }
+
+    .province-status-cell-button {
+      width: 100%;
+      background: #fff;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .province-status-cell-button:hover { border-color: #b9d1ef; background: #f8fbff; }
+
+    .active-status-name { display: flex; align-items: center; gap: 7px; min-width: 0; color: #56616a; }
+    .active-status-name .legend-dot { flex: 0 0 auto; }
+    .status-drill-hint { margin-left: auto; color: var(--blue); font-size: 10px; font-weight: 500; white-space: nowrap; }
+
+    .province-status-cell .status-name { gap: 5px; font-size: 10px; white-space: nowrap; }
+    .province-status-cell .legend-dot { width: 6px; height: 6px; }
+    .province-status-cell strong { font-size: 11px; font-variant-numeric: tabular-nums; }
+
+    .table-panel { margin-top: 16px; }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .region-table { min-width: 1180px; }
+
+    th, td {
+      height: 44px;
+      padding: 0 18px;
+      border-bottom: 1px solid #edf0f2;
+      white-space: nowrap;
+    }
+
+    th {
+      height: 40px;
+      background: #f6f7f8;
+      color: #677179;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    td { color: #38434a; font-size: 12px; font-variant-numeric: tabular-nums; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fafbfc; }
+    .region-name { color: #27323a; font-weight: 600; }
+    .number-cell { text-align: right; }
+    th.number-cell { text-align: right; }
+    .region-table thead .role-group-heading { border-left: 1px solid #edf0f2; text-align: center; }
+    .region-table thead tr:nth-child(2) th { border-left: 1px solid #edf0f2; text-align: right; }
+    .region-table tbody td:not(:first-child) { border-left: 1px solid #edf0f2; }
+    .region-table .role-group-divider { border-left: 1px solid #d6dde2; }
+
+    .tree-label { display: flex; align-items: center; gap: 7px; }
+    .tree-label.city { padding-left: 24px; color: #4d5a62; font-weight: 500; }
+    .tree-label.school { padding-left: 49px; color: #69747b; font-weight: 400; }
+
+    .tree-toggle {
+      width: 20px;
+      height: 22px;
+      flex: 0 0 20px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #71808a;
+      cursor: pointer;
+    }
+
+    .tree-toggle:hover { color: var(--blue); }
+
+    .tree-toggle::before {
+      width: 6px;
+      height: 6px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+      content: "";
+      transform: rotate(-45deg);
+      transition: transform 120ms ease;
+    }
+
+    .tree-toggle[aria-expanded="true"]::before { transform: rotate(45deg); }
+    .tree-toggle-placeholder { width: 20px; height: 22px; flex: 0 0 20px; }
+    .tree-row.city { background: #fafbfc; }
+    .tree-row.school { background: #fff; }
+
+    .table-empty {
+      height: 86px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .data-footnote {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media (max-width: 1050px) {
+      .filter-bar { grid-template-columns: minmax(300px, 1fr) minmax(150px, .65fr) auto; }
+      .content-grid { grid-template-columns: minmax(0, 1.4fr) minmax(310px, 1fr); }
+      .panel-head { align-items: flex-start; flex-direction: column; padding: 13px 16px; }
+      .legend { justify-content: flex-start; }
+    }
+
+    @media (max-width: 760px) {
+      .topbar { height: 52px; gap: 14px; padding: 0 14px; }
+      .top-link { display: none; }
+      .topbar-meta { font-size: 11px; }
+      .main { width: calc(100% - 24px); padding-top: 20px; }
+      .page-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+      h1 { font-size: 21px; }
+      .filter-bar { grid-template-columns: minmax(0, 1fr) auto; gap: 11px; padding: 12px; }
+      .date-filter { grid-column: 1 / -1; }
+      .query-button { grid-column: 2; justify-self: end; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .metric { min-height: 125px; padding: 13px; }
+      .metric-value { font-size: 23px; }
+      .content-grid { grid-template-columns: 1fr; }
+      .panel-head { align-items: flex-start; }
+      .chart-wrap { height: 245px; padding: 10px 9px; }
+      .status-panel { padding-bottom: 12px; }
+      .chart-controls { padding: 9px 12px; }
+      .status-content { padding-right: 12px; padding-left: 12px; }
+      .status-attribute-switch { padding-right: 12px; padding-left: 12px; }
+      .province-status-grid { gap: 5px; }
+      .province-status-cell { padding: 6px; }
+      .behavior-row { grid-template-columns: minmax(105px, 1fr) minmax(54px, 1fr) auto; gap: 8px; }
+      .behavior-dialog-body { padding: 12px; }
+      .data-footnote { flex-direction: column; }
+    }
+
+    @media (max-width: 380px) {
+      .brand { font-size: 13px; }
+      .metric { padding: 11px; }
+      .metric-value { font-size: 21px; }
+      .metric-foot { font-size: 11px; }
+      .date-range { gap: 4px; }
+      .date-range input { padding: 0 5px; font-size: 11px; }
+      .role-province-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
+      .behavior-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); }
+      .role-province-dialog-head { padding: 14px 14px 12px; }
+      .role-province-dialog-body { padding: 12px 12px 14px; }
+      .behavior-row { grid-template-columns: minmax(96px, 1fr) minmax(36px, .8fr) auto; gap: 6px; }
+      .behavior-name, .behavior-value { font-size: 11px; }
+      .behavior-value { gap: 5px; }
+      .province-chart-header,
+      .province-chart-row { grid-template-columns: 24px 64px minmax(34px, 1fr) 98px; gap: 5px; padding: 0 6px; }
+      .province-chart-value { gap: 5px; font-size: 11px; }
+      .province-chart-value span { min-width: 36px; }
+      .province-chart-scroll { max-height: calc(100dvh - 220px); }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">TX</span><span>天学 · 平台运营</span></div>
+    <a class="top-link" href="index.html">Demo 目录</a>
+    <div class="topbar-meta">匿名演示数据 · 最近更新 <span id="updatedAt"></span></div>
+  </header>
+
+  <main class="main">
+    <div class="page-heading">
+      <div>
+        <nav class="breadcrumb" aria-label="面包屑">
+          <a href="index.html">Demo 目录</a><span aria-hidden="true">/</span><span>平台用户数据</span>
+        </nav>
+        <h1>平台用户数据看板</h1>
+      </div>
+      <div class="heading-meta">全平台概览 · 当前累计总量</div>
+    </div>
+
+    <section aria-labelledby="overviewTitle">
+      <div class="section-heading">
+        <h2 id="overviewTitle">用户规模概览</h2>
+        <span class="section-note">四类用户当前累计总量，不受下方筛选影响</span>
+      </div>
+      <div class="metrics" id="metrics"></div>
+    </section>
+
+    <section aria-labelledby="analysisTitle">
+      <div class="section-heading">
+        <h2 id="analysisTitle">新增与活跃分析</h2>
+        <span class="section-note">下方日期和地域筛选仅作用于趋势与区域分析</span>
+      </div>
+      <form class="filter-bar" id="filterForm">
+        <label class="filter-field date-filter">日期范围
+          <span class="date-range">
+            <input id="dateFrom" type="date" aria-label="开始日期">
+            <span aria-hidden="true">至</span>
+            <input id="dateTo" type="date" aria-label="结束日期">
+          </span>
+        </label>
+        <label class="filter-field">省
+          <select id="provinceFilter" aria-label="省份"></select>
+        </label>
+        <button class="query-button" type="submit">查询</button>
+      </form>
+      <p class="notice" id="filterNotice" role="alert"></p>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel" aria-labelledby="trendTitle">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title" id="trendTitle">新增用户趋势</h2>
+            <div class="panel-subtitle" id="trendSubtitle">按地域和时间统计</div>
+          </div>
+          <div class="legend" id="trendLegend" aria-label="地域图例"></div>
+        </div>
+        <div class="chart-controls">
+          <div class="chart-switch" role="group" aria-label="趋势指标">
+            <button class="chart-switch-button" type="button" data-metric="new" aria-pressed="true">新增用户</button>
+            <button class="chart-switch-button" type="button" data-metric="active" aria-pressed="false">活跃用户</button>
+          </div>
+          <div class="chart-granularity">
+            <span class="chart-type-label">时间粒度</span>
+            <div class="chart-switch" role="group" aria-label="趋势时间粒度">
+              <button class="chart-switch-button" type="button" data-granularity="day" aria-pressed="true">日视图</button>
+              <button class="chart-switch-button" type="button" data-granularity="month" aria-pressed="false">月视图</button>
+            </div>
+          </div>
+          <label class="chart-type">用户类型
+            <select id="chartTypeFilter" aria-label="趋势图用户类型">
+              <option value="all">全部用户</option>
+              <option value="students">学生</option>
+              <option value="teachers">老师</option>
+              <option value="parents">家长</option>
+              <option value="assistants">助教</option>
+            </select>
+          </label>
+        </div>
+        <div class="chart-wrap"><canvas id="trendChart" role="img" aria-label="学生、老师、家长和助教新增用户趋势折线图"></canvas></div>
+      </section>
+
+      <section class="panel status-panel" aria-labelledby="statusTitle">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title" id="statusTitle">学生账号状态</h2>
+            <div class="panel-subtitle" id="statusSubtitle">按省查看生命周期状态分布</div>
+          </div>
+          <div class="status-view-switch" role="group" aria-label="学生状态统计维度">
+            <button class="status-view-button" type="button" data-status-view="province" aria-pressed="true">按省</button>
+            <button class="status-view-button" type="button" data-status-view="total" aria-pressed="false">汇总</button>
+          </div>
+        </div>
+        <div class="status-attribute-switch" role="group" aria-label="学生账号状态属性">
+          <button class="status-attribute-button" type="button" data-status-attribute="condition" aria-pressed="true">生命周期状态</button>
+          <button class="status-attribute-button" type="button" data-status-attribute="access" aria-pressed="false">账号状态</button>
+        </div>
+        <div class="status-content" id="statusContent"></div>
+      </section>
+    </div>
+
+    <section class="panel table-panel" aria-labelledby="regionTitle">
+      <div class="panel-head">
+        <div>
+          <h2 class="panel-title" id="regionTitle">区域用户分布</h2>
+          <div class="panel-subtitle">按所选日期统计：新增为周期累计，活跃为日均人数</div>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="region-table">
+          <thead>
+            <tr>
+              <th scope="col" rowspan="2">省 / 市 / 学校</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading">学生</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading role-group-divider">老师</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading role-group-divider">家长</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading role-group-divider">助教</th>
+              <th scope="colgroup" colspan="2" class="number-cell role-group-heading role-group-divider">总计</th>
+            </tr>
+            <tr>
+              <th scope="col" class="number-cell">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell role-group-divider">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell role-group-divider">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell role-group-divider">新增</th><th scope="col" class="number-cell">日均活跃</th>
+              <th scope="col" class="number-cell role-group-divider">新增</th><th scope="col" class="number-cell">日均活跃</th>
+            </tr>
+          </thead>
+          <tbody id="regionRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="data-footnote">
+      <span>演示数据仅用于页面预览，不代表平台真实统计。</span>
+      <span id="rangeLabel"></span>
+    </div>
+  </main>
+
+  <dialog class="role-province-dialog" id="roleProvinceDialog" aria-labelledby="roleProvinceTitle" aria-describedby="roleProvinceDescription">
+    <div class="role-province-dialog-head">
+      <div>
+        <h2 id="roleProvinceTitle">用户省级地区分布</h2>
+        <p id="roleProvinceDescription">全平台当前累计 · 按人数从高到低排列</p>
+      </div>
+      <button class="dialog-close" type="button" id="closeRoleProvinceDialog" aria-label="关闭弹窗" title="关闭"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="role-province-dialog-body">
+      <div class="role-province-summary"><strong id="roleProvinceTotal"></strong><span id="roleProvinceSummaryNote"></span></div>
+      <div class="province-chart">
+        <div class="province-chart-header" aria-hidden="true"><span>排名</span><span>省级地区</span><span>用户分布</span><span>人数 / 占比</span></div>
+        <div class="province-chart-scroll" id="roleProvinceList" role="list" aria-label="省级地区用户分布"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="role-province-dialog behavior-dialog" id="activeBehaviorDialog" aria-labelledby="activeBehaviorTitle" aria-describedby="activeBehaviorDescription">
+    <div class="role-province-dialog-head">
+      <div>
+        <h2 id="activeBehaviorTitle">活跃用户行为细分</h2>
+        <p id="activeBehaviorDescription">按当前状态统计范围查看活跃学生的行为组合人数</p>
+      </div>
+      <button class="dialog-close" type="button" id="closeActiveBehaviorDialog" aria-label="关闭弹窗" title="关闭"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="role-province-dialog-body behavior-dialog-body">
+      <div class="behavior-summary"><strong id="activeBehaviorTotal"></strong><span id="activeBehaviorScope"></span></div>
+      <p class="behavior-note">按“提交任务单、自主作答、参加模考”三项行为分别判断有 / 无，形成 2³ = 8 种互斥组合。每名学生只计入一组，八组人数合计等于活跃总人数；“仅登录”表示三项行为均未发生。</p>
+      <div class="behavior-list" id="activeBehaviorList" role="list" aria-label="活跃学生行为组合人数"></div>
+    </div>
+  </dialog>
+
+  <script>
+    const userTypes = [
+      { key: "students", label: "学生", color: "#3478d4", total: 783000, additions: 28240 },
+      { key: "teachers", label: "老师", color: "#2d9a70", total: 20700, additions: 624 },
+      { key: "parents", label: "家长", color: "#e49743", total: 120800, additions: 8320 },
+      { key: "assistants", label: "助教", color: "#269a9b", total: 4570, additions: 420 }
+    ];
+
+    const statusSets = {
+      condition: [
+        { key: "inactive", label: "未激活", description: "注册后尚未登录", share: .074026, color: "#9aa4ad" },
+        { key: "active", label: "活跃", description: "登录过或提交过作业后进入活跃", share: .703247, color: "#2d9a70" },
+        { key: "dormant", label: "失活", description: "连续超过180天未提交作业", share: .168615, color: "#e49743" },
+        { key: "graduated", label: "毕业", description: "已到达毕业时间且所有授权产品均已到期", share: .054112, color: "#3478d4" }
+      ],
+      access: [
+        { key: "enabled", label: "启用", description: "允许该账号登录平台", share: .9506, color: "#2d9a70" },
+        { key: "disabled", label: "停用", description: "限制该账号登录平台", share: .0494, color: "#cf6665" }
+      ]
+    };
+
+    const statusMarkers = [
+      { key: "abnormal", label: "毕业异常", description: "已毕业但仍有提交记录；可能与毕业状态重叠", share: .01235, color: "#7a73bd" },
+      { key: "unloaded", label: "数据卸载", description: "账号数据已卸载；作为独立数据标记统计", share: .01425, color: "#56636d" }
+    ];
+
+    const activeBehaviorTypes = [
+      { label: "仅登录", description: "未提交任务单、未自主作答、未参加模考", share: .11, color: "#75818a" },
+      { label: "仅提交任务单", description: "提交过任务单，但未自主作答、未参加模考", share: .15, color: "#3478d4" },
+      { label: "仅自主作答", description: "自主作答过，但未提交任务单、未参加模考", share: .28, color: "#2d9a70" },
+      { label: "仅参加模考", description: "参加过模考，但未提交任务单、未自主作答", share: .08, color: "#e49743" },
+      { label: "任务单 + 自主作答", description: "提交过任务单、自主作答过，但未参加模考", share: .12, color: "#269a9b" },
+      { label: "任务单 + 模考", description: "提交过任务单、参加过模考，但未自主作答", share: .08, color: "#7a73bd" },
+      { label: "自主作答 + 模考", description: "自主作答过、参加过模考，但未提交任务单", share: .10, color: "#cf6665" },
+      { label: "任务单 + 自主作答 + 模考", description: "三项行为都发生过", share: .08, color: "#35444c" }
+    ];
+
+    const provinces = [
+      { name: "示例省A", cities: [
+        { name: "示例市A1", schools: [
+          { name: "示例学校A1-1", counts: [81000, 2180, 12500, 480] },
+          { name: "示例学校A1-2", counts: [62500, 1640, 9800, 360] },
+          { name: "示例学校A1-3", counts: [43800, 1120, 7100, 250] }
+        ] },
+        { name: "示例市A2", schools: [
+          { name: "示例学校A2-1", counts: [76800, 2010, 11700, 440] },
+          { name: "示例学校A2-2", counts: [55400, 1490, 8600, 330] }
+        ] }
+      ] },
+      { name: "示例省B", cities: [
+        { name: "示例市B1", schools: [
+          { name: "示例学校B1-1", counts: [90200, 2350, 13900, 520] },
+          { name: "示例学校B1-2", counts: [68100, 1790, 10500, 390] }
+        ] },
+        { name: "示例市B2", schools: [
+          { name: "示例学校B2-1", counts: [51200, 1370, 7900, 310] },
+          { name: "示例学校B2-2", counts: [39700, 1080, 6100, 240] }
+        ] }
+      ] },
+      { name: "示例省C", cities: [
+        { name: "示例市C1", schools: [
+          { name: "示例学校C1-1", counts: [73300, 1920, 11200, 420] },
+          { name: "示例学校C1-2", counts: [58400, 1530, 8900, 340] }
+        ] },
+        { name: "示例市C2", schools: [
+          { name: "示例学校C2-1", counts: [46800, 1260, 7200, 280] },
+          { name: "示例学校C2-2", counts: [35800, 960, 5400, 210] }
+        ] }
+      ] }
+    ];
+
+    const provinceDistributionSeeds = [
+      ["北京市", .015], ["天津市", .012], ["河北省", .055], ["山西省", .028], ["内蒙古自治区", .018],
+      ["辽宁省", .035], ["吉林省", .018], ["黑龙江省", .023], ["上海市", .033], ["江苏省", .09],
+      ["浙江省", .082], ["安徽省", .057], ["福建省", .041], ["江西省", .036], ["山东省", .082],
+      ["河南省", .078], ["湖北省", .066], ["湖南省", .062], ["广东省", .092], ["广西壮族自治区", .034],
+      ["海南省", .013], ["重庆市", .032], ["四川省", .08], ["贵州省", .034], ["云南省", .046],
+      ["西藏自治区", .005], ["陕西省", .053], ["甘肃省", .02], ["青海省", .006], ["宁夏回族自治区", .01],
+      ["新疆维吾尔自治区", .018], ["香港特别行政区", .008], ["澳门特别行政区", .003], ["台湾省", .006]
+    ];
+
+    const regionColors = ["#3478d4", "#2d9a70", "#e49743", "#269a9b", "#cf6665", "#7a73bd"];
+    const chartBase = userTypes.map((item) => item.additions / 30);
+    const activeRates = [.34, .62, .23, .52];
+    const filterForm = document.getElementById("filterForm");
+    const provinceFilter = document.getElementById("provinceFilter");
+    const dateFrom = document.getElementById("dateFrom");
+    const dateTo = document.getElementById("dateTo");
+    let currentMetric = "new";
+    let currentGranularity = "day";
+    let selectedRoleType = "";
+    let currentStatusView = "province";
+    let currentStatusAttribute = "condition";
+    let selectedStatusProvince = "";
+    let visibleRange = { start: new Date(), end: new Date() };
+    const expandedProvinces = new Set();
+    const expandedCities = new Set();
+
+    function formatNumber(value) {
+      return Math.round(value).toLocaleString("zh-CN");
+    }
+
+    function dateValue(date) {
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 10);
+    }
+
+    function formatDate(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function addDays(date, amount) {
+      const next = new Date(date);
+      next.setDate(next.getDate() + amount);
+      return next;
+    }
+
+    function fillSelect(select, items, placeholder) {
+      const previous = select.value;
+      select.replaceChildren(new Option(placeholder, ""));
+      items.forEach((item) => select.add(new Option(item, item)));
+      if (items.includes(previous)) select.value = previous;
+    }
+
+    function allSchools() {
+      return provinces.flatMap((province) => province.cities.flatMap((city) => city.schools.map((school) => ({ ...school, province: province.name, city: city.name }))));
+    }
+
+    function sumCounts(schools) {
+      return schools.reduce((sum, school) => sum.map((value, index) => value + school.counts[index]), [0, 0, 0, 0]);
+    }
+
+    function selectedSchools() {
+      const province = provinceFilter.value;
+      return allSchools().filter((item) => !province || item.province === province);
+    }
+
+    function periodDays() {
+      return Math.max(1, Math.round((visibleRange.end - visibleRange.start) / 86400000) + 1);
+    }
+
+    function trendBuckets() {
+      const buckets = [];
+      for (let dayIndex = 0; dayIndex < periodDays(); dayIndex += 1) {
+        const date = addDays(visibleRange.start, dayIndex);
+        const key = currentGranularity === "day"
+          ? formatDate(date)
+          : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        let bucket = buckets[buckets.length - 1];
+        if (!bucket || bucket.key !== key) {
+          bucket = {
+            key,
+            label: currentGranularity === "day"
+              ? `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+              : key,
+            dates: []
+          };
+          buckets.push(bucket);
+        }
+        bucket.dates.push({ date, dayIndex });
+      }
+      return buckets;
+    }
+
+    function renderMetrics() {
+      const target = document.getElementById("metrics");
+      const platformTotal = userTypes.reduce((sum, type) => sum + type.total, 0);
+      target.innerHTML = userTypes.map((type) => {
+        const share = platformTotal ? (type.total / platformTotal * 100).toFixed(1) : "0.0";
+        return `
+          <button class="metric" type="button" data-user-type="${type.key}" aria-haspopup="dialog" aria-controls="roleProvinceDialog" aria-label="查看${type.label}用户省级地区分布" style="--metric-color:${type.color}">
+            <div class="metric-top"><i class="metric-mark"></i>${type.label}用户</div>
+            <div class="metric-value">${formatNumber(type.total)}</div>
+            <div class="metric-foot"><span>全平台当前总量</span><span class="metric-share">占平台用户 ${share}%</span></div>
+          </button>`;
+      }).join("");
+    }
+
+    function renderRoleProvinceDistribution(type) {
+      const typeIndex = userTypes.findIndex((item) => item.key === type.key);
+      const weightedRows = provinceDistributionSeeds.map(([name, weight], index) => ({
+        name,
+        weight: weight * (1 + Math.sin((index + 2) * (typeIndex + 1) * .71) * .13)
+      }));
+      const weightTotal = weightedRows.reduce((sum, row) => sum + row.weight, 0);
+      const rows = weightedRows.map((row) => ({
+        name: row.name,
+        share: row.weight / weightTotal,
+        exactValue: type.total * row.weight / weightTotal,
+        value: Math.floor(type.total * row.weight / weightTotal)
+      }));
+      let remaining = type.total - rows.reduce((sum, row) => sum + row.value, 0);
+      [...rows].sort((a, b) => (b.exactValue - b.value) - (a.exactValue - a.value))
+        .slice(0, remaining)
+        .forEach((row) => { row.value += 1; });
+      rows.sort((a, b) => b.value - a.value);
+      const maxShare = Math.max(...rows.map((row) => row.share));
+      const dialog = document.getElementById("roleProvinceDialog");
+      document.getElementById("roleProvinceTitle").textContent = `${type.label}用户省级地区分布`;
+      document.getElementById("roleProvinceDescription").textContent = "全平台当前累计 · 按人数从高到低排列";
+      document.getElementById("roleProvinceTotal").textContent = formatNumber(type.total);
+      document.getElementById("roleProvinceSummaryNote").textContent = `名${type.label}用户 · ${rows.length} 个省级地区 · 模拟分布`;
+      document.getElementById("roleProvinceList").innerHTML = rows.map((row, index) => {
+        const share = row.value / type.total * 100;
+        const barWidth = maxShare ? row.share / maxShare * 100 : 0;
+        return `<div class="province-chart-row" role="listitem">
+          <span class="province-chart-rank">${String(index + 1).padStart(2, "0")}</span>
+          <strong class="province-chart-name">${row.name}</strong>
+          <span class="province-chart-track" role="img" aria-label="${row.name}占该角色总人数 ${share.toFixed(1)}%"><span style="width:${barWidth}%"></span></span>
+          <span class="province-chart-value"><strong>${formatNumber(row.value)}</strong><span>${share.toFixed(1)}%</span></span>
+        </div>`;
+      }).join("");
+      dialog.style.setProperty("--metric-color", type.color);
+      dialog.showModal();
+    }
+
+    function statusCounts(studentTotal, attribute = currentStatusAttribute) {
+      const rows = statusSets[attribute].map((status, index) => {
+        const exactValue = studentTotal * status.share;
+        return { ...status, index, exactValue, value: Math.floor(exactValue) };
+      });
+      let remaining = studentTotal - rows.reduce((sum, item) => sum + item.value, 0);
+      [...rows]
+        .sort((a, b) => (b.exactValue - b.value) - (a.exactValue - a.value) || a.index - b.index)
+        .slice(0, remaining)
+        .forEach((item) => { item.value += 1; });
+      return rows;
+    }
+
+    function markerCounts(studentTotal) {
+      return statusMarkers.map((marker) => ({ ...marker, value: Math.round(studentTotal * marker.share) }));
+    }
+
+    function renderStatusMarkers(studentTotal) {
+      return `<section class="status-marker-section" aria-label="辅助状态标记">
+        <div class="status-marker-grid">
+          ${markerCounts(studentTotal).map((item) => `<div class="status-marker-card" title="${item.description}">
+            ${renderStatusName(item)}
+            <strong>${formatNumber(item.value)} <span class="status-percent">${studentTotal ? (item.value / studentTotal * 100).toFixed(1) : "0.0"}%</span></strong>
+          </div>`).join("")}
+        </div>
+      </section>`;
+    }
+
+    function openActiveBehaviorDialog() {
+      let studentTotal;
+      let scope;
+      if (currentStatusView === "total") {
+        studentTotal = sumCounts(selectedSchools())[0];
+        scope = provinceFilter.value || "全部省份";
+      } else {
+        const province = provinces.find((item) => item.name === selectedStatusProvince);
+        if (!province) return;
+        studentTotal = sumCounts(province.cities.flatMap((city) => city.schools))[0];
+        scope = province.name;
+      }
+
+      const activeCount = statusCounts(studentTotal, "condition").find((item) => item.key === "active")?.value || 0;
+      document.getElementById("activeBehaviorTotal").textContent = formatNumber(activeCount);
+      document.getElementById("activeBehaviorScope").textContent = `名活跃学生 · ${scope} · 演示数据`;
+      const rows = activeBehaviorTypes.map((item, index) => ({
+        ...item,
+        index,
+        exactValue: activeCount * item.share,
+        value: Math.floor(activeCount * item.share)
+      }));
+      let remaining = activeCount - rows.reduce((sum, item) => sum + item.value, 0);
+      [...rows]
+        .sort((a, b) => (b.exactValue - b.value) - (a.exactValue - a.value) || a.index - b.index)
+        .slice(0, remaining)
+        .forEach((item) => { item.value += 1; });
+      document.getElementById("activeBehaviorList").innerHTML = rows.map((item) => {
+        const percentage = activeCount ? (item.value / activeCount * 100).toFixed(1) : "0.0";
+        return `<div class="behavior-row" role="listitem" title="${item.description}">
+          <span class="behavior-name">${item.label}</span>
+          <span class="behavior-track" role="img" aria-label="占活跃用户 ${percentage}%"><span style="--behavior-share:${percentage}%;--behavior-color:${item.color}"></span></span>
+          <span class="behavior-value"><strong>${formatNumber(item.value)} 人</strong><span>${percentage}%</span></span>
+        </div>`;
+      }).join("");
+      document.getElementById("activeBehaviorDialog").showModal();
+    }
+
+    function renderActiveStatusName(item) {
+      return `<span class="active-status-name" title="${item.description}" aria-label="${item.label}：${item.description}"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}<span class="status-drill-hint">查看行为 ›</span></span>`;
+    }
+
+    function renderStatusName(item) {
+      return `<span class="status-name status-tooltip" tabindex="0" title="${item.description}" data-tooltip="${item.description}" aria-label="${item.label}：${item.description}"><i class="legend-dot" style="--legend-color:${item.color}"></i>${item.label}</span>`;
+    }
+
+    function renderStatus() {
+      const provinceFilterValue = provinceFilter.value;
+      const visibleProvinces = provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue);
+      const content = document.getElementById("statusContent");
+      const subtitle = document.getElementById("statusSubtitle");
+      const attributeLabel = currentStatusAttribute === "condition" ? "生命周期状态" : "账号状态";
+
+      if (currentStatusView === "total") {
+        const studentTotal = sumCounts(selectedSchools())[0];
+        const rows = statusCounts(studentTotal);
+        const roundedTotal = rows.reduce((sum, item) => sum + item.value, 0);
+        subtitle.textContent = `${attributeLabel} · ${provinceFilterValue || "全部省份"} · 当前累计值`;
+        content.innerHTML = `
+          <div class="status-total"><strong>${formatNumber(studentTotal)}</strong><span>名学生</span></div>
+          <div class="stacked-bar" role="img" aria-label="学生${attributeLabel}分布">
+            ${rows.map((item) => `<span class="stacked-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label}：${item.description}，${formatNumber(item.value)}人"></span>`).join("")}
+          </div>
+          <div class="status-list">
+            ${rows.map((item) => `
+              ${currentStatusAttribute === "condition" && item.key === "active" ? `<button class="status-row status-row-button" type="button" data-active-detail aria-label="查看活跃用户行为细分">
+                ${renderActiveStatusName(item)}
+                <span class="status-value">${formatNumber(item.value)}</span>
+                <span class="status-percent">${roundedTotal ? (item.value / roundedTotal * 100).toFixed(1) : "0.0"}%</span>
+              </button>` : `<div class="status-row">
+                ${renderStatusName(item)}
+                <span class="status-value">${formatNumber(item.value)}</span>
+                <span class="status-percent">${roundedTotal ? (item.value / roundedTotal * 100).toFixed(1) : "0.0"}%</span>
+              </div>`}`).join("")}
+          </div>
+          ${currentStatusAttribute === "condition" ? renderStatusMarkers(studentTotal) : ""}`;
+        return;
+      }
+
+      if (!visibleProvinces.some((province) => province.name === selectedStatusProvince)) {
+        selectedStatusProvince = visibleProvinces[0]?.name || "";
+      }
+      const provinceData = visibleProvinces.map((province) => ({
+        province,
+        total: sumCounts(province.cities.flatMap((city) => city.schools))[0]
+      }));
+      const scopedTotal = provinceData.reduce((sum, item) => sum + item.total, 0);
+      const selected = provinceData.find((item) => item.province.name === selectedStatusProvince);
+      const details = selected ? statusCounts(selected.total) : [];
+      const detailsTotal = details.reduce((sum, item) => sum + item.value, 0);
+      subtitle.textContent = provinceFilterValue
+        ? `${attributeLabel} · ${provinceFilterValue}省级构成`
+        : `各省${attributeLabel}分布 · 点击省份查看人数`;
+      content.innerHTML = `
+        <div class="status-total"><strong>${formatNumber(scopedTotal)}</strong><span>名学生 · ${provinceFilterValue || "全部省份"}</span></div>
+        <div class="province-status-list">
+          ${provinceData.map(({ province, total }) => {
+            const pressed = province.name === selectedStatusProvince;
+            const rows = statusCounts(total);
+            return `<button class="province-status-item" type="button" data-status-province="${province.name}" aria-pressed="${pressed}" aria-label="查看${province.name}学生${attributeLabel}">
+              <span class="province-status-heading"><strong>${province.name}</strong><span>${formatNumber(total)} 名</span></span>
+              <span class="province-status-bar" aria-hidden="true">
+                ${rows.map((item) => `<span class="province-status-segment" style="--segment-color:${item.color};flex:${item.share}" title="${item.label}：${item.description}，${formatNumber(item.value)}人"></span>`).join("")}
+              </span>
+            </button>`;
+          }).join("")}
+        </div>
+        ${selected ? `<div class="province-status-detail">
+          <div class="province-status-detail-title">${selected.province.name} · ${attributeLabel}人数</div>
+          <div class="province-status-grid">
+            ${details.map((item) => `
+              ${currentStatusAttribute === "condition" && item.key === "active" ? `<button class="province-status-cell province-status-cell-button" type="button" data-active-detail aria-label="查看${selected.province.name}活跃用户行为细分">
+                ${renderActiveStatusName(item)}
+                <strong>${formatNumber(item.value)} <span class="status-percent">${detailsTotal ? (item.value / detailsTotal * 100).toFixed(1) : "0.0"}%</span></strong>
+              </button>` : `<div class="province-status-cell">
+                ${renderStatusName(item)}
+                <strong>${formatNumber(item.value)} <span class="status-percent">${detailsTotal ? (item.value / detailsTotal * 100).toFixed(1) : "0.0"}%</span></strong>
+              </div>`}`).join("")}
+          </div>
+          ${currentStatusAttribute === "condition" ? renderStatusMarkers(selected.total) : ""}
+        </div>` : ""}`;
+    }
+
+    function drawTrend() {
+      const canvas = document.getElementById("trendChart");
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      const ctx = canvas.getContext("2d");
+      ctx.scale(ratio, ratio);
+      const width = rect.width;
+      const height = rect.height;
+      const pad = { top: 15, right: 12, bottom: 30, left: 42 };
+      const plotWidth = width - pad.left - pad.right;
+      const plotHeight = height - pad.top - pad.bottom;
+      const buckets = trendBuckets();
+      const pointCount = buckets.length;
+      const xPosition = (index) => pad.left + plotWidth * (pointCount === 1 ? .5 : index / (pointCount - 1));
+      const typeSelect = document.getElementById("chartTypeFilter");
+      const typeIndex = typeSelect.value === "all" ? -1 : userTypes.findIndex((type) => type.key === typeSelect.value);
+      const metricLabel = currentMetric === "new" ? "新增用户" : "活跃用户";
+      const regionLabel = "省";
+      const typeLabel = typeIndex < 0 ? "全部用户" : userTypes[typeIndex].label;
+      const allCounts = sumCounts(allSchools());
+      const globalSelected = typeIndex < 0
+        ? allCounts.reduce((sum, value) => sum + value, 0)
+        : allCounts[typeIndex];
+      const globalNew = typeIndex < 0
+        ? chartBase.reduce((sum, value) => sum + value, 0)
+        : chartBase[typeIndex];
+      const rows = aggregateRows()
+        .sort((a, b) => b.counts.reduce((sum, value) => sum + value, 0) - a.counts.reduce((sum, value) => sum + value, 0))
+        .slice(0, 6);
+      const series = rows.map((row, regionIndex) => {
+        const regionalTotal = typeIndex < 0
+          ? row.counts.reduce((sum, value) => sum + value, 0)
+          : row.counts[typeIndex];
+        const regionalNew = globalSelected
+          ? globalNew * regionalTotal / globalSelected
+          : 0;
+        const regionalActive = typeIndex < 0
+          ? row.counts.reduce((sum, value, index) => sum + value * activeRates[index], 0)
+          : regionalTotal * activeRates[typeIndex];
+        const baseline = currentMetric === "new" ? regionalNew : regionalActive;
+        return buckets.map((bucket) => {
+          const dailyValues = bucket.dates.map(({ date, dayIndex }) => {
+            const wave = .91 + Math.sin(dayIndex * .72 + regionIndex * .8) * .09 + ((dayIndex % 4) * .018);
+            const weekday = date.getDay() === 0 || date.getDay() === 6 ? .84 : 1;
+            return Math.max(0, baseline * wave * weekday);
+          });
+          if (currentGranularity === "day") return dailyValues[0];
+          if (currentMetric === "new") return dailyValues.reduce((sum, value) => sum + value, 0);
+          return dailyValues.reduce((sum, value) => sum + value, 0) / dailyValues.length;
+        });
+      });
+      const max = Math.max(1, ...series.flat()) * 1.18;
+      document.getElementById("trendTitle").textContent = `${metricLabel}趋势`;
+      const measureNote = currentGranularity === "day"
+        ? (currentMetric === "new" ? "按日新增" : "按日活跃")
+        : (currentMetric === "new" ? "按月新增合计" : "月日均活跃");
+      document.getElementById("trendSubtitle").textContent = `${typeLabel} · 按${regionLabel}拆分 · ${measureNote} · ${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
+      canvas.setAttribute("aria-label", `${typeLabel}${metricLabel}${currentGranularity === "day" ? "按日" : "按月"}、按${regionLabel}统计的折线图`);
+      document.getElementById("trendLegend").innerHTML = rows.map((row, index) => `
+        <span class="legend-item"><i class="legend-dot" style="--legend-color:${regionColors[index % regionColors.length]}"></i>${row.name}</span>`).join("");
+      ctx.clearRect(0, 0, width, height);
+      ctx.font = "11px Arial, Microsoft YaHei, sans-serif";
+      ctx.textBaseline = "middle";
+      ctx.strokeStyle = "#e9edef";
+      ctx.fillStyle = "#889198";
+      ctx.lineWidth = 1;
+
+      for (let tick = 0; tick <= 4; tick += 1) {
+        const y = pad.top + plotHeight * tick / 4;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(width - pad.right, y);
+        ctx.stroke();
+        const value = Math.round(max * (4 - tick) / 4);
+        ctx.textAlign = "right";
+        ctx.fillText(value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 0 : 1)}k` : String(value), pad.left - 8, y);
+      }
+
+      const labelStep = Math.max(1, Math.ceil(pointCount / 7));
+      buckets.forEach((bucket, index) => {
+        if (index % labelStep !== 0 && index !== buckets.length - 1) return;
+        ctx.fillStyle = "#889198";
+        ctx.textAlign = index === 0 ? "left" : index === buckets.length - 1 ? "right" : "center";
+        ctx.fillText(bucket.label, xPosition(index), height - 12);
+      });
+
+      series.forEach((values, seriesIndex) => {
+        ctx.beginPath();
+        values.forEach((value, index) => {
+          const x = xPosition(index);
+          const y = pad.top + plotHeight * (1 - value / max);
+          if (index === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = regionColors[seriesIndex % regionColors.length];
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.stroke();
+        values.forEach((value, index) => {
+          if (index % labelStep !== 0 && index !== values.length - 1) return;
+          const x = xPosition(index);
+          const y = pad.top + plotHeight * (1 - value / max);
+          ctx.beginPath();
+          ctx.arc(x, y, 2.4, 0, Math.PI * 2);
+          ctx.fillStyle = "#fff";
+          ctx.fill();
+          ctx.strokeStyle = regionColors[seriesIndex % regionColors.length];
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        });
+      });
+    }
+
+    function aggregateRows() {
+      const provinceFilterValue = provinceFilter.value;
+      return provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue).map((province) => ({
+        name: province.name,
+        counts: sumCounts(province.cities.flatMap((city) => city.schools))
+      }));
+    }
+
+    function renderRegionTable() {
+      const body = document.getElementById("regionRows");
+      const provinceFilterValue = provinceFilter.value;
+      const visibleProvinces = provinces.filter((province) => !provinceFilterValue || province.name === provinceFilterValue);
+      if (!visibleProvinces.length) {
+        body.innerHTML = '<tr><td class="table-empty" colspan="11">当前筛选范围没有数据</td></tr>';
+        return;
+      }
+      const days = periodDays();
+      let factorTotal = 0;
+      for (let dayIndex = 0; dayIndex < days; dayIndex += 1) {
+        const date = addDays(visibleRange.start, dayIndex);
+        const wave = .91 + Math.sin(dayIndex * .72) * .09 + ((dayIndex % 4) * .018);
+        factorTotal += wave * (date.getDay() === 0 || date.getDay() === 6 ? .84 : 1);
+      }
+      const newFactor = factorTotal / 30;
+      const activeFactor = factorTotal / days;
+      const renderCounts = (counts) => {
+        const roleValues = userTypes.map((type, index) => {
+          const share = type.total ? counts[index] / type.total : 0;
+          return {
+            added: type.additions * newFactor * share,
+            active: type.total * activeRates[index] * activeFactor * share
+          };
+        });
+        const totalAdded = roleValues.reduce((sum, value) => sum + value.added, 0);
+        const totalActive = roleValues.reduce((sum, value) => sum + value.active, 0);
+        return `${roleValues.map((value, index) => `<td class="number-cell${index ? " role-group-divider" : ""}">${formatNumber(value.added)}</td><td class="number-cell">${formatNumber(value.active)}</td>`).join("")}<td class="number-cell role-group-divider"><strong>${formatNumber(totalAdded)}</strong></td><td class="number-cell"><strong>${formatNumber(totalActive)}</strong></td>`;
+      };
+      const rows = [];
+      visibleProvinces.forEach((province) => {
+        const provinceOpen = expandedProvinces.has(province.name);
+        const provinceCounts = sumCounts(province.cities.flatMap((city) => city.schools));
+        rows.push(`<tr class="tree-row province">
+          <td><div class="tree-label"><button class="tree-toggle" type="button" data-expand-province="${province.name}" aria-expanded="${provinceOpen}" aria-label="${provinceOpen ? "收起" : "展开"}${province.name}下级城市"></button><span class="region-name">${province.name}</span></div></td>
+          ${renderCounts(provinceCounts)}
+        </tr>`);
+        if (!provinceOpen) return;
+
+        province.cities.forEach((city) => {
+          const cityKey = `${province.name}::${city.name}`;
+          const cityOpen = expandedCities.has(cityKey);
+          const cityCounts = sumCounts(city.schools);
+          rows.push(`<tr class="tree-row city">
+            <td><div class="tree-label city"><button class="tree-toggle" type="button" data-expand-city="${cityKey}" aria-expanded="${cityOpen}" aria-label="${cityOpen ? "收起" : "展开"}${city.name}下级学校"></button><span>${city.name}</span></div></td>
+            ${renderCounts(cityCounts)}
+          </tr>`);
+          if (!cityOpen) return;
+
+          city.schools.forEach((school) => {
+            rows.push(`<tr class="tree-row school">
+              <td><div class="tree-label school"><span class="tree-toggle-placeholder" aria-hidden="true"></span><span>${school.name}</span></div></td>
+              ${renderCounts(school.counts)}
+            </tr>`);
+          });
+        });
+      });
+      body.innerHTML = rows.join("");
+    }
+
+    function renderDashboard() {
+      renderMetrics();
+      renderStatus();
+      drawTrend();
+      renderRegionTable();
+      document.getElementById("rangeLabel").textContent = `统计周期：${formatDate(visibleRange.start)} 至 ${formatDate(visibleRange.end)}`;
+    }
+
+    document.getElementById("metrics").addEventListener("click", (event) => {
+      const card = event.target.closest("[data-user-type]");
+      if (!card) return;
+      selectedRoleType = card.dataset.userType;
+      const type = userTypes.find((item) => item.key === selectedRoleType);
+      if (type) renderRoleProvinceDistribution(type);
+    });
+
+    document.getElementById("closeRoleProvinceDialog").addEventListener("click", () => {
+      document.getElementById("roleProvinceDialog").close();
+    });
+
+    document.getElementById("closeActiveBehaviorDialog").addEventListener("click", () => {
+      document.getElementById("activeBehaviorDialog").close();
+    });
+
+    document.getElementById("activeBehaviorDialog").addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) event.currentTarget.close();
+    });
+
+    document.getElementById("roleProvinceDialog").addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) event.currentTarget.close();
+    });
+
+    document.querySelectorAll("[data-status-view]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentStatusView = button.dataset.statusView;
+        document.querySelectorAll("[data-status-view]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        renderStatus();
+      });
+    });
+
+    document.querySelectorAll("[data-status-attribute]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentStatusAttribute = button.dataset.statusAttribute;
+        document.querySelectorAll("[data-status-attribute]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        renderStatus();
+      });
+    });
+
+    document.getElementById("statusContent").addEventListener("click", (event) => {
+      if (event.target.closest("[data-active-detail]")) {
+        openActiveBehaviorDialog();
+        return;
+      }
+      const provinceButton = event.target.closest("[data-status-province]");
+      if (!provinceButton) return;
+      selectedStatusProvince = provinceButton.dataset.statusProvince;
+      renderStatus();
+    });
+
+    document.getElementById("regionRows").addEventListener("click", (event) => {
+      const provinceButton = event.target.closest("[data-expand-province]");
+      if (provinceButton) {
+        const name = provinceButton.dataset.expandProvince;
+        if (expandedProvinces.has(name)) {
+          expandedProvinces.delete(name);
+          provinces.find((province) => province.name === name)?.cities.forEach((city) => expandedCities.delete(`${name}::${city.name}`));
+        } else {
+          expandedProvinces.add(name);
+        }
+        renderRegionTable();
+        return;
+      }
+      const cityButton = event.target.closest("[data-expand-city]");
+      if (!cityButton) return;
+      const key = cityButton.dataset.expandCity;
+      if (expandedCities.has(key)) expandedCities.delete(key);
+      else expandedCities.add(key);
+      renderRegionTable();
+    });
+
+    document.querySelectorAll("[data-metric]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentMetric = button.dataset.metric;
+        document.querySelectorAll("[data-metric]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        drawTrend();
+      });
+    });
+
+    document.querySelectorAll("[data-granularity]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentGranularity = button.dataset.granularity;
+        document.querySelectorAll("[data-granularity]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        drawTrend();
+      });
+    });
+
+    document.getElementById("chartTypeFilter").addEventListener("change", drawTrend);
+
+    filterForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const start = new Date(`${dateFrom.value}T00:00:00`);
+      const end = new Date(`${dateTo.value}T00:00:00`);
+      const notice = document.getElementById("filterNotice");
+      if (!dateFrom.value || !dateTo.value || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) {
+        notice.textContent = "请选择有效的开始和结束日期，开始日期不能晚于结束日期。";
+        notice.classList.add("show");
+        return;
+      }
+      notice.classList.remove("show");
+      visibleRange = { start, end };
+      renderDashboard();
+    });
+
+    const today = new Date();
+    const defaultStart = addDays(today, -29);
+    dateFrom.value = dateValue(defaultStart);
+    dateTo.value = dateValue(today);
+    document.getElementById("updatedAt").textContent = `${formatDate(today)} 09:00`;
+    fillSelect(provinceFilter, provinces.map((item) => item.name), "全部省份");
+    visibleRange = { start: new Date(`${dateFrom.value}T00:00:00`), end: new Date(`${dateTo.value}T00:00:00`) };
+    renderDashboard();
+    window.addEventListener("resize", drawTrend);
+  </script>
+</body>
+</html>
