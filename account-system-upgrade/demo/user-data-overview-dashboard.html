@@ -1311,7 +1311,7 @@
         return `<div class="behavior-row" role="listitem" title="${item.description}">
           <span class="behavior-name">${item.label}</span>
           <span class="behavior-track" role="img" aria-label="占活跃用户 ${percentage}%"><span style="--behavior-share:${percentage}%;--behavior-color:${item.color}"></span></span>
-          <span class="behavior-value"><strong>${formatNumber(value)} 人</strong><span>${percentage}%</span></span>
+          <span class="behavior-value"><strong>${formatNumber(item.value)} 人</strong><span>${percentage}%</span></span>
         </div>`;
       }).join("");
       document.getElementById("activeBehaviorDialog").showModal();
