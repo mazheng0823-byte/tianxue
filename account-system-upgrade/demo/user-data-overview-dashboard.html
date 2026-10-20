@@ -757,10 +757,10 @@
     }
 
     .status-marker-section { margin-top: 10px; padding-top: 9px; border-top: 1px solid #e9edef; }
-    .status-marker-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-    .status-marker-card { min-width: 0; display: grid; gap: 4px; padding: 7px 8px; border: 1px solid #edf0f2; border-radius: 3px; }
-    .status-marker-card .status-name { font-size: 10px; }
-    .status-marker-card strong { font-size: 11px; font-variant-numeric: tabular-nums; }
+    .status-marker-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+    .status-marker-card { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px; border: 1px solid #edf0f2; border-radius: 3px; }
+    .status-marker-card .status-name { font-size: 11px; }
+    .status-marker-card strong { font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
     .province-status-cell {
       min-width: 0;
@@ -1115,7 +1115,7 @@
       condition: [
         { key: "inactive", label: "未激活", description: "注册后尚未登录", share: .074026, color: "#9aa4ad" },
         { key: "active", label: "活跃", description: "登录过或提交过作业后进入活跃", share: .703247, color: "#2d9a70" },
-        { key: "dormant", label: "失活", description: "连续超过180天未提交作业", share: .168615, color: "#e49743" },
+        { key: "dormant", label: "失活", description: "超过三个月用户未登录、班级未布置作业且用户未提交练习", share: .168615, color: "#e49743" },
         { key: "graduated", label: "毕业", description: "已到达毕业时间且所有授权产品均已到期", share: .054112, color: "#3478d4" }
       ],
       access: [
@@ -1125,7 +1125,6 @@
     };
 
     const statusMarkers = [
-      { key: "abnormal", label: "毕业异常", description: "已毕业但仍有提交记录；可能与毕业状态重叠", share: .01235, color: "#7a73bd" },
       { key: "unloaded", label: "数据卸载", description: "账号数据已卸载；作为独立数据标记统计", share: .01425, color: "#56636d" }
     ];
 
@@ -1337,7 +1336,7 @@
     }
 
     function renderStatusMarkers(studentTotal) {
-      return `<section class="status-marker-section" aria-label="辅助状态标记">
+      return `<section class="status-marker-section" aria-label="数据卸载标记">
         <div class="status-marker-grid">
           ${markerCounts(studentTotal).map((item) => `<div class="status-marker-card" title="${item.description}">
             ${renderStatusName(item)}
