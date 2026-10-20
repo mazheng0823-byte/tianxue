@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="650" viewBox="0 0 1600 650" role="img" aria-labelledby="diagramTitle diagramDescription">
+  <title id="diagramTitle">学生账号生命周期状态流转</title>
+  <desc id="diagramDescription">展示学生账号在未激活、活跃、失活和毕业之间的生命周期流转；毕业账号复购或调班后回到未激活。</desc>
+  <defs>
+    <marker id="arrow-auto" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#2d8b69" />
+    </marker>
+    <style>
+      text { font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #26323a; letter-spacing: 0; }
+      .canvas { fill: #f2f4f6; }
+      .panel { fill: #fff; stroke: #dfe4e7; stroke-width: 1.5; }
+      .title { font-size: 30px; font-weight: 700; }
+      .subtitle { font-size: 15px; fill: #77828a; }
+      .section-title { font-size: 19px; font-weight: 700; }
+      .section-note { font-size: 13px; fill: #7b868d; }
+      .state { stroke-width: 2; }
+      .inactive { fill: #f4f6f7; stroke: #9aa5ad; }
+      .active { fill: #eaf6ef; stroke: #55a37f; }
+      .dormant { fill: #fff4e5; stroke: #d9a34b; }
+      .graduated { fill: #eef4ff; stroke: #6c91d2; }
+      .state-name { font-size: 20px; font-weight: 700; }
+      .state-detail { font-size: 12px; fill: #68747b; }
+      .connector-auto { fill: none; stroke: #2d8b69; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; marker-end: url(#arrow-auto); }
+      .label-bg { fill: #fff; }
+      .edge-label { font-size: 13px; font-weight: 600; text-anchor: middle; }
+      .entry { fill: #59666e; }
+      .rule-box { fill: #f1f8f4; stroke: #a8d0ba; stroke-width: 1.5; }
+      .rule-title { font-size: 14px; font-weight: 700; fill: #246c4e; }
+      .rule-text { font-size: 13px; fill: #52635a; }
+      .legend-text { font-size: 12px; fill: #66727a; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="1600" height="650" />
+  <text class="title" x="64" y="68">学生账号生命周期状态流转</text>
+  <text class="subtitle" x="64" y="98">根据账号行为、毕业条件与业务变更更新生命周期状态</text>
+  <g transform="translate(1370 55)">
+    <path d="M0 0 H34" class="connector-auto" />
+    <text class="legend-text" x="44" y="4">状态流转</text>
+  </g>
+
+  <rect class="panel" x="64" y="130" width="1472" height="480" rx="6" />
+  <text class="section-title" x="92" y="171">生命周期状态流转</text>
+  <text class="section-note" x="92" y="195">系统根据登录、作答、毕业条件及账号业务变更自动更新</text>
+
+  <rect class="rule-box" x="1110" y="212" width="420" height="82" rx="5" />
+  <text class="rule-title" x="1132" y="241">毕业判定</text>
+  <text class="rule-text" x="1132" y="267">未激活、活跃或失活，达到毕业时间且所有授权到期</text>
+  <path class="connector-auto" d="M1320 294 H1360 V350" />
+
+  <circle class="entry" cx="100" cy="404" r="9" />
+  <path class="connector-auto" d="M110 404 H140" />
+  <rect class="label-bg" x="90" y="336" width="76" height="22" rx="3" />
+  <text class="edge-label" x="128" y="352">注册成功</text>
+
+  <g>
+    <rect class="state inactive" x="140" y="360" width="190" height="88" rx="7" />
+    <text class="state-name" x="235" y="397" text-anchor="middle">未激活</text>
+    <text class="state-detail" x="235" y="423" text-anchor="middle">注册后尚未登录</text>
+  </g>
+  <g>
+    <rect class="state active" x="515" y="360" width="190" height="88" rx="7" />
+    <text class="state-name" x="610" y="397" text-anchor="middle">活跃</text>
+    <text class="state-detail" x="610" y="423" text-anchor="middle">登录或提交作业后</text>
+  </g>
+  <g>
+    <rect class="state dormant" x="890" y="360" width="190" height="88" rx="7" />
+    <text class="state-name" x="985" y="389" text-anchor="middle">失活</text>
+    <text class="state-detail" x="985" y="408" text-anchor="middle">超过三个月用户未登录</text>
+    <text class="state-detail" x="985" y="424" text-anchor="middle">班级未布置作业</text>
+    <text class="state-detail" x="985" y="440" text-anchor="middle">用户未提交练习</text>
+  </g>
+  <g>
+    <rect class="state graduated" x="1270" y="360" width="180" height="88" rx="7" />
+    <text class="state-name" x="1360" y="397" text-anchor="middle">毕业</text>
+    <text class="state-detail" x="1360" y="423" text-anchor="middle">满足毕业与授权条件</text>
+  </g>
+
+  <path class="connector-auto" d="M330 404 H515" />
+  <rect class="label-bg" x="357" y="331" width="130" height="22" rx="3" />
+  <text class="edge-label" x="422" y="347">登录或提交作业</text>
+
+  <path class="connector-auto" d="M705 404 H890" />
+  <rect class="label-bg" x="525" y="311" width="550" height="24" rx="3" />
+  <text class="edge-label" x="800" y="328">超过三个月用户未登录 &amp; 班级未布置作业 &amp; 用户未提交练习</text>
+
+  <path class="connector-auto" d="M985 448 V490 H610 V448" />
+  <rect class="label-bg" x="686" y="476" width="128" height="22" rx="3" />
+  <text class="edge-label" x="750" y="492">再次提交作业</text>
+
+  <path class="connector-auto" d="M1360 448 V550 H235 V448" />
+  <rect class="label-bg" x="703" y="536" width="194" height="22" rx="3" />
+  <text class="edge-label" x="800" y="552">复购或调班后转为未激活</text>
+</svg>

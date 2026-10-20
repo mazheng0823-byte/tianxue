@@ -1,0 +1,1578 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>组织机构管理 - 用户管理</title>
+  <style>
+    :root {
+      --topbar-height: 50px;
+      --sidebar-width: 240px;
+      --sidebar-top: 59px;
+      --topbar: #344952;
+      --sidebar: #1e2f35;
+      --sidebar-active: #354a53;
+      --sidebar-text: #c8d0d3;
+      --accent: #27afe9;
+      --success: #48ae52;
+      --success-hover: #3d9a47;
+      --page-bg: #f5f5f5;
+      --surface: #ffffff;
+      --border: #d8d8d8;
+      --text: #111820;
+      --muted: #9ba0a5;
+      --link: #078bc8;
+      --row-height: 57px;
+    }
+
+    * {
+      box-sizing: border-box;
+      letter-spacing: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-size: 13px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button,
+    a,
+    select {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgba(39, 175, 233, 0.32);
+      outline-offset: 2px;
+    }
+
+    .topbar {
+      position: fixed;
+      z-index: 20;
+      inset: 0 0 auto 0;
+      height: var(--topbar-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px 0 29px;
+      background: var(--topbar);
+      color: #e6ecee;
+    }
+
+    .menu-toggle {
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #dce5e7;
+      cursor: pointer;
+    }
+
+    .menu-toggle span,
+    .menu-toggle::before,
+    .menu-toggle::after {
+      content: "";
+      display: block;
+      width: 15px;
+      height: 2px;
+      background: currentColor;
+    }
+
+    .menu-toggle span {
+      margin: 3px 0;
+    }
+
+    .account-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+
+    .account-label {
+      color: #91b4c3;
+    }
+
+    .account-links a {
+      color: #f4f7f8;
+      text-decoration: none;
+    }
+
+    .account-links a:hover {
+      text-decoration: underline;
+    }
+
+    .sidebar {
+      position: fixed;
+      z-index: 15;
+      top: var(--sidebar-top);
+      bottom: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: var(--sidebar);
+      color: var(--sidebar-text);
+      transition: transform 180ms ease;
+      scrollbar-width: thin;
+      scrollbar-color: #496069 transparent;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #496069;
+    }
+
+    .nav-root,
+    .nav-sub,
+    .nav-groups {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-heading,
+    .nav-group,
+    .nav-sub a {
+      min-width: var(--sidebar-width);
+    }
+
+    .nav-heading {
+      height: 45px;
+      display: grid;
+      grid-template-columns: 25px 1fr 13px;
+      align-items: center;
+      gap: 6px;
+      padding: 0 18px 0 19px;
+      border-left: 3px solid var(--accent);
+      background: var(--sidebar-active);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .layers-icon {
+      position: relative;
+      width: 18px;
+      height: 15px;
+    }
+
+    .layers-icon::before,
+    .layers-icon::after,
+    .layers-icon span {
+      position: absolute;
+      left: 1px;
+      width: 14px;
+      height: 8px;
+      border: 2px solid currentColor;
+      transform: rotate(30deg) skewX(-28deg);
+      content: "";
+    }
+
+    .layers-icon::before { top: 0; }
+    .layers-icon span { top: 3px; }
+    .layers-icon::after { top: 6px; }
+
+    .chevron {
+      width: 6px;
+      height: 6px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      justify-self: end;
+      transition: transform 150ms ease;
+    }
+
+    .nav-heading[aria-expanded="false"] .chevron {
+      transform: rotate(-45deg);
+    }
+
+    .nav-sub {
+      overflow: hidden;
+      background: #1b2b31;
+    }
+
+    .nav-heading[aria-expanded="false"] + .nav-sub {
+      display: none;
+    }
+
+    .nav-sub a {
+      height: 41px;
+      display: flex;
+      align-items: center;
+      padding-left: 51px;
+      color: #c5cccf;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .nav-sub a:hover,
+    .nav-sub a.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .nav-group {
+      height: 45px;
+      display: grid;
+      grid-template-columns: 23px 1fr 10px;
+      align-items: center;
+      gap: 6px;
+      padding: 0 19px 0 21px;
+      border-top: 1px solid rgba(255, 255, 255, 0.025);
+      color: #cbd2d5;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .nav-group:hover {
+      background: rgba(255, 255, 255, 0.045);
+      color: #fff;
+    }
+
+    .doc-icon {
+      position: relative;
+      width: 12px;
+      height: 16px;
+      border: 1px solid currentColor;
+      border-radius: 1px;
+    }
+
+    .doc-icon::before {
+      position: absolute;
+      top: -3px;
+      left: 2px;
+      width: 6px;
+      height: 3px;
+      border: 1px solid currentColor;
+      border-bottom: 0;
+      content: "";
+    }
+
+    .doc-icon::after {
+      position: absolute;
+      right: -2px;
+      bottom: 2px;
+      width: 4px;
+      height: 5px;
+      border-left: 1px solid currentColor;
+      background: var(--sidebar);
+      content: "";
+      transform: skewY(-34deg);
+    }
+
+    .nav-group .chevron {
+      width: 5px;
+      height: 5px;
+      border-width: 1px;
+      transform: rotate(-45deg);
+    }
+
+    .workspace {
+      min-height: 100vh;
+      margin-left: var(--sidebar-width);
+      padding-top: var(--topbar-height);
+      transition: margin-left 180ms ease;
+    }
+
+    .page-shell {
+      min-width: 1200px;
+      padding: 20px 19px 40px 19px;
+    }
+
+    .breadcrumb {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 30px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.72);
+      white-space: nowrap;
+    }
+
+    .breadcrumb a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .breadcrumb .current {
+      color: #9b9fa3;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: 721px 371px;
+      gap: 40px;
+      align-items: start;
+      min-height: 117px;
+      padding: 20px 10px 14px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 157px 158px 164px 157px;
+      gap: 10px 28px;
+    }
+
+    .field,
+    .search-combo {
+      height: 37px;
+    }
+
+    .field,
+    .search-combo input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    input.field,
+    .search-combo input {
+      padding: 0 12px;
+    }
+
+    select.field {
+      padding: 0 26px 0 16px;
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #222 50%), linear-gradient(135deg, #222 50%, transparent 50%);
+      background-position: calc(100% - 11px) 16px, calc(100% - 7px) 16px;
+      background-repeat: no-repeat;
+      background-size: 4px 4px, 4px 4px;
+    }
+
+    .field::placeholder,
+    .search-combo input::placeholder {
+      color: var(--muted);
+      opacity: 1;
+    }
+
+    .field:hover,
+    .search-combo input:hover {
+      border-color: #b9bdc0;
+    }
+
+    .search-combo {
+      display: grid;
+      grid-template-columns: 113px 51px;
+    }
+
+    .search-combo input {
+      border-radius: 3px 0 0 3px;
+    }
+
+    .query-button {
+      border: 0;
+      border-radius: 0 3px 3px 0;
+      background: #f1f1f1;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .query-button:hover {
+      background: #e7e7e7;
+    }
+
+    .batch-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 13px 12px;
+    }
+
+    .action-button {
+      height: 33px;
+      padding: 0 11px;
+      border: 0;
+      border-radius: 3px;
+      background: var(--success);
+      color: #fff;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .action-button:hover {
+      background: var(--success-hover);
+    }
+
+    .action-button:active {
+      transform: translateY(1px);
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.09);
+    }
+
+    table {
+      width: 100%;
+      min-width: 1160px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #fff;
+    }
+
+    th,
+    td {
+      height: var(--row-height);
+      padding: 7px 12px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: 0;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      font-weight: 700;
+    }
+
+    tbody tr:hover {
+      background: #fafcfd;
+    }
+
+    .compact-cell {
+      text-align: center;
+      word-break: break-all;
+    }
+
+    .stop-reason.empty {
+      color: #a1a6aa;
+      text-align: center;
+    }
+
+    .password-link,
+    .row-action {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .password-link {
+      color: var(--link);
+    }
+
+    .password-link:hover,
+    .row-action:hover {
+      text-decoration: underline;
+    }
+
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0 6px;
+      line-height: 1.3;
+    }
+
+    .empty-state {
+      height: 92px;
+      text-align: center;
+      color: #858b90;
+    }
+
+    .pagination {
+      display: flex;
+      width: max-content;
+      margin-top: 22px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .page-button {
+      width: 35px;
+      height: 34px;
+      border: 0;
+      border-right: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .page-button:last-child {
+      border-right: 0;
+    }
+
+    .page-button.active {
+      background: #2196ee;
+      color: #fff;
+    }
+
+    .page-button:hover:not(.active) {
+      background: #f0f3f5;
+    }
+
+    .toast {
+      position: fixed;
+      z-index: 60;
+      left: 50%;
+      bottom: 24px;
+      max-width: min(520px, calc(100vw - 40px));
+      padding: 9px 13px;
+      border-radius: 4px;
+      background: rgba(24, 35, 40, 0.94);
+      color: #fff;
+      opacity: 0;
+      transform: translate(-50%, 9px);
+      pointer-events: none;
+      transition: opacity 150ms ease, transform 150ms ease;
+      font-size: 12px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      z-index: 50;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      background: rgba(11, 20, 24, 0.5);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(420px, 100%);
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    .modal.restore-wide {
+      width: min(960px, 100%);
+      max-height: calc(100vh - 28px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .restore-wide form {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border: 0;
+      background: transparent;
+      color: #5c6266;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 13px;
+      padding: 18px;
+    }
+
+    .restore-wide .modal-body {
+      display: block;
+      overflow: auto;
+      padding: 18px 20px;
+    }
+
+    .restore-entry {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .restore-entry label {
+      display: grid;
+      gap: 6px;
+      color: #4d5559;
+    }
+
+    .restore-entry textarea {
+      width: 100%;
+      min-height: 58px;
+      resize: vertical;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font: inherit;
+      line-height: 1.45;
+    }
+
+    .restore-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding-bottom: 1px;
+    }
+
+    .restore-tool-button {
+      height: 34px;
+      padding: 0 11px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: #344952;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .restore-tool-button:hover {
+      border-color: #aeb7bb;
+      background: #f7f9fa;
+    }
+
+    .restore-hint {
+      margin: 8px 0 14px;
+      color: #737b80;
+      line-height: 1.5;
+    }
+
+    .restore-summary {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px 16px;
+      margin-bottom: 8px;
+      color: #596269;
+    }
+
+    .restore-summary strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .restore-table-wrap {
+      max-height: min(360px, 42vh);
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+
+    .restore-table {
+      width: 100%;
+      min-width: 640px;
+      border: 0;
+      box-shadow: none;
+      font-size: 12px;
+    }
+
+    .restore-table th,
+    .restore-table td {
+      height: 42px;
+      padding: 7px 9px;
+    }
+
+    .restore-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f3f5f6;
+    }
+
+    .restore-table th:first-child,
+    .restore-table td:first-child {
+      width: 42px;
+      text-align: center;
+    }
+
+    .restore-table input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      margin: 0;
+      vertical-align: middle;
+      accent-color: var(--success);
+    }
+
+    .restore-empty {
+      padding: 30px 12px !important;
+      color: #858b90;
+      text-align: center;
+    }
+
+    .restore-unmatched {
+      margin-top: 8px;
+      color: #a06028;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .restore-badge {
+      display: inline-block;
+      margin-left: 2px;
+      color: #438b4a;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .modal-submit:disabled {
+      border-color: #aeb4b8;
+      background: #aeb4b8;
+      cursor: not-allowed;
+    }
+
+    .modal-body label {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: #4d5559;
+    }
+
+    .modal-body input,
+    .modal-body select {
+      width: 100%;
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      padding: 13px 18px 18px;
+    }
+
+    .modal-button {
+      height: 34px;
+      min-width: 66px;
+      padding: 0 13px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .modal-button.primary {
+      border-color: var(--success);
+      background: var(--success);
+      color: #fff;
+    }
+
+    @media (max-width: 760px) {
+      .restore-entry {
+        grid-template-columns: 1fr;
+      }
+
+      .restore-tools {
+        padding-bottom: 0;
+      }
+
+      .restore-table-wrap {
+        max-height: 42vh;
+      }
+    }
+
+    body.sidebar-collapsed .sidebar {
+      transform: translateX(-100%);
+    }
+
+    body.sidebar-collapsed .workspace {
+      margin-left: 0;
+    }
+
+    @media (max-width: 900px) {
+      :root {
+        --sidebar-width: 240px;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 8px 0 22px rgba(0, 0, 0, 0.18);
+      }
+
+      .workspace {
+        margin-left: 0;
+      }
+
+      body.mobile-menu-open .sidebar {
+        transform: translateX(0);
+      }
+
+      .account-label {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="折叠侧边栏" title="折叠侧边栏"><span></span></button>
+    <div class="account-links">
+      <span class="account-label">当前用户：admin</span>
+      <a href="#" data-top-action="修改密码">修改密码</a>
+      <a href="#" data-top-action="退出">退出</a>
+    </div>
+  </header>
+
+  <aside class="sidebar" aria-label="主导航">
+    <nav>
+      <ul class="nav-root">
+        <li>
+          <div class="nav-heading" role="button" tabindex="0" aria-expanded="true">
+            <span class="layers-icon" aria-hidden="true"><span></span></span>
+            <span>组织机构</span>
+            <span class="chevron" aria-hidden="true"></span>
+          </div>
+          <ul class="nav-sub">
+            <li><a href="#" data-nav="机构管理">机构管理</a></li>
+            <li><a class="active" href="#" data-nav="用户管理">用户管理</a></li>
+            <li><a href="#" data-nav="班级码管理">班级码管理</a></li>
+            <li><a href="#" data-nav="注册人数统计">注册人数统计</a></li>
+            <li><a href="#" data-nav="冻结管理与日志">冻结管理与日志</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul class="nav-groups">
+        <li class="nav-group" data-nav="注册产品审批"><span class="doc-icon" aria-hidden="true"></span><span>注册产品审批</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="账号安全管理"><span class="doc-icon" aria-hidden="true"></span><span>账号安全管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="产品管理"><span class="doc-icon" aria-hidden="true"></span><span>产品管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="订单管理"><span class="doc-icon" aria-hidden="true"></span><span>订单管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="促销管理"><span class="doc-icon" aria-hidden="true"></span><span>促销管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="账务管理"><span class="doc-icon" aria-hidden="true"></span><span>账务管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="销售管理"><span class="doc-icon" aria-hidden="true"></span><span>销售管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="渠道销售管理"><span class="doc-icon" aria-hidden="true"></span><span>渠道销售管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="App管理"><span class="doc-icon" aria-hidden="true"></span><span>App管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="消息管理"><span class="doc-icon" aria-hidden="true"></span><span>消息管理</span><span class="chevron" aria-hidden="true"></span></li>
+        <li class="nav-group" data-nav="标准教材（新）"><span class="doc-icon" aria-hidden="true"></span><span>标准教材（新）</span><span class="chevron" aria-hidden="true"></span></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="workspace">
+    <div class="page-shell">
+      <div class="breadcrumb" aria-label="面包屑">
+        <a href="#">Home</a>
+        <span>/</span>
+        <a href="#">组织机构管理</a>
+        <span>/</span>
+        <span class="current">用户管理</span>
+      </div>
+
+      <section class="filter-row" aria-label="用户筛选与批量操作">
+        <form class="filters" id="filterForm">
+          <select class="field" id="roleFilter" aria-label="用户类型">
+            <option value="">全部</option>
+            <option value="学生">学生</option>
+            <option value="老师">老师</option>
+          </select>
+          <input class="field" id="orgFilter" type="text" placeholder="所属机构" aria-label="所属机构">
+          <input class="field" id="studentFilter" type="text" placeholder="学号" aria-label="学号">
+          <select class="field" id="statusFilter" aria-label="状态">
+            <option value="">全部状态</option>
+            <option value="未激活">未激活</option>
+            <option value="活跃">活跃</option>
+            <option value="休眠">休眠</option>
+            <option value="停用">停用</option>
+          </select>
+          <input class="field" id="accountFilter" type="text" placeholder="账号" aria-label="账号">
+          <input class="field" id="mobileFilter" type="text" placeholder="手机" aria-label="手机">
+          <div class="search-combo">
+            <input id="nameFilter" type="text" value="示例用户" placeholder="姓名" aria-label="姓名">
+            <button class="query-button" type="submit">查询</button>
+          </div>
+        </form>
+
+        <div class="batch-actions" aria-label="批量操作">
+          <button class="action-button" type="button" data-batch="批量重置密码">批量重置密码</button>
+          <button class="action-button" type="button" data-batch="批量启用">批量启用</button>
+          <button class="action-button" type="button" data-batch="批量绑定手机号">批量绑定手机号</button>
+          <button class="action-button" type="button" data-batch="批量停用">批量停用</button>
+          <button class="action-button" type="button" id="restoreUsers">恢复用户数据</button>
+          <button class="action-button" type="button" id="createUser">新建用户</button>
+          <button class="action-button" type="button" id="mobileSearch">按手机查询</button>
+        </div>
+      </section>
+
+      <div class="table-scroll" role="region" aria-label="用户列表" tabindex="0">
+        <table>
+          <colgroup>
+            <col style="width:70px">
+            <col style="width:100px">
+            <col style="width:46px">
+            <col style="width:90px">
+            <col style="width:44px">
+            <col style="width:68px">
+            <col style="width:110px">
+            <col style="width:45px">
+            <col style="width:45px">
+            <col style="width:100px">
+            <col style="width:105px">
+            <col style="width:68px">
+            <col>
+          </colgroup>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>用户账号</th>
+              <th>姓名</th>
+              <th>手机</th>
+              <th>邮箱</th>
+              <th>用户类型</th>
+              <th>所属机构</th>
+              <th>学号</th>
+              <th>状态</th>
+              <th>停用原因</th>
+              <th>创建时间</th>
+              <th>备用密码</th>
+              <th class="compact-cell">操作</th>
+            </tr>
+          </thead>
+          <tbody id="userRows"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination" aria-label="分页">
+        <button class="page-button" type="button" data-page="previous" aria-label="上一页">«</button>
+        <button class="page-button active" type="button" aria-current="page">1</button>
+        <button class="page-button" type="button" data-page="next" aria-label="下一页">»</button>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header class="modal-header">
+        <span id="modalTitle">新建用户</span>
+        <button class="modal-close" id="modalClose" type="button" aria-label="关闭">×</button>
+      </header>
+      <form id="modalForm">
+        <div class="modal-body" id="modalBody"></div>
+        <footer class="modal-footer">
+          <button class="modal-button" id="modalCancel" type="button">取消</button>
+          <button class="modal-button primary modal-submit" id="modalSubmit" type="submit">确定</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    const users = [
+      { id: "9001001", account: "demo_user_01", name: "示例用户A", mobile: "138****0001", email: "", role: "学生", org: "示例教师空间", studentId: "", status: "活跃", stopReason: "", created: "2027-07-16 11:06", dataUnloaded: true },
+      { id: "9001002", account: "demo_user_02", name: "示例用户B", mobile: "", email: "", role: "老师", org: "测试机构A", studentId: "", status: "未激活", stopReason: "", created: "2025-04-16 16:03", dataUnloaded: true },
+      { id: "9001003", account: "demo_user_03", name: "示例用户C", mobile: "", email: "", role: "老师", org: "示例学院", studentId: "", status: "休眠", stopReason: "", created: "2025-04-16 15:35" },
+      { id: "9001004", account: "demo_user_04", name: "示例用户D", mobile: "", email: "", role: "老师", org: "示例学院", studentId: "", status: "停用", stopReason: "管理员手动停用", created: "2025-04-16 17:47", dataUnloaded: true }
+    ];
+
+    const rows = document.getElementById("userRows");
+    const toast = document.getElementById("toast");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    const modalForm = document.getElementById("modalForm");
+    const modal = document.querySelector(".modal");
+    const modalSubmit = document.getElementById("modalSubmit");
+    let toastTimer;
+    let modalSubmitMessage = "操作成功";
+    let modalMode = "default";
+    let restoreMatches = [];
+    let restoreUnmatched = [];
+    const selectedRestoreIds = new Set();
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        "\"": "&quot;"
+      }[char]));
+    }
+
+    function renderUsers(list) {
+      if (!list.length) {
+        rows.innerHTML = '<tr><td class="empty-state" colspan="13">未查询到符合条件的用户</td></tr>';
+        return;
+      }
+
+      rows.innerHTML = list.map((user) => {
+        const created = user.created.replace(" ", "<br>");
+        const lifecycleAction = user.status === "停用" ? "启用" : user.status === "未激活" ? "激活" : "停用";
+        const stopReason = user.stopReason || "--";
+        return `
+          <tr data-user-id="${escapeHtml(user.id)}">
+            <td>${escapeHtml(user.id)}</td>
+            <td>${escapeHtml(user.account)}</td>
+            <td class="compact-cell">${escapeHtml(user.name)}</td>
+            <td>${escapeHtml(user.mobile)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td>${escapeHtml(user.role)}</td>
+            <td>${escapeHtml(user.org)}</td>
+            <td>${escapeHtml(user.studentId)}</td>
+            <td class="compact-cell">${escapeHtml(user.status)}${user.dataRestored ? '<span class="restore-badge" title="用户数据已恢复" aria-label="用户数据已恢复">✓</span>' : ""}</td>
+            <td class="stop-reason${user.stopReason ? "" : " empty"}">${escapeHtml(stopReason)}</td>
+            <td>${created}</td>
+            <td><button class="password-link" type="button" data-password="${escapeHtml(user.account)}">生成</button></td>
+            <td>
+              <div class="row-actions">
+                ${["修改", "重置密码", lifecycleAction, "注销", "分配岗位", "操作记录", "解除锁定"].map((action) => `<button class="row-action" type="button" data-row-action="${action}" data-account="${escapeHtml(user.account)}">${action}</button>`).join("")}
+              </div>
+            </td>
+          </tr>`;
+      }).join("");
+    }
+
+    function showToast(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function openModal(title, bodyHtml, submitMessage) {
+      modalMode = "default";
+      modal.classList.remove("restore-wide");
+      modalSubmit.textContent = "确定";
+      modalSubmit.disabled = false;
+      modalTitle.textContent = title;
+      modalBody.innerHTML = bodyHtml;
+      modalSubmitMessage = submitMessage || `${title}成功`;
+      modalBackdrop.classList.add("open");
+      modalBackdrop.setAttribute("aria-hidden", "false");
+      const firstInput = modalBody.querySelector("input, select");
+      if (firstInput) window.setTimeout(() => firstInput.focus(), 0);
+    }
+
+    function closeModal() {
+      modalBackdrop.classList.remove("open");
+      modalBackdrop.setAttribute("aria-hidden", "true");
+      modal.classList.remove("restore-wide");
+      modalMode = "default";
+    }
+
+    function newUserFields() {
+      return `
+        <label>用户账号<input name="account" type="text" placeholder="请输入用户账号" required></label>
+        <label>姓名<input name="name" type="text" placeholder="请输入姓名" required></label>
+        <label>手机<input name="mobile" type="tel" placeholder="请输入手机号"></label>
+        <label>用户类型<select name="role"><option>学生</option><option>老师</option></select></label>`;
+    }
+
+    function parseRestoreTerms(value) {
+      return [...new Set(value.split(/[\s,，;；、]+/).map((item) => item.trim()).filter(Boolean))];
+    }
+
+    function lookupRestoreUsers(terms) {
+      const matches = new Map();
+      const unmatched = [];
+
+      terms.forEach((term) => {
+        const normalized = term.toLocaleLowerCase();
+        const found = users.filter((user) =>
+          user.account.toLocaleLowerCase() === normalized || user.name.toLocaleLowerCase() === normalized
+        );
+        if (!found.length) unmatched.push(term);
+        found.forEach((user) => matches.set(user.id, user));
+      });
+
+      return { matches: [...matches.values()], unmatched };
+    }
+
+    function renderRestoreMatches() {
+      const terms = parseRestoreTerms(document.getElementById("restoreUsernames").value);
+      const result = lookupRestoreUsers(terms);
+      restoreMatches = result.matches;
+      restoreUnmatched = result.unmatched;
+
+      const eligibleCount = restoreMatches.filter((user) => user.dataUnloaded).length;
+      document.getElementById("restoreSummary").innerHTML = `
+        <span>匹配账号 <strong>${restoreMatches.length}</strong> 个</span>
+        <span>可恢复 <strong>${eligibleCount}</strong> 个</span>`;
+
+      const body = document.getElementById("restoreRows");
+      if (!terms.length) {
+        body.innerHTML = '<tr><td colspan="6" class="restore-empty">输入用户名后查看匹配账号</td></tr>';
+      } else if (!restoreMatches.length) {
+        body.innerHTML = '<tr><td colspan="6" class="restore-empty">没有找到匹配账号</td></tr>';
+      } else {
+        body.innerHTML = restoreMatches.map((user) => {
+          const available = Boolean(user.dataUnloaded);
+          const checked = selectedRestoreIds.has(user.id) && available;
+          return `
+            <tr>
+              <td><input type="checkbox" data-restore-id="${escapeHtml(user.id)}" aria-label="选择 ${escapeHtml(user.account)}" ${available ? "" : "disabled"} ${checked ? "checked" : ""}></td>
+              <td>${escapeHtml(user.account)}</td>
+              <td>${escapeHtml(user.name)}</td>
+              <td>${escapeHtml(user.role)}</td>
+              <td>${escapeHtml(user.org)}</td>
+              <td>${escapeHtml(user.mobile || "--")}</td>
+            </tr>`;
+        }).join("");
+      }
+
+      const unmatched = document.getElementById("restoreUnmatched");
+      unmatched.textContent = restoreUnmatched.length
+        ? `未匹配：${restoreUnmatched.join("、")}`
+        : "";
+      updateRestoreSubmit();
+    }
+
+    function updateRestoreSubmit() {
+      const count = restoreMatches.filter((user) => selectedRestoreIds.has(user.id) && user.dataUnloaded).length;
+      modalSubmit.textContent = `恢复所选（${count}）`;
+      modalSubmit.disabled = count === 0;
+      const selectAll = document.getElementById("restoreSelectAll");
+      if (selectAll) {
+        const available = restoreMatches.filter((user) => user.dataUnloaded);
+        selectAll.disabled = available.length === 0;
+        selectAll.checked = available.length > 0 && available.every((user) => selectedRestoreIds.has(user.id));
+      }
+    }
+
+    function restoreModalFields() {
+      return `
+        <div class="restore-entry">
+          <label for="restoreUsernames">用户名 / 用户账号
+            <textarea id="restoreUsernames" placeholder="输入用户名或用户账号，多个值可用换行或逗号分隔"></textarea>
+          </label>
+          <div class="restore-tools">
+            <button class="restore-tool-button" id="restoreLookup" type="button">查询账号</button>
+            <button class="restore-tool-button" id="restoreUploadButton" type="button">导入 Excel / CSV</button>
+            <button class="restore-tool-button" id="restoreTemplate" type="button">下载模板</button>
+            <button class="restore-tool-button" id="restoreClear" type="button">清空名单</button>
+            <input id="restoreFile" type="file" accept=".xlsx,.csv,.tsv" hidden>
+          </div>
+        </div>
+        <p class="restore-hint">支持 .xlsx、.csv、.tsv；按用户名或用户账号精确匹配。</p>
+        <div class="restore-summary" id="restoreSummary"></div>
+        <div class="restore-table-wrap" role="region" aria-label="匹配账号列表" tabindex="0">
+          <table class="restore-table">
+            <thead><tr>
+              <th><input type="checkbox" id="restoreSelectAll" aria-label="全选可恢复账号"></th>
+              <th>用户账号</th><th>姓名</th><th>用户类型</th><th>所属机构</th><th>手机</th>
+            </tr></thead>
+            <tbody id="restoreRows"><tr><td colspan="6" class="restore-empty">输入用户名后查看匹配账号</td></tr></tbody>
+          </table>
+        </div>
+        <div class="restore-unmatched" id="restoreUnmatched" aria-live="polite"></div>`;
+    }
+
+    function openRestoreModal() {
+      modalMode = "restore";
+      modal.classList.add("restore-wide");
+      modalTitle.textContent = "恢复用户数据";
+      modalBody.innerHTML = restoreModalFields();
+      modalSubmitMessage = "用户数据恢复成功";
+      modalSubmit.textContent = "恢复所选（0）";
+      modalSubmit.disabled = true;
+      selectedRestoreIds.clear();
+      restoreMatches = [];
+      restoreUnmatched = [];
+      modalBackdrop.classList.add("open");
+      modalBackdrop.setAttribute("aria-hidden", "false");
+      modalBody.querySelector("textarea").focus();
+
+      const usernames = document.getElementById("restoreUsernames");
+      usernames.addEventListener("input", () => {
+        selectedRestoreIds.clear();
+        renderRestoreMatches();
+      });
+      document.getElementById("restoreLookup").addEventListener("click", renderRestoreMatches);
+      document.getElementById("restoreClear").addEventListener("click", () => {
+        usernames.value = "";
+        selectedRestoreIds.clear();
+        renderRestoreMatches();
+        usernames.focus();
+      });
+      document.getElementById("restoreUploadButton").addEventListener("click", () => document.getElementById("restoreFile").click());
+      document.getElementById("restoreFile").addEventListener("change", handleRestoreFile);
+      document.getElementById("restoreTemplate").addEventListener("click", downloadRestoreTemplate);
+      document.getElementById("restoreSelectAll").addEventListener("change", (event) => {
+        restoreMatches.filter((user) => user.dataUnloaded).forEach((user) => {
+          if (event.target.checked) selectedRestoreIds.add(user.id);
+          else selectedRestoreIds.delete(user.id);
+        });
+        renderRestoreMatches();
+      });
+      modalBody.onchange = handleRestoreSelection;
+    }
+
+    function handleRestoreSelection(event) {
+      const checkbox = event.target.closest("[data-restore-id]");
+      if (!checkbox) return;
+      if (checkbox.checked) selectedRestoreIds.add(checkbox.dataset.restoreId);
+      else selectedRestoreIds.delete(checkbox.dataset.restoreId);
+      updateRestoreSubmit();
+    }
+
+    function downloadRestoreTemplate() {
+      const blob = new Blob(["\uFEFF用户名\r\ndemo_user_01\r\n"], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "用户数据恢复名单模板.csv";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function parseDelimitedRows(text, delimiter) {
+      const rows = [];
+      let row = [];
+      let value = "";
+      let quoted = false;
+      const source = text.replace(/^\uFEFF/, "");
+
+      for (let index = 0; index < source.length; index += 1) {
+        const char = source[index];
+        if (char === '"') {
+          if (quoted && source[index + 1] === '"') {
+            value += '"';
+            index += 1;
+          } else {
+            quoted = !quoted;
+          }
+        } else if (char === delimiter && !quoted) {
+          row.push(value.trim());
+          value = "";
+        } else if ((char === "\n" || char === "\r") && !quoted) {
+          if (char === "\r" && source[index + 1] === "\n") index += 1;
+          row.push(value.trim());
+          if (row.some(Boolean)) rows.push(row);
+          row = [];
+          value = "";
+        } else {
+          value += char;
+        }
+      }
+
+      row.push(value.trim());
+      if (row.some(Boolean)) rows.push(row);
+      return rows;
+    }
+
+    function usernameColumn(rows) {
+      const headers = ["用户名", "用户账号", "账号", "姓名", "username", "account"];
+      const firstRow = Array.from(rows[0] || [], (value) => (value || "").trim().toLocaleLowerCase());
+      const column = firstRow.findIndex((value) => headers.includes(value));
+      return { column: column < 0 ? 0 : column, start: column < 0 ? 0 : 1 };
+    }
+
+    function usernamesFromRows(rows) {
+      if (!rows.length) return [];
+      const { column, start } = usernameColumn(rows);
+      return [...new Set(rows.slice(start).map((row) => (row[column] || "").trim()).filter(Boolean))];
+    }
+
+    function normalizeZipPath(path) {
+      const parts = [];
+      path.split("/").forEach((part) => {
+        if (!part || part === ".") return;
+        if (part === "..") parts.pop();
+        else parts.push(part);
+      });
+      return parts.join("/");
+    }
+
+    async function readZipEntry(bytes, view, entries, path) {
+      const entry = entries.get(path);
+      if (!entry) return null;
+      const offset = entry.localOffset;
+      const nameLength = view.getUint16(offset + 26, true);
+      const extraLength = view.getUint16(offset + 28, true);
+      const start = offset + 30 + nameLength + extraLength;
+      const compressed = bytes.subarray(start, start + entry.compressedSize);
+      if (entry.method === 0) return compressed;
+      if (entry.method !== 8 || typeof DecompressionStream === "undefined") {
+        throw new Error("当前浏览器无法解压此 Excel 文件，请另存为 CSV 后导入");
+      }
+      const stream = new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+
+    async function parseXlsxUsernames(file) {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+      let endRecord = -1;
+      for (let offset = bytes.length - 22; offset >= Math.max(0, bytes.length - 65557); offset -= 1) {
+        if (view.getUint32(offset, true) === 0x06054b50) {
+          endRecord = offset;
+          break;
+        }
+      }
+      if (endRecord < 0) throw new Error("Excel 文件格式无法识别");
+
+      const count = view.getUint16(endRecord + 10, true);
+      const centralOffset = view.getUint32(endRecord + 16, true);
+      const decoder = new TextDecoder("utf-8");
+      const entries = new Map();
+      let cursor = centralOffset;
+      for (let index = 0; index < count; index += 1) {
+        if (view.getUint32(cursor, true) !== 0x02014b50) throw new Error("Excel 文件目录损坏");
+        const method = view.getUint16(cursor + 10, true);
+        const compressedSize = view.getUint32(cursor + 20, true);
+        const nameLength = view.getUint16(cursor + 28, true);
+        const extraLength = view.getUint16(cursor + 30, true);
+        const commentLength = view.getUint16(cursor + 32, true);
+        const localOffset = view.getUint32(cursor + 42, true);
+        const name = decoder.decode(bytes.subarray(cursor + 46, cursor + 46 + nameLength));
+        entries.set(name, { method, compressedSize, localOffset });
+        cursor += 46 + nameLength + extraLength + commentLength;
+      }
+
+      const parseXmlEntry = async (path) => {
+        const content = await readZipEntry(bytes, view, entries, path);
+        return content ? new DOMParser().parseFromString(decoder.decode(content), "application/xml") : null;
+      };
+      const workbook = await parseXmlEntry("xl/workbook.xml");
+      const relationships = await parseXmlEntry("xl/_rels/workbook.xml.rels");
+      if (!workbook || !relationships) throw new Error("Excel 工作簿内容无法读取");
+
+      const firstSheet = workbook.getElementsByTagName("sheet")[0];
+      if (!firstSheet) throw new Error("Excel 文件中没有工作表");
+      const relationshipId = firstSheet.getAttribute("r:id") || firstSheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+      const relationship = [...relationships.getElementsByTagName("Relationship")].find((item) => item.getAttribute("Id") === relationshipId);
+      if (!relationship) throw new Error("Excel 工作表链接无法读取");
+
+      const target = relationship.getAttribute("Target");
+      const sheetPath = normalizeZipPath(target.startsWith("/") ? target.slice(1) : target.startsWith("xl/") ? target : `xl/${target}`);
+      const sheet = await parseXmlEntry(sheetPath);
+      if (!sheet) throw new Error("Excel 首个工作表无法读取");
+      const sharedXml = await parseXmlEntry("xl/sharedStrings.xml");
+      const shared = sharedXml ? [...sharedXml.getElementsByTagName("si")].map((item) => [...item.getElementsByTagName("t")].map((textNode) => textNode.textContent || "").join("")) : [];
+
+      const rows = [...sheet.getElementsByTagName("row")].map((rowNode) => {
+        const row = [];
+        [...rowNode.getElementsByTagName("c")].forEach((cell) => {
+          const reference = (cell.getAttribute("r") || "A1").match(/^[A-Z]+/i)?.[0] || "A";
+          const column = [...reference.toUpperCase()].reduce((value, char) => value * 26 + char.charCodeAt(0) - 64, 0) - 1;
+          const type = cell.getAttribute("t");
+          const valueNode = cell.getElementsByTagName("v")[0];
+          let value = valueNode?.textContent || "";
+          if (type === "s") value = shared[Number(value)] || "";
+          if (type === "inlineStr") value = [...cell.getElementsByTagName("t")].map((textNode) => textNode.textContent || "").join("");
+          row[column] = value;
+        });
+        return row;
+      });
+      return usernamesFromRows(rows);
+    }
+
+    async function handleRestoreFile(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        const extension = file.name.split(".").pop().toLocaleLowerCase();
+        let imported = [];
+        if (extension === "xlsx") {
+          imported = await parseXlsxUsernames(file);
+        } else if (extension === "csv" || extension === "tsv") {
+          const text = await file.text();
+          const delimiter = extension === "tsv" ? "\t" : ",";
+          imported = usernamesFromRows(parseDelimitedRows(text, delimiter));
+        } else {
+          throw new Error("请导入 .xlsx、.csv 或 .tsv 文件");
+        }
+        if (!imported.length) throw new Error("文件中没有找到用户名");
+
+        const textarea = document.getElementById("restoreUsernames");
+        const merged = [...new Set([...parseRestoreTerms(textarea.value), ...imported])];
+        textarea.value = merged.join("\n");
+        selectedRestoreIds.clear();
+        renderRestoreMatches();
+        showToast(`已导入 ${imported.length} 个用户名，匹配 ${restoreMatches.length} 个账号`);
+      } catch (error) {
+        showToast(error.message || "文件读取失败");
+      } finally {
+        event.target.value = "";
+      }
+    }
+
+    function submitRestore() {
+      const selected = restoreMatches.filter((user) => selectedRestoreIds.has(user.id) && user.dataUnloaded);
+      if (!selected.length) return;
+      selected.forEach((user) => {
+        user.dataUnloaded = false;
+        user.dataRestored = true;
+      });
+      closeModal();
+      document.getElementById("filterForm").requestSubmit();
+      showToast(`已恢复 ${selected.length} 个用户的数据，账号状态保持不变`);
+    }
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+      if (window.innerWidth <= 900) {
+        document.body.classList.toggle("mobile-menu-open");
+      } else {
+        document.body.classList.toggle("sidebar-collapsed");
+      }
+    });
+
+    const navHeading = document.querySelector(".nav-heading");
+    function toggleNavHeading() {
+      navHeading.setAttribute("aria-expanded", navHeading.getAttribute("aria-expanded") !== "true");
+    }
+    navHeading.addEventListener("click", toggleNavHeading);
+    navHeading.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleNavHeading();
+      }
+    });
+
+    document.querySelectorAll("[data-nav]").forEach((item) => {
+      item.addEventListener("click", (event) => {
+        event.preventDefault();
+        showToast(`${item.dataset.nav}：原型暂未接入该页面`);
+      });
+    });
+
+    document.getElementById("filterForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const role = document.getElementById("roleFilter").value.trim();
+      const status = document.getElementById("statusFilter").value.trim();
+      const org = document.getElementById("orgFilter").value.trim().toLowerCase();
+      const student = document.getElementById("studentFilter").value.trim().toLowerCase();
+      const account = document.getElementById("accountFilter").value.trim().toLowerCase();
+      const mobile = document.getElementById("mobileFilter").value.trim().toLowerCase();
+      const name = document.getElementById("nameFilter").value.trim().toLowerCase();
+
+      const filtered = users.filter((user) =>
+        (!role || user.role === role) &&
+        (!status || user.status === status) &&
+        (!org || user.org.toLowerCase().includes(org)) &&
+        (!student || user.studentId.toLowerCase().includes(student)) &&
+        (!account || user.account.toLowerCase().includes(account)) &&
+        (!mobile || user.mobile.toLowerCase().includes(mobile)) &&
+        (!name || user.name.toLowerCase().includes(name))
+      );
+
+      renderUsers(filtered);
+      showToast(`查询完成，共 ${filtered.length} 条结果`);
+    });
+
+    document.querySelectorAll("[data-batch]").forEach((button) => {
+      button.addEventListener("click", () => showToast(`${button.dataset.batch}流程已打开`));
+    });
+
+    document.getElementById("createUser").addEventListener("click", () => {
+      openModal("新建用户", newUserFields(), "用户创建成功");
+    });
+
+    document.getElementById("restoreUsers").addEventListener("click", openRestoreModal);
+
+    document.getElementById("mobileSearch").addEventListener("click", () => {
+      document.getElementById("mobileFilter").focus();
+      showToast("请输入手机号后点击查询");
+    });
+
+    rows.addEventListener("click", (event) => {
+      const passwordButton = event.target.closest("[data-password]");
+      if (passwordButton) {
+        const code = `TMP-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+        openModal("备用密码", `<label>用户账号<input value="${escapeHtml(passwordButton.dataset.password)}" readonly></label><label>备用密码<input value="${code}" readonly></label>`, "备用密码已生成");
+        return;
+      }
+
+      const actionButton = event.target.closest("[data-row-action]");
+      if (actionButton) {
+        showToast(`${actionButton.dataset.account}：${actionButton.dataset.rowAction}`);
+      }
+    });
+
+    document.querySelectorAll("[data-page]").forEach((button) => {
+      button.addEventListener("click", () => showToast(button.dataset.page === "previous" ? "已经是第一页" : "已经是最后一页"));
+    });
+
+    document.querySelectorAll("[data-top-action]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (link.dataset.topAction === "修改密码") {
+          openModal("修改密码", '<label>当前密码<input type="password" required></label><label>新密码<input type="password" required></label><label>确认新密码<input type="password" required></label>', "密码修改成功");
+        } else {
+          showToast("退出操作已触发");
+        }
+      });
+    });
+
+    document.getElementById("modalClose").addEventListener("click", closeModal);
+    document.getElementById("modalCancel").addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", (event) => {
+      if (event.target === modalBackdrop) closeModal();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeModal();
+    });
+    modalForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      if (modalMode === "restore") {
+        submitRestore();
+        return;
+      }
+      closeModal();
+      showToast(modalSubmitMessage);
+    });
+
+    renderUsers(users);
+  </script>
+</body>
+</html>
